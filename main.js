@@ -10,10 +10,6 @@ var session = require('express-session');
 var PgStore = require('connect-pg-simple')(session);
 var yargs = require('yargs').usage('Usage: [-p or --port=<port to run server on>]');
 
-app.use('/node_modules',  express.static(__dirname + '/node_modules'));
-app.use('/style',  express.static(__dirname + '/style'));
-app.use('/script',  express.static(__dirname + '/script'));
-
 var argv = yargs.argv;
 var port = argv.port || argv.p || 8080;
 var errorFlag = argv.raven || argv.sentry || false;
@@ -22,7 +18,6 @@ if (!isnum) {
   console.log('Invalid port specified.'); // eslint-disable-line no-console
   return;
 }
-var app = express();
 var router = express.Router();
 
 var pgHost = 'localhost';
@@ -31,6 +26,9 @@ var pgName = 'mircs';
 var pgUser = 'mircs';
 var pgPassword = 'serrelab';
 
+app.use('/node_modules',  express.static(__dirname + '/node_modules'));
+app.use('/style',  express.static(__dirname + '/style'));
+app.use('/script',  express.static(__dirname + '/script'));
 // use this for storing the hashed password in the session
 app.use(session({
   store: new PgStore({pg : pg, conString : `postgres://${pgUser}:${pgPassword}@${pgHost}:${pgPort}/${pgName}`}),
