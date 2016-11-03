@@ -8,11 +8,9 @@
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <meta name="description" content="">
     <meta name="author" content="">
-    <!-- js links -->
-    <script src="../script/jquery-1.11.2.js" type="text/javascript"></script>
-    <script src="../script/home.js" type="text/javascript"></script>
- 
-   <!-- Style stuff and title -->
+    <link rel="icon" href="../../favicon.ico">
+
+    <!-- Style stuff and title -->
     <title>MIRC click app</title>
     <link rel="icon" href="../../favicon.ico">
 
@@ -21,6 +19,30 @@
 
     <!-- Custom styles for this template -->
     <link href="../style/cover.css" rel="stylesheet">
+    <link href="../style/signin.css" rel="stylesheet">
+    <script type="text/javascript" src="../script/jquery-1.11.2.js"></script>
+
+    <script type="text/javascript">
+      $(function(){
+        $('#btnSignIn').click(function(evt){
+          evt.preventDefault();
+
+          $.ajax({
+            url: '/signin',
+            type:'POST',
+            success:function(response){
+              console.log(response);
+            },
+            error:function(error){
+              console.log(error);
+            }
+          })
+
+        })
+      })
+
+     
+    </script>
 
   </head>
 
@@ -34,25 +56,27 @@
 
           <div class="masthead clearfix">
             <div class="inner">
-              <h3 class="masthead-brand">Focus.AI</h3>
+              <h3 class="masthead-brand">404</h3>
               <nav>
                 <ul class="nav masthead-nav">
-                  <li class="active"><a href="#">Home</a></li>
-                  <li><a href="/about">About</a></li>
+                  <li><a href="/">Home</a></li>
+                  <li><a href="/about">about</a></li>
                 </ul>
               </nav>
             </div>
           </div>
 
           <div class="inner cover">
-            <canvas id="myCanvas" width="256" height="256" style="z:10000"></canvas>
-            <p class="lead">Click on the part of the image that best</p>
-            <p class="lead" id="image_label">describes a XXX.</p>
+            <h1 class="cover-heading">404</h1>
+            <p class="lead">Sven 2.0 needs a firmware update!!!</p>
           </div>
+
+
+         
 
           <div class="mastfoot">
             <div class="inner">
-              <p>[by <a href="http://serre-lab.clps.brown.edu/">The Serre Lab</a>.]</p>
+              <p>Pithy phrase part 2, by <a href="http://serre-lab.clps.brown.edu/">The Serre Lab</a>.</p>
             </div>
           </div>
 
@@ -61,7 +85,7 @@
       </div>
 
     </div>
-    <div id="image_id" style="display: none;">
+
     
   </body>
 </html>
