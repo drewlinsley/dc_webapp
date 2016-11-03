@@ -28,7 +28,7 @@ function postImage(image_link,ctx){
 
 function change_title(text){
     var rand_color = getRandomColor();
-    $('#image_label').html('describes a <em style="color:' + rand_color + ';">' + text + '</em>')
+    $('#image_label').html('<em style="color:' + rand_color + ';">' + text + '</em>')
 }
 
 function getRandomColor() {
