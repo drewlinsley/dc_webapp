@@ -34,34 +34,36 @@
 
           <div class="masthead clearfix">
             <div class="inner">
-              <h3 class="masthead-brand">Focus.AI</h3>
+              <h3 class="masthead-brand">Click.AI</h3>
               <nav>
                 <ul class="nav masthead-nav">
                   <li class="active"><a href="#">Home</a></li>
-                  <li><a href="/about">About</a></li>
+                  <li><a href="/about">What's the point?</a></li>
                 </ul>
               </nav>
             </div>
           </div>
 
-          <div class="inner cover">
+          <div class="inner cover" style="margin-top:110px;margin-bottom:200px;">
+            <h2 class="lead" id="spammer"></h2
+            <p class="lead"><em>Click on the part of the image that best describes</em>:
+            <h1 class="lead" style="margin-top:-25px;margin-bottom:-25px;" id="image_label"></h1></p>
             <canvas id="myCanvas" width="256" height="256" style="z:10000"></canvas>
-            <p class="lead">Click on the part of the image that best describes:</p>
-            <h1 class="lead" id="image_label"></p>
-          </div>
-
-          <div class="mastfoot">
-            <div class="inner">
-              <p>[by <a href="http://serre-lab.clps.brown.edu/">The Serre Lab</a>.]</p>
-            </div>
+            <p class="lead"><small id='click_count'>Your consecutive clicks: 0</small>&emsp;|&emsp;<small id='click_high_score'>Today's high score: 0</small></p>
+            <canvas id="myChart" width="250" height="200"></canvas>
+            <br><br>
+            <p>[by <a href="http://serre-lab.clps.brown.edu/">The Serre Lab</a>.]</p>
           </div>
 
         </div>
+
 
       </div>
 
     </div>
     <div id="image_id" style="display: none;">
-    
+    <!-- Footer script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.min.js"></script>
+    <script src="../script/mirc_charts.js" type="text/javascript"></script> 
   </body>
 </html>

@@ -51,13 +51,16 @@ exports.setupRouter = function (db, router, errorFlag) {
         var random_image_path = bound_data[0];
         var random_image_label = bound_data[1];
         var id = bound_data[2];
+        var high_score = bound_data[3];
+        var clicks_to_go = bound_data[4];
+        var click_goal = bound_data[5];
           fs.readFile(random_image_path, {encoding: 'base64'}, function(err,content){
             if (err){
               res.writeHead(400, {'Content-type':'text/html'})
               res.end('err')
             } else {
               res.writeHead(200,{'Content-type':'image/jpg'});
-              res.end(random_image_path + '!' + random_image_label + 'imagestart' + content); 
+              res.end(random_image_path + '!' + random_image_label + '!' + high_score + '!' + clicks_to_go  + '!' + click_goal + 'imagestart' + content); 
             }
           });
           });
@@ -66,9 +69,8 @@ exports.setupRouter = function (db, router, errorFlag) {
     router.post('/clicks', function(req,res){
       var clicks = req.body.clicks;
       var label = req.body.image_id;
-      console.log(clicks)
-      console.log(label)
-      db.updateClicks(label,clicks,
+      var score = req.body.score;
+      db.updateClicks(label,clicks,score,
         respond.bind(null, res),
         respond.bind(null, res, null));
     })

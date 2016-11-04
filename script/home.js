@@ -1,6 +1,10 @@
-
-var global_image_link;
+var global_image_link; //globals :(. Should rethink this at some point.
 var global_label;
+var global_color;
+var global_high_score;
+var click_count = 0;
+var previous_loc = [0,0];
+
 function getImage(ctx){
 	var jqxhr = $.get('/random_image', function () {
 	        })
@@ -8,9 +12,17 @@ function getImage(ctx){
       var split_data = data.split('imagestart');
       var label = split_data[0];
       var split_label = label.split('!')
-      global_label = split_label[0]
-      var text_label = split_label[1]
-      change_title(text_label);
+      //
+      global_label = split_label[0];
+      var im_text = split_label[1];
+      global_high_score = split_label[2];
+      //
+      change_title(im_text);
+      set_high_score(global_high_score);
+      var accum_clicks = parseInt(split_label[3]);
+      var clicks_to_go = parseInt(split_label[4]) - accum_clicks;
+      update_chart(myChart,accum_clicks,clicks_to_go);
+      //
       global_image_link = split_data[1];
       postImage(global_image_link,ctx);
       return;
@@ -27,8 +39,8 @@ function postImage(image_link,ctx){
 }
 
 function change_title(text){
-    var rand_color = getRandomColor();
-    $('#image_label').html('<em style="color:' + rand_color + ';">' + text + '</em>')
+    global_color = getRandomColor();
+    $('#image_label').html('<p style="color:' + global_color + ';">' + text + '</p>')
 }
 
 function getRandomColor() {
@@ -38,6 +50,21 @@ function getRandomColor() {
         color += letters[Math.floor(Math.random() * 16)];
     }
     return color;
+}
+
+function hexToRgb(hex) {
+    // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
+    var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+    hex = hex.replace(shorthandRegex, function(m, r, g, b) {
+        return r + r + g + g + b + b;
+    });
+
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+    } : null;
 }
 
 function  getMousePos(canvas, evt) {
@@ -60,8 +87,39 @@ function draw(e) {
     if (posx > 256){posx = 256;}
     if (posy < 0){posy = 0;}
     if (posy > 256){posy = 256;}
-    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    var rgb = hexToRgb(global_color)
+    ctx.fillStyle = 'rgba(' + rgb['r'] + ',' +rgb['g'] + ',' + rgb['b'] + ',' + '0.4)';
     ctx.fillRect(posx-9, posy-9, 18, 18);
+}
+
+function sum(array) {
+    var num = 0;
+    for (var i = 0, l = array.length; i < l; i++) num += array[i];
+    return num;
+}
+
+function mean(array) {
+    return sum(array) / array.length;
+}
+
+function std(array) {
+    var mu = mean(array);
+    var sums = 0;
+    for (var i = 0, l = array.length; i < l; i ++) sums+= Math.pow(array[i] - mu,2);
+    return Math.sqrt(sums/l);
+}
+
+function compare_clicks(arr){
+    if (std(arr) < 18){
+        trigger_alert();
+    }
+}
+
+function trigger_alert(){
+    $('#spammer').html('<p style="color:Red">Are you really trying your hardest?</p>')
+    setTimeout(function(){
+        $('#spammer').html('')
+    },3000)
 }
 
 function clicked(e) {
@@ -72,10 +130,15 @@ function clicked(e) {
     else{
         window.removeEventListener('mousemove', draw, false);
         postImage(global_image_link,ctx);
-        ctx.fillStyle = 'rgba(0,0,0,1)';
+        var rgb = hexToRgb(global_color)
+        ctx.fillStyle = 'rgba(' + rgb['r'] + ',' +rgb['g'] + ',' + rgb['b'] + ',' + '1)';
         ctx.fillRect(posx-9, posy-9, 18, 18);
         window.removeEventListener('mousedown', clicked, false);
+        count_clicks();
         upload_click_location([posx,posy]);
+        previous_loc.push(posx,posy)
+        compare_clicks(previous_loc);
+        previous_loc = [posx,posy];
         setTimeout(function(){start_turn();},200);
     }
 }
@@ -84,6 +147,7 @@ function upload_click_location(clicks){
     var data = {};
     data.clicks = clicks;
     data.image_id = global_label;
+    data.score = click_count;
     $.ajax({
         type: 'POST',
         url: '/clicks',
@@ -99,6 +163,19 @@ function start_turn(){
     getImage(ctx);
     window.addEventListener('mousemove', draw, false);
     window.addEventListener('mousedown', clicked, false);
+}
+
+function count_clicks(){
+    click_count+=1;
+    $('#click_count').html('Your consecutive clicks: ' + click_count);
+    if (click_count > global_high_score){
+        global_high_score = click_count;
+        set_high_score();
+    }
+}
+
+function set_high_score(){
+    $('#click_high_score').html('Today\'s high score: ' + global_high_score);
 }
 
 /////////

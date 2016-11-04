@@ -26,6 +26,7 @@ cur = conn.cursor()
 #Grab an equal number of images from each category
 num_per_category = 50 
 num_categories = 100
+generations_per_epoch = 4
 
 images = glob(im_dir + '/*.JPEG')
 im_names = np.asarray([re.split('_',re.split('/',x)[-1])[0] for x in images])
@@ -46,7 +47,8 @@ for cn in range(num_categories):
 		shutil.copyfile(images[category_ims[mi]],target_path)
 		image_count+=1 #to ensure we are getting an accuracte count of images
 		cur.execute("INSERT INTO images (image_path, syn_name, generations) VALUES (%s,%s,%s)",(target_path,image_id,0))
-cur.execute("INSERT INTO image_count (num_images,current_generation) VALUES (%s,%s)",(image_count,0))
+cur.execute("INSERT INTO image_count (num_images,current_generation,generations_per_epoch) VALUES (%s,%s,%s)",(image_count,0,generations_per_epoch))
+cur.execute("INSERT INTO clicks (high_score) VALUES (%s)",(0,))
 
 #Finalize and close connections
 conn.commit()

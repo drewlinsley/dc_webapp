@@ -1008,6 +1008,6 @@ def get_synset():
     all_labels = []
     for i, l in enumerate(synset):
         label, desc = l.split(' ', 1)
-        all_labels.append(re.split(',',re.split(' ',l)[1])[0])
+        all_labels.append(re.split('\d+',re.split(',',l)[0])[-1])
         synset_map[label] = {"index": i, "desc": desc, }
     return synset_map, all_labels

@@ -25,25 +25,37 @@ var DbManager = function (username, password, host, port, dbName) {
 
 DbManager.prototype.locateRandomImage = function (callback, errorCallback) {
   var self = this;
-  self.client.query('SELECT current_generation FROM image_count WHERE _id=1', function(err,res){
+  self.client.query('SELECT * FROM image_count WHERE _id=1', function(err,res){
     var global_current_generation = res.rows[0].current_generation;
+    var generations_to_epoch = parseInt(res.rows[0].generations_per_epoch);
+    var global_num_images = parseInt(res.rows[0].num_images);
+    var click_goal = generations_to_epoch * global_num_images;
     self.client.query('SELECT * FROM images WHERE generations=$1', [global_current_generation], function (err, res) {
       if (err) {
         errorCallback(err, 'Error finding image');
         return;
       }
-      var rand_selection = Math.floor((Math.random() * res.rows.length));;
-      console.log(rand_selection);
+      var num_ims_in_gen = res.rows.length;
+      var clicks_to_go = (global_current_generation * global_num_images) + (global_num_images - num_ims_in_gen);
+      var rand_selection = Math.floor((Math.random() * res.rows.length));
       var selected_image = res.rows[rand_selection].image_path;
       var selected_label = res.rows[rand_selection].syn_name;
       var selected_id = res.rows[rand_selection]._id;
-      var bound_data = [selected_image,selected_label,selected_id]
-      callback(bound_data);
+      self.client.query('SELECT high_score FROM clicks',function(err,res){
+        if (err) {
+          errorCallback(err, 'Error looking up score');
+          return;
+        }
+        var high_score = res.rows[0].high_score;
+        var bound_data = [selected_image,selected_label,selected_id,high_score,clicks_to_go,click_goal];
+        //if clicks_to_go == 0, trigger training routine
+        callback(bound_data);
+      });
     });
   });
 };
 
-DbManager.prototype.updateClicks = function (label, click_path, callback, errorCallback) {
+DbManager.prototype.updateClicks = function (label, click_path, score, callback, errorCallback) {
   var self = this;
   self.client.query('SELECT * FROM images WHERE image_path=$1', [label], function (err, res) {
     if (err) {
@@ -57,7 +69,24 @@ DbManager.prototype.updateClicks = function (label, click_path, callback, errorC
         errorCallback(err, 'Error finding image');
         return;
       }
-      callback();
+      self.client.query('SELECT high_score FROM clicks',function(err,res){
+        var high_score = res.rows[0].high_score;
+        if (err) {
+          errorCallback(err, 'Error looking up scores');
+          return;
+        }
+          score = parseInt(score);
+          high_score = parseInt(high_score);
+        if (score > high_score){
+          self.client.query('UPDATE clicks SET high_score=$1 WHERE _id=1',[score],function(err,res){
+            if (err) {
+              errorCallback(err, 'Error setting high score');
+              return;
+            }
+          })
+        }
+      })
+    callback();
     });
   });
 };
