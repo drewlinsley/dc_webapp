@@ -1,4 +1,9 @@
 Setting up the webapp
+0. Install the following libraries:
+	a. https://github.com/drewlinsley/clickmap_prediction
+	b. https://github.com/drewlinsley/tf_experiments
+	c. https://github.com/drewlinsley/dc_webapp
+	d. They are set up under the assumption that (c) lives on a VM, while (a,b) live on a workstation with a GPU that is accessible via SSH.
 
 1. Prepare postgresql databse
 	a. sudo apt-get install postgresql libpq-dev postgresql-client postgresql-client-common
@@ -17,11 +22,22 @@ Setting up the webapp
 	k. create table clicks (_id bigserial primary key, high_score bigint, date timestamp with time zone); #create a table that will track some fun stuff for the website, like consecutive clicks
 
 2. Initialize images into the database
-	a. python prepare_ims.py 
+	a. python prepare_ims.py
+
+-----
+Once each image has received a click * num_generations_per_epoch times, db.js will run train_model.py. This will update the table cnn in the database with the current CNN accuracies on the validation images.
 
 
 #TODO
 1. create a script that runs baselinevgg16,baselinevgg19,attentionvgg16, and attentionvgg19 and adds their accuracy to the database. The attention versions will generate click maps by extracting click coordinates from the database.
 2. Trigger this script with prepare_ims.py
-3. Also trigger this script in db.js line 51, when we have surpassed the epoch threshold.
-4. Create about.js, which reads from  the cnn database and produces two graphs. 1 showing the progress of the project (how many generations of click images) and 2 showing how it helps cnn accuracy
+3. Also trigger this script with
+var cron = require('cron');
+var cronJob = cron.job("0 */10 * * * *", function(){
+    // perform operation e.g. GET request http.get() etc.
+    console.info('cron job completed');
+}); 
+cronJob.start();
+
+4. Trigger model trianing in db.js line 51, when we have surpassed the epoch threshold.
+5. Create about.js, which reads from  the cnn database and produces two graphs. 1 showing the progress of the project (how many generations of click images) and 2 showing how it helps cnn accuracy

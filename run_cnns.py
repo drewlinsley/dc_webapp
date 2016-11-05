@@ -1,10 +1,11 @@
 import numpy as np
 import os, sys
-os.environ['CUDA_VISIBLE_DEVICES'] = '0' # Run only on GPU 0 to speed up init time
+os.environ['CUDA_VISIBLE_DEVICES'] = '2' # Run only on GPU 0 to speed up init time
 import psycopg2
 import credentials
 import json
 import re
+from glob import glob
 from scipy import misc
 
 def list_permutations(la,lb):
@@ -44,7 +45,7 @@ def prepare_training_maps(training_map_path,click_box_radius):
 click_box_radius = 9 
 training_map_path = 'database_click_images/'
 click_map_predictions = 'model_click_predictions/'
-validation_images = 'validation_images/'
+validation_image_path = 'validation_images/'
 training_image_path = 'images/'
 if not os.path.exists(training_map_path):
     os.makedirs(training_map_path)
@@ -57,6 +58,7 @@ model_init_training_weights = model_path + 'models'
 model_checkpoints = model_path + 'model_checkpoints'
 train_iters = 10000
 val_iters = 100
+nb_epoch = 2
 
 #For testing
 cnn_path = '/home/drew/Documents/tensorflow-vgg/experiments/MIRC_tests/'
@@ -68,10 +70,15 @@ sys.path.append(model_path)
 import fine_tuning
 map_names = prepare_training_maps(training_map_path,click_box_radius)
 abs_path = os.path.dirname(os.path.abspath(__file__)) + '/'
+
+#Fine tuning first
 training_images = [abs_path + training_image_path + x for x in map_names]
 training_maps = [abs_path + training_map_path + x for x in map_names] 
+checkpoint_path = fine_tuning.finetune_model(nb_epoch,train_iters,val_iters,training_images,training_maps,model_init_training_weights,model_checkpoints)
 
-fine_tuning.finetune_model(train_iters,val_iters,training_images,training_maps,model_init_training_weights,model_checkpoints)
+#Produce predictions
+test_images = glob(validation_image_path + '.JPEG')
+fine_tuning.produce_maps(checkpoint_path,test_images,abs_path + click_map_predictions)
 
 #Create list of cnns for validating the effect of predicted click maps
 sys.path.append(cnn_path)
