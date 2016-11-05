@@ -63,7 +63,14 @@ DbManager.prototype.updateClicks = function (label, click_path, score, callback,
       return;
     }
     var generations = parseInt(res.rows[0].generations) + 1;
-    var coors = {'x':click_path[0],'y':click_path[1]};
+    var prev_coors = res.rows[0].click_path;
+    if (typeof prev_coors == 'object'){
+      prev_coors['x'] = [prev_coors['x'],click_path[0]];
+      prev_coors['y'] = [prev_coors['y'],click_path[1]];
+      coors = prev_coors; 
+    }else{
+      var coors = {'x':click_path[0],'y':click_path[1]};
+    }
     self.client.query('UPDATE images SET click_path=$1, generations=$2 WHERE image_path=$3', [coors,generations,label], function (err, res) {
       if (err) {
         errorCallback(err, 'Error finding image');
