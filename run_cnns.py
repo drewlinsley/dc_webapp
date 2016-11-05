@@ -1,10 +1,12 @@
 import numpy as np
 import os, sys
-os.environ['CUDA_VISIBLE_DEVICES'] = '2' # Run only on GPU 0 to speed up init time
+os.environ["THEANO_FLAGS"] = "mode=FAST_RUN,device=gpu3,floatX=float32"
 import psycopg2
 import credentials
 import json
 import re
+import run_cnns
+from config import project_settings
 from glob import glob
 from scipy import misc
 
@@ -14,20 +16,6 @@ def list_permutations(la,lb):
         for jj in lb:
             perms.append(ii + '_' + jj)
     return perms
-
-def create_clickmaps(obj,im_name,im_size,training_map_path,click_box_radius):
-    canvas = np.zeros((im_size))
-    xs = np.asarray([int(np.round(float(x))) for x in obj['x']])
-    ys = np.asarray([int(np.round(float(y))) for y in obj['y']])
-    for idx in range(len(xs)): #transpose clicks for js -> python
-        canvas[ys[idx] - click_box_radius : ys[idx] + click_box_radius,
-            xs[idx] - click_box_radius : xs[idx] + click_box_radius] = \
-            canvas[ys[idx] - click_box_radius : ys[idx] + click_box_radius,
-            xs[idx] - click_box_radius : xs[idx] + click_box_radius] + 1             
-    canvas /= np.max(canvas)
-    proc_im_name = re.split('/',im_name)[-1] 
-    misc.imsave(training_map_path + proc_im_name, canvas)
-    return proc_im_name 
 
 def prepare_training_maps(training_map_path,click_box_radius):
     connection_string = credentials.python_postgresql()
@@ -41,49 +29,23 @@ def prepare_training_maps(training_map_path,click_box_radius):
     conn.close()
     return im_names
 
-#Images for the click map prediction and folders for saving the predictions
-click_box_radius = 9 
-training_map_path = 'database_click_images/'
-click_map_predictions = 'model_click_predictions/'
-validation_image_path = 'validation_images/'
-training_image_path = 'images/'
-if not os.path.exists(training_map_path):
-    os.makedirs(training_map_path)
-if not os.path.exists(click_map_predictions):
-    os.makedirs(click_map_predictions)
+def update_attention_db_entry(attention_predictions):
+    run_cnn(attention_predictions)
 
-#For finetuning
-model_path = '/home/drew/Documents/mlnet/' 
-model_init_training_weights = model_path + 'models'
-model_checkpoints = model_path + 'model_checkpoints'
-train_iters = 10000
-val_iters = 100
-nb_epoch = 2
+def main():
 
-#For testing
-cnn_path = '/home/drew/Documents/tensorflow-vgg/experiments/MIRC_tests/'
-cnn_models = ['vgg16','vgg19']
-cnn_types = ['baseline','attention']
+    #Get paths and settings
+    p = project_settings()
 
-#Run program for finetuning click model and producing predicted click maps
-sys.path.append(model_path)
-import fine_tuning
-map_names = prepare_training_maps(training_map_path,click_box_radius)
-abs_path = os.path.dirname(os.path.abspath(__file__)) + '/'
+    #Look in directory where we expect attention maps
+    attention_maps = glob(p.model_path + p.click_map_predictions + '*' + p.im_ext)
 
-#Fine tuning first
-training_images = [abs_path + training_image_path + x for x in map_names]
-training_maps = [abs_path + training_map_path + x for x in map_names] 
-checkpoint_path = fine_tuning.finetune_model(nb_epoch,train_iters,val_iters,training_images,training_maps,model_init_training_weights,model_checkpoints)
+    #Create list of cnns for validating the effect of predicted click maps
+    sys.path.append(cnn_path)
+    programs = list_permutations(cnn_types,cnn_models)
 
-#Produce predictions
-test_images = glob(validation_image_path + '.JPEG')
-fine_tuning.produce_maps(checkpoint_path,test_images,abs_path + click_map_predictions)
+    #run each program and update the database
 
-#Create list of cnns for validating the effect of predicted click maps
-sys.path.append(cnn_path)
-programs = list_permutations(cnn_types,cnn_models)
-#for pr in programs:
-    
-#Add cnn results to the database
 
+if __name__ == '__main__':
+    main()

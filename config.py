@@ -42,6 +42,7 @@ def project_settings():
     'click_map_predictions' : 'model_click_predictions/',
     'validation_image_path' : 'validation_images/',
     'training_image_path' : 'images/',
+    'im_ext' : '.JPEG',
 
     #Images for the click map prediction and folders for saving the predictions
     'click_box_radius' : 9,

@@ -5,16 +5,10 @@ import psycopg2
 import credentials
 import json
 import re
+import run_cnns
 from config import project_settings
 from glob import glob
 from scipy import misc
-
-def list_permutations(la,lb):
-    perms = []
-    for ii in la:
-        for jj in lb:
-            perms.append(ii + '_' + jj)
-    return perms
 
 def create_clickmaps(obj,im_name,im_size,training_map_path,click_box_radius):
     canvas = np.zeros((im_size))
@@ -58,11 +52,10 @@ def main():
     checkpoint_path = fine_tuning.finetune_model(p.model_path,p.nb_epoch,p.train_iters,p.val_iters,training_images,training_maps,p.model_init_training_weights,p.model_checkpoints)
 
     #Produce predictions
-    test_images = glob(p.validation_image_path + '.JPEG')
+    test_images = glob(p.validation_image_path + p.im_ext)
     attention_predictions = fine_tuning.produce_maps(checkpoint_path,test_images,p.model_path + p.click_map_predictions) #Save these in the model's directory
 
-    #Enter attention_predictions into the database
-    update_attention_db_entry(attention_predictions)
+    #run_cnns.py needs to be run to enter new accuracies into the database
 
 if __name__ == '__main__':
     main()
