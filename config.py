@@ -1,3 +1,5 @@
+import os 
+
 class Map(dict):
     """
     Example:
@@ -31,7 +33,7 @@ class Map(dict):
         super(Map, self).__delitem__(key)
         del self.__dict__[key]
 
-def project_paths():
+def project_settings():
 
     model_path = '/home/drew/Documents/mlnet/'
     d = {

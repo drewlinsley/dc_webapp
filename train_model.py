@@ -5,7 +5,7 @@ import psycopg2
 import credentials
 import json
 import re
-import config
+from config import project_settings
 from glob import glob
 from scipy import misc
 
@@ -44,7 +44,7 @@ def prepare_training_maps(training_map_path,click_box_radius):
 
 def main():
     #Get paths and settings
-    p = config()
+    p = project_settings()
 
     #Run program for finetuning click model and producing predicted click maps
     sys.path.append(p.model_path)
@@ -55,7 +55,7 @@ def main():
     #Fine tuning first
     training_images = [abs_path + p.training_image_path + x for x in map_names]
     training_maps = [abs_path + p.training_map_path + x for x in map_names] 
-    checkpoint_path = fine_tuning.finetune_model(p.model_path,p.nb_epoch,p.train_iters,p.val_iters,training_images,training_maps,model_init_training_weights,model_checkpoints)
+    checkpoint_path = fine_tuning.finetune_model(p.model_path,p.nb_epoch,p.train_iters,p.val_iters,training_images,training_maps,p.model_init_training_weights,p.model_checkpoints)
 
     #Produce predictions
     test_images = glob(p.validation_image_path + '.JPEG')
