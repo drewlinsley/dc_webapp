@@ -18,3 +18,10 @@ Setting up the webapp
 
 2. Initialize images into the database
 	a. python prepare_ims.py 
+
+
+#TODO
+1. create a script that runs baselinevgg16,baselinevgg19,attentionvgg16, and attentionvgg19 and adds their accuracy to the database. The attention versions will generate click maps by extracting click coordinates from the database.
+2. Trigger this script with prepare_ims.py
+3. Also trigger this script in db.js line 51, when we have surpassed the epoch threshold.
+4. Create about.js, which reads from  the cnn database and produces two graphs. 1 showing the progress of the project (how many generations of click images) and 2 showing how it helps cnn accuracy

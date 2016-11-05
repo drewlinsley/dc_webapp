@@ -3,7 +3,7 @@ var global_label;
 var global_color;
 var global_high_score;
 var click_count = 0;
-var previous_loc = [0,0];
+var previous_loc = 0;//[0,0];
 
 function getImage(ctx){
 	var jqxhr = $.get('/random_image', function () {
@@ -110,7 +110,10 @@ function std(array) {
 }
 
 function compare_clicks(arr){
-    if (std(arr) < 18){
+    /*if (std(arr) < 18){
+        trigger_alert();
+    }*/
+    if (arr[1] - arr[0] < 300){
         trigger_alert();
     }
 }
@@ -136,9 +139,9 @@ function clicked(e) {
         window.removeEventListener('mousedown', clicked, false);
         count_clicks();
         upload_click_location([posx,posy]);
-        previous_loc.push(posx,posy)
-        compare_clicks(previous_loc);
-        previous_loc = [posx,posy];
+        var curr_time = Date.now();//previous_loc.push(posx,posy)
+        compare_clicks([previous_loc,curr_time]);
+        previous_loc = curr_time;//[posx,posy];
         setTimeout(function(){start_turn();},200);
     }
 }
