@@ -65,3 +65,7 @@ cur.execute("INSERT INTO cnn (_id) VALUES (%s)",(0,))
 conn.commit()
 cur.close()
 conn.close()
+
+#Initialize CNN accuracies
+import run_cnns
+run_cnns.main()
