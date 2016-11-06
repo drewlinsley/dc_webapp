@@ -1,4 +1,6 @@
 node_modules/
 credentials.py
 images/
+validation_images/
 database_click_images/
+*.pyc

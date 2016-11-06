@@ -5,8 +5,7 @@ import psycopg2
 import credentials
 import json
 import re
-import run_cnns
-from config import project_settings
+from data_proc_config import project_settings
 from glob import glob
 from scipy import misc
 
@@ -49,11 +48,11 @@ def main():
     #Fine tuning first
     training_images = [abs_path + p.training_image_path + x for x in map_names]
     training_maps = [abs_path + p.training_map_path + x for x in map_names] 
-    checkpoint_path = fine_tuning.finetune_model(p.model_path,p.nb_epoch,p.train_iters,p.val_iters,training_images,training_maps,p.model_init_training_weights,p.model_checkpoints)
+    test_images = glob(p.validation_image_path + p.im_ext)
+    checkpoint_path,prediction_paths = fine_tuning.finetune_model(p.model_path,p.nb_epoch,p.train_iters,p.val_iters,training_images,training_maps,p.model_init_training_weights,p.model_checkpoints,test_images,p.model_path + p.click_map_predictions)
 
     #Produce predictions
-    test_images = glob(p.validation_image_path + p.im_ext)
-    attention_predictions = fine_tuning.produce_maps(checkpoint_path,test_images,p.model_path + p.click_map_predictions) #Save these in the model's directory
+    #attention_predictions = fine_tuning.produce_maps(p.model_init_training_weights,checkpoint_path,test_images,p.model_path + p.click_map_predictions) #Save these in the model's directory
 
     #run_cnns.py needs to be run to enter new accuracies into the database
 

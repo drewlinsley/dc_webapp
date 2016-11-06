@@ -18,7 +18,7 @@ Setting up the webapp
 	i. psql mircs -h 127.0.0.1 -d mircs #log into the database with the admin credentials
 	j. create table images (_id bigserial primary key, image_path varchar, syn_name varchar, click_path varchar, generations bigint); #create a table that will point to all the images in the webapp
 	j. create table image_count (_id bigserial primary key,num_images bigint, current_generation bigint, generations_per_epoch bigint); #create a table that holds the number of images we are working with (for random selection later on)
-	k. create table cnn (_id bigserial primary key, sixteen_baseline_accuracy float, nineteen_baseline_accuracy float, sixteen_attention_accuracy float, nineteen_attention_accuracy float, epochs bigint, date timestamp with time zone); #create a table that will track some fun stuff for the website, like consecutive clicks
+	k. create table cnn (_id bigserial primary key, sixteen_baseline_accuracy float, nineteen_baseline_accuracy float, sixteen_attention_accuracy float, nineteen_attention_accuracy float, epochs bigint, date varchar); #create a table that will track some fun stuff for the website, like consecutive clicks
 	k. create table clicks (_id bigserial primary key, high_score bigint, date timestamp with time zone); #create a table that will track some fun stuff for the website, like consecutive clicks
 
 2. Initialize images into the database
@@ -29,8 +29,8 @@ Once each image has received a click * num_generations_per_epoch times, db.js wi
 
 
 #TODO
-1. create a script that runs baselinevgg16,baselinevgg19,attentionvgg16, and attentionvgg19 and adds their accuracy to the database. The attention versions will generate click maps by extracting click coordinates from the database.
-2. Trigger this script with prepare_ims.py
+1. Figure out how to get node to trigger python scripts over ssh (!)
+2. Trigger run_cnns.py with prepare_ims.py
 3. Also trigger this script with
 var cron = require('cron');
 var cronJob = cron.job("0 */10 * * * *", function(){
@@ -39,5 +39,5 @@ var cronJob = cron.job("0 */10 * * * *", function(){
 }); 
 cronJob.start();
 
-4. Trigger model trianing in db.js line 51, when we have surpassed the epoch threshold.
+4. Trigger model training in db.js line 51, when we have surpassed the epoch threshold.
 5. Create about.js, which reads from  the cnn database and produces two graphs. 1 showing the progress of the project (how many generations of click images) and 2 showing how it helps cnn accuracy

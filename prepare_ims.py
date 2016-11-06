@@ -59,6 +59,7 @@ for cn in range(num_categories):
                 
 cur.execute("INSERT INTO image_count (num_images,current_generation,generations_per_epoch) VALUES (%s,%s,%s)",(image_count,0,generations_per_epoch))
 cur.execute("INSERT INTO clicks (high_score) VALUES (%s)",(0,))
+cur.execute("INSERT INTO cnn (_id) VALUES (%s)",(0,))
 
 #Finalize and close connections
 conn.commit()

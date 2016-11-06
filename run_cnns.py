@@ -1,12 +1,12 @@
 import numpy as np
 import os, sys
-os.environ["THEANO_FLAGS"] = "mode=FAST_RUN,device=gpu3,floatX=float32"
+os.environ['CUDA_VISIBLE_DEVICES'] = '0' # Run only on GPU 0 to speed up init time
 import psycopg2
 import credentials
 import json
 import re
-import run_cnns
-from config import project_settings
+import datetime
+from data_proc_config import project_settings
 from glob import glob
 from scipy import misc
 
@@ -17,20 +17,25 @@ def list_permutations(la,lb):
             perms.append(ii + '_' + jj)
     return perms
 
-def prepare_training_maps(training_map_path,click_box_radius):
+def update_database(cnn_name,acc,timestamp):
+    if cnn_name == 'baseline_vgg16':
+        db_cnn = 'sixteen_baseline_accuracy'
+    elif cnn_name == 'baseline_vgg19':
+        db_cnn = 'nineteen_baseline_accuracy'
+    elif cnn_name == 'attention_vgg16':
+        db_cnn = 'sixteen_attention_accuracy'
+    elif cnn_name == 'attention_vgg19':
+        db_cnn = 'nineteen_attention_accuracy'
+
     connection_string = credentials.python_postgresql()
     conn = psycopg2.connect(connection_string)
     cur = conn.cursor()
-    cur.execute("""SELECT * from images""")
-    data = cur.fetchall()
-    im_size = misc.imread(data[0][1]).shape[:2]
-    im_names = [create_clickmaps(json.loads(x[3]),x[1],im_size,training_map_path,click_box_radius) for x in data] 
+    cur.execute("UPDATE cnn SET " + db_cnn + "=%s WHERE _id=1",(np.around(acc*100,3),))
+    if timestamp != None:
+        cur.execute("UPDATE cnn SET date=%s WHERE _id=1",(timestamp,))
+    conn.commit()
     cur.close()
     conn.close()
-    return im_names
-
-def update_attention_db_entry(attention_predictions):
-    run_cnn(attention_predictions)
 
 def main():
 
@@ -41,11 +46,27 @@ def main():
     attention_maps = glob(p.model_path + p.click_map_predictions + '*' + p.im_ext)
 
     #Create list of cnns for validating the effect of predicted click maps
-    sys.path.append(cnn_path)
-    programs = list_permutations(cnn_types,cnn_models)
+    sys.path.append(p.cnn_path) #location of the below scripts
+    sys.path.append(p.tf_path) #location of model prototxts
+    from web_cnns import run_model
+    programs = list_permutations(p.cnn_types,p.cnn_models)
+    test_ims = sorted(glob(p.validation_image_path + '*' + p.im_ext))
+    attention_maps = sorted(glob(p.model_path + p.click_map_predictions + '*' + p.im_ext))
+    ts = datetime.datetime.now()
+    timestamp = str(ts.year) + '-' + str(ts.month) + '-' + str(ts.day)
 
-    #run each program and update the database
 
+    #Run each model
+    for idx,prog in enumerate(programs):
+        class_acc, t1_acc, t5_acc, t1_preds, t5_preds = \
+            run_model(prog,test_ims,p.part_syn_file_path,p.full_syn_file_path,p.cnn_model_path,attention_maps)
+        t1_acc = np.mean(t1_acc)
+        #Add the accuracies to the database
+        if idx == 0:
+            update_database(prog,t1_acc,timestamp)
+        else:
+            update_database(prog,t1_acc,timestamp)
+    print('Updated CNN results')
 
 if __name__ == '__main__':
     main()

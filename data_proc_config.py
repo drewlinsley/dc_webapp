@@ -36,6 +36,7 @@ class Map(dict):
 def project_settings():
 
     model_path = '/home/drew/Documents/mlnet/'
+    tf_path = '/home/drew/Documents/tensorflow-vgg/'
     d = {
     #Images for the click map prediction and folders for saving the predictions
     'training_map_path' : 'database_click_images/',
@@ -50,7 +51,7 @@ def project_settings():
     #For finetuning
     'train_iters' : 10000, #not implemented yet
     'val_iters' : 100, #not implemented yet
-    'nb_epoch' : 10,
+    'nb_epoch' : 1,
 
     #For finetuning the click predictor
     'model_path' : model_path,
@@ -58,8 +59,13 @@ def project_settings():
     'model_checkpoints' : model_path + 'model_checkpoints',
 
     #Paths for testing CNNs with attention maps
-    'cnn_path' : '/home/drew/Documents/tensorflow-vgg/experiments/MIRC_tests/',
-    'cnn_models' : ['vgg16','vgg19'],
+    'tf_path' : tf_path,
+    'cnn_path' : tf_path + 'experiments/MIRC_webapp/',
+    'cnn_model_path' : tf_path + 'pretrained_weights/',
+    'cnn_architecture_path' : tf_path + 'model_depo/',
+    'part_syn_file_path' : tf_path + 'data/ilsvrc_2012/synset_names.txt',
+    'full_syn_file_path' : tf_path + 'data/ilsvrc_2012/synset.txt',
+    'cnn_models' : ['vgg16'],#['vgg16','vgg19'],
     'cnn_types' : ['baseline','attention']
     }
     d = Map(d)
