@@ -36,7 +36,7 @@ class Map(dict):
 def project_settings():
 
     model_path = '/home/drew/Documents/mlnet/'
-    tf_path = '/home/drew/Documents/tensorflow-vgg/'
+    tf_path = '/home/drew/Documents/tf_experiments/'
     d = {
     #Images for the click map prediction and folders for saving the predictions
     'training_map_path' : 'database_click_images/',

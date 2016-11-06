@@ -1,7 +1,7 @@
 {
   "name": "mirc_webapp",
   "version": "1.0.0",
-  "description": "",
+  "description": "Setting up the webapp 0. Install the following libraries: \ta. https://github.com/drewlinsley/clickmap_prediction \tb. https://github.com/drewlinsley/tf_experiments \tc. https://github.com/drewlinsley/dc_webapp \td. They are set up under the assumption that (c) lives on a VM, while (a,b) live on a workstation with a GPU that is accessible via SSH.",
   "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -21,6 +21,7 @@
     "body-parser": "^1.15.2",
     "compression": "^1.6.2",
     "connect-pg-simple": "^3.1.0",
+    "cron": "^1.1.1",
     "crypto": "0.0.3",
     "express": "^4.14.0",
     "express-session": "^1.14.2",
@@ -29,9 +30,12 @@
     "npm": "^3.10.9",
     "path": "^0.12.7",
     "pg": "^6.1.0",
+    "python-shell": "^0.4.0",
     "q": "^1.4.1",
     "raven": "^0.12.1",
     "sanitizer": "^0.1.3",
     "yargs": "^6.3.0"
-  }
+  },
+  "devDependencies": {},
+  "keywords": []
 }

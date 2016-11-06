@@ -4,7 +4,7 @@ var crypto = require('crypto');
 var pg = require('pg');
 var fs = require('fs');
 var tokenExpirationTime = 3600000;
-
+var PythonShell = require('python-shell');
 
 var DbManager = function (username, password, host, port, dbName) {
   var self = this;
@@ -48,7 +48,12 @@ DbManager.prototype.locateRandomImage = function (callback, errorCallback) {
         }
         var high_score = res.rows[0].high_score;
         var bound_data = [selected_image,selected_label,selected_id,high_score,clicks_to_go,click_goal];
-        //if clicks_to_go == 0, trigger training routine
+        if (clicks_to_go == 0){// trigger training routine
+          PythonShell.run('train_model.py', function (pyerr) {
+            if (pyerr) console.log(pyerr);
+            console.log('finished training');
+          })
+        }
         callback(bound_data);
       });
     });
