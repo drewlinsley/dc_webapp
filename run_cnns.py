@@ -30,9 +30,9 @@ def update_database(cnn_name,acc,timestamp):
     connection_string = credentials.python_postgresql()
     conn = psycopg2.connect(connection_string)
     cur = conn.cursor()
-    cur.execute("UPDATE cnn SET " + db_cnn + "=%s WHERE _id=1",(np.around(acc*100,3),))
     if timestamp != None:
-        cur.execute("UPDATE cnn SET date=%s WHERE _id=1",(timestamp,))
+        cur.execute("INSERT cnn (date) VALUES (%s)",(timestamp,))
+    cur.execute("UPDATE cnn SET " + db_cnn + "=%s WHERE date=%s",(np.around(acc*100,3),timestamp))
     conn.commit()
     cur.close()
     conn.close()
