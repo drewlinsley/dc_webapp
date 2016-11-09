@@ -31,7 +31,7 @@ def update_database(cnn_name,acc,timestamp):
     conn = psycopg2.connect(connection_string)
     cur = conn.cursor()
     if timestamp != None:
-        cur.execute("INSERT cnn (date) VALUES (%s)",(timestamp,))
+        cur.execute("INSERT INTO cnn (date) VALUES (%s)",(timestamp,))
     cur.execute("UPDATE cnn SET " + db_cnn + "=%s WHERE date=%s",(np.around(acc*100,3),timestamp))
     conn.commit()
     cur.close()

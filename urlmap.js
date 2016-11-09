@@ -3,10 +3,10 @@ var url = require('url');
 var cron = require('cron');
 var PythonShell = require('python-shell');
 
-//Do I need raven?
+/*Do I need raven?
 var raven = require('raven');
 var ravenClient = new raven.Client('https://020405d8e6ce4c66aca28d5fb76d486b:dd028890ac2145898c9d73bbc04dbc90@app.getsentry.com/82686');
-ravenClient.patchGlobal();
+ravenClient.patchGlobal();*/
 
 var cronJob = cron.job("0 0 * * *", function(){
   PythonShell.run('run_cnns.py', function (err) {
@@ -55,6 +55,18 @@ exports.setupRouter = function (db, router, errorFlag) {
 
     router.get('/about',function(req,res){
       res.sendFile('about.html',{'root':__dirname + '/templates'})
+    });
+
+    router.get('/cnn_accuracies',function(req,res){
+      db.cnn_accuracies(function(bound_data){
+        if (err){
+          res.writeHead(400, {'Content-type':'text/html'})
+          res.end('err')
+        } else {
+          res.writeHead(200,{'Content-type':'text/html'});
+          res.end(bound_data); 
+        }
+      })
     });
 
     router.get('/random_image',function(req,res){

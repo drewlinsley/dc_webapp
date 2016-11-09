@@ -15,8 +15,8 @@ Setting up the webapp
 	g. \q #quit
 	h. psql mircs -h 127.0.0.1 -d mircs < node_modules/connect-pg-simple/table.sql #prepare the database for connect-pg-simple middlware
 	i. psql mircs -h 127.0.0.1 -d mircs #log into the database with the admin credentials
-	j. create table images (_id bigserial primary key, image_path varchar, syn_name varchar, click_path varchar, generations bigint); #create a table that will point to all the images in the webapp
-	j. create table image_count (_id bigserial primary key,num_images bigint, current_generation bigint, generations_per_epoch bigint); #create a table that holds the number of images we are working with (for random selection later on)
+	j. create table images (_id bigserial primary key, image_path varchar, syn_name varchar, click_path json, generations bigint); #create a table that will point to all the images in the webapp
+	j. create table image_count (_id bigserial primary key,num_images bigint, current_generation bigint, iteration_generation bigint, generations_per_epoch bigint); #create a table that holds the number of images we are working with (for random selection later on)
 	k. create table cnn (_id bigserial primary key, sixteen_baseline_accuracy float, nineteen_baseline_accuracy float, sixteen_attention_accuracy float, nineteen_attention_accuracy float, epochs bigint, date varchar); #create a table that will track some fun stuff for the website, like consecutive clicks
 	k. create table clicks (_id bigserial primary key, high_score bigint, date timestamp with time zone); #create a table that will track some fun stuff for the website, like consecutive clicks
 
@@ -27,4 +27,7 @@ Setting up the webapp
 
 #TODO
 1. Figure out how to get node to trigger python scripts over ssh (!)
-5. Create about.js, which reads from  the cnn database and produces two graphs. 1 showing the progress of the project (how many generations of click images) and 2 showing how it helps cnn accuracy
+6. https://www.lag.net/paramiko/
+http://stackoverflow.com/questions/373639/running-interactive-commands-in-paramiko
+http://stackoverflow.com/questions/3586106/perform-commands-over-ssh-with-pythonhttp://blog.trackets.com/2014/05/17/ssh-tunnel-local-and-remote-port-forwarding-explained-with-examples.html
+

@@ -33,7 +33,7 @@ conn = psycopg2.connect(connection_string)
 cur = conn.cursor()
 
 #Grab an equal number of images from each category
-num_per_category = 25 
+num_per_category = 1 
 num_categories = 100
 generations_per_epoch = 4
 
@@ -54,10 +54,10 @@ for cn in range(num_categories):
 		image_count+=1 #to ensure we are getting an accuracte count of images
 		cur.execute("INSERT INTO images (image_path, syn_name, generations) VALUES (%s,%s,%s)",(target_path,image_id,0))
         #Now copy the rest of the images into the validation folder
-        for mi in range(num_per_category:len(category_ims)):
+        for mi in range(num_per_category,num_per_category + 1):#len(category_ims)):
                 process_images(images,category_ims,mi,validation_dir)
                 
-cur.execute("INSERT INTO image_count (num_images,current_generation,generations_per_epoch) VALUES (%s,%s,%s)",(image_count,0,generations_per_epoch))
+cur.execute("INSERT INTO image_count (num_images,current_generation,iteration_generation,generations_per_epoch) VALUES (%s,%s,%s,%s)",(image_count,0,0,generations_per_epoch))
 cur.execute("INSERT INTO clicks (high_score) VALUES (%s)",(0,))
 #cur.execute("INSERT INTO cnn (_id) VALUES (%s)",(0,))
 
@@ -67,5 +67,6 @@ cur.close()
 conn.close()
 
 #Initialize CNN accuracies
+print('DB is initialized. Now running CNNs.')
 import run_cnns
 run_cnns.main()

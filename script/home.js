@@ -185,7 +185,7 @@ function set_high_score(){
 $(document).ready(function(){
     canvas = document.getElementById('myCanvas');
     ctx = canvas.getContext('2d');
-    getImage(ctx);
+    //getImage(ctx);
     window.addEventListener('mousemove', draw, false);
     window.addEventListener('mousedown', clicked, false);
     start_turn()
