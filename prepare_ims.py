@@ -33,7 +33,7 @@ conn = psycopg2.connect(connection_string)
 cur = conn.cursor()
 
 #Grab an equal number of images from each category
-num_per_category = 1 
+num_per_category = 50 
 num_categories = 100
 generations_per_epoch = 4
 
