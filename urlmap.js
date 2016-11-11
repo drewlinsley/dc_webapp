@@ -95,5 +95,5 @@ exports.setupRouter = function (db, router, errorFlag) {
       db.updateClicks(label,clicks,score,
         respond.bind(null, res),
         respond.bind(null, res, null));
-    })
+    });
 }

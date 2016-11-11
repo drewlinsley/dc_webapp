@@ -29,6 +29,8 @@ var pgPassword = 'serrelab';
 app.use('/node_modules',  express.static(__dirname + '/node_modules'));
 app.use('/style',  express.static(__dirname + '/style'));
 app.use('/script',  express.static(__dirname + '/script'));
+app.use('/web_content', express.static(__dirname + '/web_content'));
+
 // use this for storing the hashed password in the session
 app.use(session({
   store: new PgStore({pg : pg, conString : `postgres://${pgUser}:${pgPassword}@${pgHost}:${pgPort}/${pgName}`}),
