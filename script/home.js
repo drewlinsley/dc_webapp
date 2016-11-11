@@ -119,7 +119,7 @@ function compare_clicks(arr){
 }
 
 function trigger_alert(){
-    $('#spammer').html('<p style="color:Red">Are you really trying your hardest?</p>')
+    $('#spammer').html('<p style="color:Red">Slow down would ya?</p>')
     setTimeout(function(){
         $('#spammer').html('')
     },3000)

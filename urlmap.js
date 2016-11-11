@@ -58,12 +58,11 @@ exports.setupRouter = function (db, router, errorFlag) {
     });
 
     router.get('/cnn_accuracies',function(req,res){
-      db.cnn_accuracies(function(bound_data){
+      db.cnn_accuracies(function(bound_data,err){
         if (err){
           res.writeHead(400, {'Content-type':'text/html'})
           res.end('err')
         } else {
-          res.writeHead(200,{'Content-type':'text/html'});
           res.end(bound_data); 
         }
       })

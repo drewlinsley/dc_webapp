@@ -30,7 +30,7 @@ def prepare_training_maps(training_map_path,click_box_radius):
     cur.execute("""SELECT * from images""")
     data = cur.fetchall()
     im_size = misc.imread(data[0][1]).shape[:2]
-    im_names = [create_clickmaps(json.loads(x[3]),x[1],im_size,training_map_path,click_box_radius) for x in data] 
+    im_names = [create_clickmaps(x[3],x[1],im_size,training_map_path,click_box_radius) for x in data] 
     cur.close()
     conn.close()
     return im_names

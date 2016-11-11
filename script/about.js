@@ -1,65 +1,71 @@
   function displayLineChart(ctx) {
     var data = {
-        labels: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+        labels: [1, 2],
         datasets: [
             {
-                label: "Prime and Fibonacci",
-                fillColor: "rgba(220,220,220,0.2)",
-                strokeColor: "rgba(220,220,220,1)",
-                pointColor: "rgba(220,220,220,1)",
-                pointStrokeColor: "#fff",
-                pointHighlightFill: "#fff",
-                pointHighlightStroke: "rgba(220,220,220,1)",
-                data: [2, 3, 5, 7, 11, 13, 17, 19, 23, 29]
+                label: "Baseline VGG 16",
+                borderColor: "#8c0002",
+                pointBackgroundColor: "#8c0002",
+                backgroundColor: "#8c0002",
+                data: [2, 3]
             },
             {
-                label: "My Second dataset",
-                fillColor: "rgba(151,187,205,0.2)",
-                strokeColor: "rgba(151,187,205,1)",
-                pointColor: "rgba(151,187,205,1)",
-                pointStrokeColor: "#fff",
-                pointHighlightFill: "#fff",
-                pointHighlightStroke: "rgba(151,187,205,1)",
-                data: [0, 1, 1, 2, 3, 5, 8, 13, 21, 34]
-            }
+                label: "Clicktionary-modulated VGG 16",
+                borderColor: "#478dff",
+                pointBackgroundColor: "#478dff",
+                backgroundColor: "#478dff",
+                data: [0, 1]
+            },
         ]
     };
-    var ctx = document.getElementById("lineChart").getContext("2d");
-    var options = { };
-    var myChart = new Chart(ctx).Line(data, options);
+    options = {
+      scales: {
+
+        yAxes: [{
+          scaleLabel: {
+            display: true,
+            labelString: 'Top-1 classification accuracy'
+          }
+        }],
+        xAxes: [{
+          scaleLabel: {
+            display: true,
+            labelString: 'Date of accuracy update'
+          }
+        }]
+      },responsive: true
+    }
+    var myChart = new Chart(ctx, {type: "line", data: data, options});
     return myChart
   }
 
-function get_cnn_accuracies(clicks){
-    var data = {};
-    data.clicks = clicks;
-    data.image_id = global_label;
-    data.score = click_count;
-    $.ajax({
-        type: 'POST',
-        url: '/clicks',
-        data: data,
-        dataType: 'application/json',
-        success: function(data) {
-            console.log('uploaded click. update a status bar now');
-        }
-    });
-}
-
-function getImage(ctx){
+function get_cnn_accuracies(ctx){
     var jqxhr = $.get('/cnn_accuracies', function () {
             })
     .done(function(data) {
-        console.log(data);
+        me = data
+        update_chart(JSON.parse(data));
       return;
     })
 }
 
-function update_chart(myChart,clicks_to_epoch,click_goal){
-    myChart.data.datasets[0].data[0] = clicks_to_epoch;
-    myChart.data.datasets[0].data[1] = click_goal;
+function update_chart(jd){
+    var labels = [];
+    var baseline_data = [];
+    var attention_data = [];
+    for (var i = 0; i < jd['attention'].length; i++){
+        attention_data[i] = jd['attention'][i][0];
+        baseline_data[i] = jd['baseline'][0];
+        labels[i] = jd['attention'][i][1];
+    }
+    myChart.data.labels = labels;
+    myChart.data.datasets[0].data = baseline_data;
+    myChart.data.datasets[1].data = attention_data;
     myChart.update();
 }
+Chart.defaults.global.defaultFontColor = "#fff";
 
 var ctx = document.getElementById("myChart");
 var myChart = displayLineChart(ctx); 
+
+get_cnn_accuracies(ctx);

@@ -6,6 +6,18 @@ var fs = require('fs');
 var tokenExpirationTime = 3600000;
 var PythonShell = require('python-shell');
 
+function unique_ind(arr) {
+    var hash = {}, result = [];
+    for ( var i = 0, l = arr.length; i < l; ++i ) {
+        if ( !hash.hasOwnProperty(arr[i]) ) { //it works with objects! in FF, at least
+            hash[ arr[i] ] = true;
+            //result.push(arr[i]);
+            unique_ind[i] = i;
+        }
+    }
+    return unique_ind;//result;
+}
+
 var DbManager = function (username, password, host, port, dbName) {
   var self = this;
   var deferred = Q.defer();
@@ -40,7 +52,6 @@ DbManager.prototype.locateRandomImage = function (callback, errorCallback) {
       var click_normalization = iteration_generation * (global_current_generation + 1)
       var clicks_to_go = (iteration_generation * global_num_images) + (global_num_images - num_ims_in_gen);
       var rand_selection = Math.floor((Math.random() * res.rows.length));
-
       var selected_image = res.rows[rand_selection].image_path;
       var selected_label = res.rows[rand_selection].syn_name;
       var selected_id = res.rows[rand_selection]._id;
@@ -77,7 +88,6 @@ DbManager.prototype.locateRandomImage = function (callback, errorCallback) {
         }
         if (num_ims_in_gen <= 1){//iterate iteration_generation
           iteration_generation += 1
-          console.log((iteration_generation))
           self.client.query('UPDATE image_count SET iteration_generation=$1',[iteration_generation],function(iterr){
             if (iterr) console.log(iterr);
               console.log('Iterated iteration_generation');
@@ -96,10 +106,20 @@ DbManager.prototype.cnn_accuracies = function (callback, errorCallback) {
       errorCallback(err, 'Error looking up cnn accuracies');
       return;
     }
-    var baseline = res.rows[0].sixteen_baseline_accuracy
-    var attention = res.rows[0].sixteen_attention_accuracy    
-    console.log(res.rows)
-    var bound_data = [baseline,attention]
+    var dates = []
+    for (var i = 0; i < res.rows.length; i++){
+      dates.push(res.rows[i].date);
+    }
+    ui = unique_ind(dates);
+    var attention = [];
+    for (var i = 0; i < ui.length; i++){
+      attention.push([res.rows[ui[i]].sixteen_attention_accuracy,res.rows[ui[i]].date]);
+    }
+    var baseline = [res.rows[0].sixteen_baseline_accuracy,res.rows[0].date];
+    var bound_data = JSON.stringify({
+      baseline:baseline,
+      attention:attention
+    });
     callback(bound_data);
   })
 }
@@ -114,11 +134,12 @@ DbManager.prototype.updateClicks = function (label, click_path, score, callback,
     var generations = parseInt(res.rows[0].generations) + 1;
     var prev_coors = res.rows[0].click_path;
     if (prev_coors != null){
-      prev_coors['x'] = [prev_coors['x'],click_path[0]];
-      prev_coors['y'] = [prev_coors['y'],click_path[1]];
+      prev_coors['x'].push(click_path[0]);
+      prev_coors['y'].push(click_path[1]);
+      console.log(prev_coors);
       coors = prev_coors; 
     }else{
-      var coors = {'x':click_path[0],'y':click_path[1]};
+      var coors = {'x':[click_path[0]],'y':[click_path[1]]};
     }
     self.client.query('UPDATE images SET click_path=$1, generations=$2 WHERE image_path=$3', [coors,generations,label], function (err, res) {
       if (err) {

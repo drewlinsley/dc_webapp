@@ -21,7 +21,6 @@
     <link href="../style/cover.css" rel="stylesheet">
     <link href="../style/signin.css" rel="stylesheet">
     <script type="text/javascript" src="../script/jquery-1.11.2.js"></script>
-
     <script type="text/javascript">
       $(function(){
         $('#btnSignIn').click(function(evt){
@@ -56,7 +55,6 @@
 
           <div class="masthead clearfix">
             <div class="inner">
-              <h3 class="masthead-brand">CLICKTIONARY</h3>
               <nav>
                 <ul class="nav masthead-nav">
                   <li><a href="/">Home</a></li>
@@ -65,27 +63,31 @@
               </nav>
             </div>
           </div>
-
+          <br>
+          <br>
+          <br>
           <div class="inner cover">
-            <h1 class="cover-heading">Insert some about information here</h1>
-            <p class="lead">Sven 2.0 needs a firmware update!!!</p>
-          </div>
+            <h1 class="cover-heading">CLICKTIONARY</h1>
+            <p>A web-based application for exploring the atoms of object recognition.</p>
+            <p style="text-align:left">Despite rapid advancements in Deep Convolutional Network (DCN) performance, they still lag behind humans in all but the most basic object recognition tasks. One explanation is that they do not base their decisions on the same features as humans. <b>CLICKTIONARY gathers information about the most diagnostic features in objects according to humans, and uses this information in two ways.</b><li style="text-align:left">First, to train a model for predicting the locations of these features in novel images.</li><li style="text-align:left">Second, to modulate DCN activity with this information, which we find improves classification accuracy.</li></p><p style="text-align:left">See below for a depiction of the application and real-time results on the impact of these maps on DCN recognition. For more details on the project motivating this application, please visit our [<a href="http://___.edu/">arxiv</a>], currently under review for CVPR 2017.</p>
 
-
-         
-
-          <div class="mastfoot">
-            <div class="inner">
-              <p>Pithy phrase part 2, by <a href="http://serre-lab.clps.brown.edu/">The Serre Lab</a>.</p>
+            <hr>
+            <div class="inner cover">
+              <h1 class="cover-heading">Real-time results</h1>
+              <p>Here we record VGG 16 accuracy on ImageNet Top-1 object classification after modulating its activity with a model that predicts Human realization maps. These realization maps are predicted based on where people click in images on the main page.
+              <br><br>
+              <canvas id="myChart" width="500" height="200"></canvas>
             </div>
           </div>
-
+            <div class="inner">
+              <p>[by <a href="http://___.edu/"> HAL</a>]</p>
+            </div>
         </div>
-
       </div>
-
     </div>
 
-    
+    <!-- Footer script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.min.js"></script>
+    <script src="../script/about.js" type="text/javascript"></script>
   </body>
 </html>
