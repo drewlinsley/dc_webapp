@@ -4,6 +4,7 @@ Setting up the webapp
 	b. https://github.com/drewlinsley/tf_experiments
 	c. https://github.com/drewlinsley/dc_webapp
 	d. They are set up under the assumption that (c) lives on a VM, while (a,b) live on a workstation with a GPU that is accessible via SSH.
+	e. npm install
 
 #1. Prepare postgresql databse
 	a. sudo apt-get install postgresql libpq-dev postgresql-client postgresql-client-common #Install posetgresql with online installer

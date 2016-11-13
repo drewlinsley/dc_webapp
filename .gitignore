@@ -4,3 +4,4 @@ images/
 validation_images/
 database_click_images/
 *.pyc
+credentials.pyc
