@@ -34,9 +34,15 @@ class Map(dict):
         del self.__dict__[key]
 
 def project_settings():
+    node_name = os.uname()[1]
 
-    model_path = '/home/drew/Documents/mlnet/'
-    tf_path = '/home/drew/Documents/tf_experiments/'
+    if node_name == 'x8':
+        model_path = '/media/data_gluster/attention/mlnet/'
+        tf_path = '/media/data_gluster/attention/tf_experiments/'
+    else:
+        model_path = '/home/drew/Documents/mlnet/'
+        tf_path = '/home/drew/Documents/tf_experiments/'
+
     d = {
     #Images for the click map prediction and folders for saving the predictions
     'training_map_path' : 'database_click_images/',

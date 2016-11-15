@@ -48,7 +48,7 @@ def main():
     #Create list of cnns for validating the effect of predicted click maps
     sys.path.append(p.cnn_path) #location of the below scripts
     sys.path.append(p.tf_path) #location of model prototxts
-    from web_cnns import run_model
+    from MIRC_webapp.web_cnns import run_model
     programs = list_permutations(p.cnn_types,p.cnn_models)
     test_ims = sorted(glob(p.validation_image_path + '*' + p.im_ext))
     attention_maps = sorted(glob(p.model_path + p.click_map_predictions + '*' + p.im_ext))
