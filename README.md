@@ -4,8 +4,9 @@ Setting up the webapp
 	https://github.com/drewlinsley/tf_experiments
 	https://github.com/drewlinsley/dc_webapp
 	They are set up under the assumption that (c) lives on a VM, while (a,b) live on a workstation with a GPU that is accessible via SSH.
-	sudo apt-get install npm
-	sudo npm install connect-pg-simple
+	sudo apt-get install npm nodejs
+	npm install
+	npm install cookie-parser
 
 #1. Prepare postgresql databse
 	sudo apt-get install postgresql libpq-dev postgresql-client postgresql-client-common #Install posetgresql with online installer
