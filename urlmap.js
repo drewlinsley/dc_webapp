@@ -2,6 +2,7 @@ var fs = require('fs');
 var url = require('url');
 var cron = require('cron');
 var PythonShell = require('python-shell');
+var s2utils = require('./s2utils.js');
 
 /*Do I need raven?
 var raven = require('raven');
@@ -47,6 +48,23 @@ var respond = function (response, responseData, err, errorMessage) {
   response.end();
 };
 
+var app_version = 1 // Reset cookie if stored under smaller app version
+
+// Server-side user data
+var getUserData = function(req) {
+  sess = req.session;
+  if (!sess.user_data || sess.user_data.app_version < app_version )
+  {
+    sess.user_data = {
+        'click_count': 0,
+        'score': 0,
+        'name': s2utils.generateRandomName(),
+        'app_version': app_version
+        };
+  }
+  return sess.user_data;
+};
+
 exports.setupRouter = function (db, router, errorFlag) {
 
     router.get('/',function(req,res){
@@ -73,16 +91,13 @@ exports.setupRouter = function (db, router, errorFlag) {
         var random_image_path = bound_data[0];
         var random_image_label = bound_data[1];
         var id = bound_data[2];
-        var high_score = bound_data[3];
-        var clicks_to_go = bound_data[4];
-        var click_goal = bound_data[5];
           fs.readFile(random_image_path, {encoding: 'base64'}, function(err,content){
             if (err){
               res.writeHead(400, {'Content-type':'text/html'})
               res.end('err')
             } else {
               res.writeHead(200,{'Content-type':'image/jpg'});
-              res.end(random_image_path + '!' + random_image_label + '!' + high_score + '!' + clicks_to_go  + '!' + click_goal + 'imagestart' + content); 
+              res.end(random_image_path + '!' + random_image_label + '!imagestart' + content);
             }
           });
           });
@@ -91,9 +106,25 @@ exports.setupRouter = function (db, router, errorFlag) {
     router.post('/clicks', function(req,res){
       var clicks = req.body.clicks;
       var label = req.body.image_id;
-      var score = req.body.score;
+      // Count clicks server-side
+      user_data = getUserData(req);
+      user_data.click_count += 1;
+      user_data.score += 1;
+      var score = user_data.score;
+      // Update click map in DB
       db.updateClicks(label,clicks,score,
         respond.bind(null, res),
         respond.bind(null, res, null));
+    });
+
+    router.get('/user_data', function(req, res) {
+      // Return copy of session cookie object
+      user_data = s2utils.clone(getUserData(req));
+      // Add latest highscore data
+      db.getScoreData(function(score_data){
+        // Send it!
+        user_data.scores = score_data;
+        res.json(JSON.stringify(user_data));
+      });
     });
 }

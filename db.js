@@ -1,3 +1,4 @@
+const util = require('util');
 var sanitizer = require('sanitizer');
 var Q = require('q');
 var crypto = require('crypto');
@@ -21,8 +22,9 @@ function unique_ind(arr) {
 var DbManager = function (username, password, host, port, dbName) {
   var self = this;
   var deferred = Q.defer();
-  var pgUrl = `postgres://${username}:${password}@${host}:${port}/${dbName}`;
+  var pgUrl = util.format("postgres://%s:%s@%s:%s/%s", username, password, host, port, dbName);
   this.client = new pg.Client(pgUrl);
+  console.log('Connecting to: ', pgUrl);
   this.client.connect(function (err) {
     if (err) {
       console.log('Error connecting to local sql database: ', err); // eslint-disable-line no-console
@@ -61,7 +63,7 @@ DbManager.prototype.locateRandomImage = function (callback, errorCallback) {
           return;
         }
         var high_score = res.rows[0].high_score;
-        var bound_data = [selected_image,selected_label,selected_id,high_score,clicks_to_go,click_goal];
+        var bound_data = [selected_image,selected_label,selected_id];
         if ((click_goal - clicks_to_go) <= 0){// trigger training routine
           PythonShell.run('train_model.py', function (pyerr) {
             if (pyerr) console.log(pyerr);
@@ -168,5 +170,30 @@ DbManager.prototype.updateClicks = function (label, click_path, score, callback,
   });
 };
 
+DbManager.prototype.getScoreData = function (callback, errorCallback) {
+  var self = this;
+  self.client.query('SELECT * FROM image_count WHERE _id=1', function(err,res){
+    var iteration_generation = parseInt(res.rows[0].iteration_generation);
+    var generations_to_epoch = parseInt(res.rows[0].generations_per_epoch);
+    var global_num_images = parseInt(res.rows[0].num_images);
+    var click_goal = generations_to_epoch * global_num_images;
+    self.client.query('SELECT * FROM images WHERE generations=$1', [iteration_generation], function (err, res) {
+      if (err) {
+        errorCallback(err, 'Error finding image');
+        return;
+      }
+      var num_ims_in_gen = res.rows.length;
+      var clicks_to_go = (iteration_generation * global_num_images) + (global_num_images - num_ims_in_gen);
+      self.client.query('SELECT high_score FROM clicks',function(err,res){
+        if (err) {
+          errorCallback(err, 'Error looking up score');
+          return;
+        }
+        var high_score = res.rows[0].high_score;
+        callback({'global_high_score': high_score, 'clicks_to_go': clicks_to_go, 'click_goal': click_goal});
+       });
+     });
+   });
+};
 
 exports.DbManager = DbManager;

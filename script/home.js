@@ -1,8 +1,7 @@
 var global_image_link; //globals :(. Should rethink this at some point.
 var global_label;
 var global_color;
-var global_high_score;
-var click_count = 0;
+var user_data = { };
 var previous_loc = 0;//[0,0];
 
 function getImage(ctx){
@@ -15,13 +14,8 @@ function getImage(ctx){
       //
       global_label = split_label[0];
       var im_text = split_label[1];
-      global_high_score = split_label[2];
       //
       change_title(im_text);
-      set_high_score(global_high_score);
-      var accum_clicks = parseInt(split_label[3]);
-      var clicks_to_go = parseInt(split_label[4]) - accum_clicks;
-      update_chart(myChart,accum_clicks,clicks_to_go);
       //
       global_image_link = split_data[1];
       postImage(global_image_link,ctx);
@@ -137,7 +131,7 @@ function clicked(e) {
         ctx.fillStyle = 'rgba(' + rgb['r'] + ',' +rgb['g'] + ',' + rgb['b'] + ',' + '1)';
         ctx.fillRect(posx-9, posy-9, 18, 18);
         window.removeEventListener('mousedown', clicked, false);
-        count_clicks();
+        update_user_data();
         upload_click_location([posx,posy]);
         var curr_time = Date.now();//previous_loc.push(posx,posy)
         compare_clicks([previous_loc,curr_time]);
@@ -150,7 +144,6 @@ function upload_click_location(clicks){
     var data = {};
     data.clicks = clicks;
     data.image_id = global_label;
-    data.score = click_count;
     $.ajax({
         type: 'POST',
         url: '/clicks',
@@ -168,23 +161,26 @@ function start_turn(){
     window.addEventListener('mousedown', clicked, false);
 }
 
-function count_clicks(){
-    click_count+=1;
-    $('#click_count').html('Your consecutive clicks: ' + click_count);
-    if (click_count > global_high_score){
-        global_high_score = click_count;
-        set_high_score();
-    }
-}
+function update_user_data(){
+   	$.get('/user_data', function () { }).done(function(json_data) {
+   	    user_data = JSON.parse(json_data);
+   	    console.log(user_data);
+   	    // Update display
+        $('#click_count').html('Clicks: ' + user_data.click_count);
+        $('#click_high_score').html('Today\'s high score: ' + user_data.scores.global_high_score);
+        var accum_clicks = user_data.scores.clicks_to_go;
+        var clicks_to_go = user_data.scores.click_goal - accum_clicks;
+        update_chart(myChart,accum_clicks,clicks_to_go);
+    });
 
-function set_high_score(){
-    $('#click_high_score').html('Today\'s high score: ' + global_high_score);
 }
 
 /////////
 $(document).ready(function(){
     canvas = document.getElementById('myCanvas');
     ctx = canvas.getContext('2d');
+    // Initial score
+    update_user_data();
     //getImage(ctx);
     window.addEventListener('mousemove', draw, false);
     window.addEventListener('mousedown', clicked, false);
