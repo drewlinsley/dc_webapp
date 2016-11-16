@@ -1,6 +1,6 @@
 var global_image_link; //globals :(. Should rethink this at some point.
 var global_label;
-var global_color;
+var global_color = "#ffffff";
 var user_data = { };
 var previous_loc = 0;//[0,0];
 
@@ -41,7 +41,7 @@ function getRandomColor() {
     var letters = '0123456789ABCDEF';
     var color = '#';
     for (var i = 0; i < 6; i++ ) {
-        color += letters[Math.floor(Math.random() * 16)];
+        color += letters[Math.floor(Math.random() * 8)+8];
     }
     return color;
 }
@@ -164,13 +164,22 @@ function start_turn(){
 function update_user_data(){
    	$.get('/user_data', function () { }).done(function(json_data) {
    	    user_data = JSON.parse(json_data);
-   	    console.log(user_data);
+   	    console.log(json_data);
    	    // Update display
         $('#click_count').html('Clicks: ' + user_data.click_count);
         $('#click_high_score').html('Today\'s high score: ' + user_data.scores.global_high_score);
+        $('#login_info').html('Logged in as: ' + user_data.name);
         var accum_clicks = user_data.scores.clicks_to_go;
         var clicks_to_go = user_data.scores.click_goal - accum_clicks;
         update_chart(myChart,accum_clicks,clicks_to_go);
+        // High score table
+        high_score_table = '';
+        hsdata = user_data.scores.high_scores;
+        for (var i = 0; i < hsdata.length; ++i)
+        {
+            high_score_table += '<tr><td>' + hsdata[i].name + '</td><td>' + hsdata[i].score + '</td></tr>'
+        }
+        $('#high_scores').html(high_score_table);
     });
 
 }

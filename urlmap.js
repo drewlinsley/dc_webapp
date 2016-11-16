@@ -3,6 +3,7 @@ var url = require('url');
 var cron = require('cron');
 var PythonShell = require('python-shell');
 var s2utils = require('./s2utils.js');
+var shortid = require('shortid');
 
 /*Do I need raven?
 var raven = require('raven');
@@ -48,7 +49,7 @@ var respond = function (response, responseData, err, errorMessage) {
   response.end();
 };
 
-var app_version = 1 // Reset cookie if stored under smaller app version
+var app_version = 2 // Reset cookie if stored under smaller app version
 
 // Server-side user data
 var getUserData = function(req) {
@@ -59,6 +60,7 @@ var getUserData = function(req) {
         'click_count': 0,
         'score': 0,
         'name': s2utils.generateRandomName(),
+        'userid': shortid.generate(),
         'app_version': app_version
         };
   }
@@ -106,13 +108,16 @@ exports.setupRouter = function (db, router, errorFlag) {
     router.post('/clicks', function(req,res){
       var clicks = req.body.clicks;
       var label = req.body.image_id;
+      var username = req.body.username;
       // Count clicks server-side
       user_data = getUserData(req);
       user_data.click_count += 1;
       user_data.score += 1;
       var score = user_data.score;
+      var username = user_data.name;
+      var userid = user_data.userid; // ID to identify the user
       // Update click map in DB
-      db.updateClicks(label,clicks,score,
+      db.updateClicks(label,clicks,score,username,userid,
         respond.bind(null, res),
         respond.bind(null, res, null));
     });
