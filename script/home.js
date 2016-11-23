@@ -344,7 +344,7 @@ function setup_progressbar(){
     color: '#FFEA82',
     trailColor: '#eee',
     trailWidth: 1,
-    svgStyle: {width: '60%', height: '100%'},
+    svgStyle: {width: '40%', height: '80%'},
     from: {color: '#FFEA82'},
     to: {color: '#ED6A5A'},
     step: (state, bar) => {
