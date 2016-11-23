@@ -19,6 +19,7 @@
   "homepage": "https://github.com/drewlinsley/dc_webapp#readme",
   "dependencies": {
     "body-parser": "^1.15.2",
+    "bootstrap": "^3.3.7",
     "compression": "^1.6.2",
     "connect-pg-simple": "^3.1.0",
     "cookie-parser": "^1.4.3",

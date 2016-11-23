@@ -1,22 +1,8 @@
 var fs = require('fs');
 var url = require('url');
-var cron = require('cron');
 var PythonShell = require('python-shell');
 var s2utils = require('./s2utils.js');
 var shortid = require('shortid');
-
-/*Do I need raven?
-var raven = require('raven');
-var ravenClient = new raven.Client('https://020405d8e6ce4c66aca28d5fb76d486b:dd028890ac2145898c9d73bbc04dbc90@app.getsentry.com/82686');
-ravenClient.patchGlobal();*/
-
-var cronJob = cron.job("0 0 * * *", function(){
-  PythonShell.run('run_cnns.py', function (err) {
-    if (err) console.log(err);
-    console.log('Finished updating CNN accuracy');
-  });
-});
-cronJob.start();
 
 var respond = function (response, responseData, err, errorMessage) {
   if (err || errorMessage) {

@@ -28,11 +28,7 @@ Setting up the webapp
 #2. Initialize images into the database
 	python prepare_ims.py
 
------
-
-#TODO
-1. Figure out how to get node to trigger python scripts over ssh (!)
-6. https://www.lag.net/paramiko/
-http://stackoverflow.com/questions/373639/running-interactive-commands-in-paramiko
-http://stackoverflow.com/questions/3586106/perform-commands-over-ssh-with-pythonhttp://blog.trackets.com/2014/05/17/ssh-tunnel-local-and-remote-port-forwarding-explained-with-examples.html
-
+#3. Run a cron job to keep CNN accuracies updated for the "What's the point" page
+	chmod +x run_cnns.py
+	crontab -e
+	0 0 * * * /path/to/run_cnns.py #Runs the script daily	
