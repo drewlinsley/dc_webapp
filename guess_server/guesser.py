@@ -8,6 +8,7 @@ import numpy as np
 from tf_experiments.experiments.config import pretrained_weights_path, full_syn, dc_data_dir
 from tf_experiments.model_depo import vgg16
 from utils import ImageCache
+from dc_webapp.synset import get_synset
 
 def init_session():
     return tf.Session(config=tf.ConfigProto(gpu_options=(tf.GPUOptions(per_process_gpu_memory_fraction=0.95))))
@@ -27,8 +28,9 @@ def load_guesser():
     # Init session, model and associated structures and return as one class object
     guesser = load_model_vgg16(batch_size=1)
     # Load class names
-    syn_file_contents = open(full_syn, 'rt').read().splitlines()
-    guesser.class_names = [s.split(' ')[-1].split(',')[0] for s in syn_file_contents]
+    #syn_file_contents = open(full_syn, 'rt').read().splitlines()
+    #guesser.class_names = [s.split(' ')[1].split(',')[0] for s in syn_file_contents]
+    guesser.class_names = [c.strip() for c in get_synset()[1]]
     # Prepare an input batch
     guesser.batch_shape = guesser.input.get_shape().as_list()
     guesser.input_batch = np.zeros(guesser.batch_shape)

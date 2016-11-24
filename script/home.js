@@ -232,17 +232,19 @@ function package_json(click_array,global_label){
     var json_data = {};
     json_data.image_name = global_label;
     json_data.click_array = click_array;
+    return JSON.stringify(json_data);
 }
 
 function call_sven(){
     $.ajax({
         url: cnn_server,
-        type: 'post',
+        type: 'POST',
+        data: package_json(click_array,global_label),
+        //contentType: 'application/json',
         success: function (data) {
             update_guess(data);
             if (data === im_text){correct_recognition();}
-        },
-        data: package_json(click_array,global_label)
+        }
     });
 
 }
