@@ -7,6 +7,7 @@ from glob import glob
 from scipy import misc
 from synset import get_synset
 import credentials
+import paramiko
 
 def process_images(images,category_ims,mi,target_dir):
     im_name = re.split('/',images[category_ims[mi]])[-1]
@@ -18,6 +19,7 @@ def process_images(images,category_ims,mi,target_dir):
 im_dir = '/home/drew/Downloads/p2p_MIRCs/imgs/lmdb_validations'
 if not os.path.isdir(im_dir):
     im_dir = '/media/data_cifs/sven2/p2p_exp'
+im_dir = 'lmdb_validations'
 target_dir = 'images'
 validation_dir = 'validation_images'
 
@@ -78,5 +80,6 @@ conn.close()
 
 #Initialize CNN accuracies
 print('DB is initialized. Now running CNNs.')
+##If you have local GPUs
 import run_cnns
 run_cnns.main()

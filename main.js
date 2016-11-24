@@ -11,7 +11,7 @@ var PgStore = require('connect-pg-simple')(session);
 var yargs = require('yargs').usage('Usage: [-p or --port=<port to run server on>]');
 
 var argv = yargs.argv;
-var port = argv.port || argv.p || 8080;
+var port = argv.port || argv.p || 8090;
 var errorFlag = argv.raven || argv.sentry || false;
 var isnum = /^\d+$/.test(port);
 if (!isnum) {

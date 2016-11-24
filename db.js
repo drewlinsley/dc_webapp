@@ -63,7 +63,8 @@ DbManager.prototype.locateRandomImage = function (callback, errorCallback) {
         var high_score = res.rows[0].high_score;
         var bound_data = [selected_image,selected_label,selected_id,high_score,clicks_to_go,click_goal];
         if ((click_goal - clicks_to_go) <= 0){// trigger training routine
-          PythonShell.run('train_model.py', function (pyerr) {
+          //PythonShell.run('train_model.py', function (pyerr) {
+          PythonShell.run('send_email.py', function (pyerr) {
             if (pyerr) console.log(pyerr);
             console.log('finished training');
           })

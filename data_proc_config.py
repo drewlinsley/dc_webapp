@@ -39,10 +39,12 @@ def project_settings():
     if node_name == 'x8':
         model_path = '/media/data_gluster/attention/mlnet/'
         tf_path = '/media/data_gluster/attention/tf_experiments/'
-    else:
+    elif node_name == 'x9':
         model_path = '/home/drew/Documents/mlnet/'
         tf_path = '/home/drew/Documents/tf_experiments/'
-
+    else:
+        model_path = '/home/youssef/clickmap_prediction/'
+        tf_path = '/home/youssef/tf_experiments/'
     d = {
     #Images for the click map prediction and folders for saving the predictions
     'training_map_path' : 'database_click_images/',
