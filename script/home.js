@@ -3,7 +3,7 @@ var global_label, im_text;
 var global_color = "#ffffff";
 var user_data = { };
 var previous_loc = 0;//[0,0];
-var cnn_server = 'http://x8.clps.brown.edu:7777/guess';
+var cnn_server = '/guess';
 var click_array = [];
 var reveal_size = 12;
 var half_size = Math.round(reveal_size*.5);

@@ -2,9 +2,8 @@
 # CNN server that returns model guesses on a partially revealed image
 
 import os
-from flask import Flask, request
+from flask import Flask, request, Response
 import numpy as np
-from utils import crossdomain
 import json
 from guesser import load_guesser, get_image_prediction
 
@@ -16,7 +15,6 @@ app = Flask(__name__)
 
 # Setup query route
 @app.route('/guess', methods=['GET', 'POST', 'OPTIONS'])
-@crossdomain(origin='*')
 def guess_path(): # #
     # Get request data
     rdata = json.loads(request.form.keys()[0])
@@ -27,8 +25,13 @@ def guess_path(): # #
     # Ask the oracle
     prediction = get_image_prediction(oracle, rdata['image_name'], rdata['click_array'])
     print '...guess: %s' % prediction
-    return prediction
-    #return np.random.choice(['shark', 'boob', 'explosion', 'airplane', 'dog', 'cat'])
+    # Allow cross origin
+    resp = Response(prediction)
+    h = resp.headers
+    h['Access-Control-Allow-Origin'] = '*'
+    h['Access-Control-Allow-Methods'] = ['GET', 'POST', 'OPTIONS']
+    h['Access-Control-Max-Age'] = '21600'
+    return resp
 
 # Start flask app
 app.run(host='0.0.0.0', port=7777)
