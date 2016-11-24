@@ -13,7 +13,7 @@
     <script src="../script/home.js" type="text/javascript"></script>
  
    <!-- Style stuff and title -->
-    <title>MIRC click app</title>
+    <title>CLICKTIONARY</title>
     <link rel="icon" href="web_content/favicon.ico">
 
     <!-- Bootstrap core CSS -->
@@ -25,45 +25,67 @@
   </head>
 
   <body>
+    <!--<div class="site-wrapper">
+      <div class="site-wrapper-inner">-->
 
-    <div class="site-wrapper">
+        <nav class="navbar navbar-static-top navbar-dark bg-inverse">
+            <a class="navbar-brand" href="#">CLICKTIONARY</a>
+            <ul class="nav navbar-nav">
+                <li class="nav-item active">
+                    <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/about">What's the point?</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="login_info"></a>
+                </li>
+                <!-- <li class="nav-item">
+                    <a class="nav-link" href="mailto:...">Contact</a>
+                </li> -->
+            </ul>
 
-      <div class="site-wrapper-inner">
+                <!-- High scores -->
+                <div class="col-md-3" style="position:absolute;left:70%;top:0">
+                    <p>All-time Greatest Clicktionares</p>
+                    <table class="table table-inverse">
+                        <thead><tr><th>Name</th><th>Score</th></tr></thead>
+                        <tbody id="high_scores"></tbody>
+                    </table>
+                </div>
+        </nav>
 
-        <div class="cover-container">
-
-          <div class="masthead clearfix">
-            <div class="inner">
-              <h3 class="masthead-brand">CLICKTIONARY</h3>
-              <nav>
-                <ul class="nav masthead-nav">
-                  <li class="active"><a href="#">Home</a></li>
-                  <li><a href="/about">What's the point?</a></li>
-                </ul>
-              </nav>
+        <div class="container">
+            <div class="row">
+                <!-- Main area -->
+                    <div class="inner cover" style="margin-top:80px;margin-bottom:200px;text-align:center;">
+                        <h2 class="lead" id="spammer">Help the AI recognize this image before time runs out!</h2>
+                        <p id='progressbar'></p>
+                        <br>
+                        <br>
+                        <p class="lead">
+                            <em style="font-size:66%">Click and then drag your mouse to reveal image parts that best describe a:</em>
+                            <h2 class="lead" style="margin-top:-25px;margin-bottom:-25px;" id="image_label"></h2>
+                        </p>
+                        <canvas id="myCanvas" width="256" height="256" style="z:10000;text-align:center;margin-top:15px;margin-bottom:15px;"></canvas>
+                        <p class="lead"><small id='ai_guess'>The AI thinks this is a : </small></p>
+                        <hr width=500>
+                        <p class="lead">Your status</p>
+                        <p class="lead"><small id='click_count'>Recognized images: 0</small>&emsp;|&emsp;<small id='click_high_score'>Today's high score: 0</small>
+                        <br>
+                        <br>
+                        <em style="font-size:50%">Number of images needed until we can improve this AI's recognition.</em><br>
+                        <canvas id="myChart" width="500" height="80"></canvas></p>
+                    </div>
             </div>
-          </div>
-
-          <div class="inner cover" style="margin-top:110px;margin-bottom:200px;">
-            <h2 class="lead" id="spammer"></h2
-            <p class="lead"><em>Click on the part of the image that best describes</em>:
-            <h1 class="lead" style="margin-top:-25px;margin-bottom:-25px;" id="image_label"></h1></p>
-            <canvas id="myCanvas" width="256" height="256" style="z:10000"></canvas>
-            <p class="lead"><small id='click_count'>Your consecutive clicks: 0</small>&emsp;|&emsp;<small id='click_high_score'>Today's high score: 0</small></p>
-            <canvas id="myChart" width="500" height="200"></canvas>
-            <br><br>
-              <p>[by <a href="http://___.edu/"> HAL</a>]</p>
-          </div>
-
         </div>
 
-
-      </div>
-
-    </div>
-    <div id="image_id" style="display: none;">
+      <!--</div>
+    </div>-->
+    <div id="image_id" style="display: none;"></div>
     <!-- Footer script -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.min.js"></script>
     <script src="../script/mirc_charts.js" type="text/javascript"></script> 
+    <script src="https://rawgit.com/kimmobrunfeldt/progressbar.js/master/dist/progressbar.js" type="text/javascript"></script>
   </body>
 </html>

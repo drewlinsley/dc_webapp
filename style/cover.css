@@ -161,3 +161,7 @@ body {
     width: 700px;
   }
 }
+
+#container {
+  height: 8px;
+}

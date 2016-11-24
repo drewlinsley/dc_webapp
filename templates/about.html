@@ -46,37 +46,36 @@
 
   <body>
 
-    <div class="site-wrapper">
-
-      <div class="site-wrapper-inner">
 
         <div class="cover-container">
-
-          <div class="masthead clearfix">
-            <div class="inner">
-              <nav>
-                <ul class="nav masthead-nav">
-                  <li><a href="/">Home</a></li>
-                  <li class="active"><a href="#">What's the point?</a></li>
-                </ul>
-              </nav>
-            </div>
-          </div>
-          <br>
-          <br>
-          <br>
+        <nav class="navbar navbar-static-top navbar-dark bg-inverse">
+            <a class="navbar-brand" href="#">CLICKTIONARY</a>
+            <ul class="nav navbar-nav">
+                <li class="nav-item active">
+                    <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/about">What's the point?</a>
+                </li>
+            </ul>
+        </nav>
           <div class="inner cover">
             <h1 class="cover-heading">CLICKTIONARY</h1>
             <p><em>A web-based application for exploring the atoms of object recognition.</em></p>
             <br>
-            <img src="/web_content/machine.png" width="300" height="200">
-            <p><b>Figure caption</b></p>
+            <p style="text-align:left">Advances in AI have allowed computers to begin to see the world like humans. In fact, many of the services we use in our daily lives take advantage of these rapid developments, including Facebook face recognition, Google image search, and self-driving cars. However, we have found that there are nevertheless major differences between man and machine:
             <br>
-            <p style="text-align:left">Despite rapid advancements in Deep Convolutional Network (DCN) performance, they still lag behind humans in all but the most basic object recognition tasks. One explanation is that they do not base their decisions on the same features as humans. <b>CLICKTIONARY gathers information about the most diagnostic features in objects according to humans, and uses this information in two ways.</b><li style="text-align:left">First, to train a model for predicting the locations of these features in novel images.</li><li style="text-align:left">Second, to modulate DCN activity with this information, which we find improves classification accuracy.</li></p><p style="text-align:left">See below for real-time results on the impact of these maps on DCN recognition. For more details on the project motivating this application, please visit our [<a href="http://___.edu/">arxiv</a>], currently under review for CVPR 2017.</p>
+            <p style="text-align:center"><img src="/web_content/realization_example.png" height=120 width=280></p>
+            <p><b>Modern AI systems recognize objects with different visual features than Humans.</b></p>
+            <p style="text-align:left">For example, in the figure above  we find that when recognizing glasses, leading AIs for computer vision such as the one featured on this website are strongly influenced by the glass lenses. In contrast, recognition for humans is typically based on the glasses frames. We find this difference is systematic, which opens up opportunities to build more human-like AI.<br></p>
+            <b>CLICKTIONARY is a game that provides us with data to drive AI towards human-like recognition.</b>
+            <br><br>
+            <p style="text-align:left">Every time you play CLICKTIONARY, you provide us with valuable data about the parts of animals and objects that Humans use for recognition. We use this data in the following ways:</p>
+            <li style="text-align:left">First, to train AIs that will predict these feature locations in any image.</li><li style="text-align:left">Second, to use these predictions to train AIs for more human-like recognition, which we find improves their recognition accuracy.</li></p><b>See below for a real-time plot demonstrating the impact of CLICKTIONARY data on AI recognition. For more details on the project motivating this application, please visit our [<a href="http://___.edu/">arxiv</a>], currently under review for CVPR 2017.</b>
             <hr>
             <div class="inner cover">
               <h1 class="cover-heading">Real-time results</h1>
-              <p>Here we record VGG 16 accuracy on ImageNet Top-1 object classification after modulating its activity with a model that predicts Human realization maps. These realization maps are predicted based on where people click in images on the main page.
+              <p>Here we record the accuracy of an AI (VGG 16) in recognizing images from a large-scale database (ImageNet). The trace in red shows accuracy of the baseline AI, and the trace in blue shows what happens to the AI's recognition after we force it to pay attention to the same parts of images as Humans.
               <br><br>
               <canvas id="myChart" width="500" height="200"></canvas>
             </div>
@@ -85,8 +84,6 @@
               <p>[by <a href="http://___.edu/"> HAL</a>]</p>
             </div>
         </div>
-      </div>
-    </div>
 
     <!-- Footer script -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.min.js"></script>

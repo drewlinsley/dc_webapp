@@ -1,20 +1,8 @@
 var fs = require('fs');
 var url = require('url');
-var cron = require('cron');
 var PythonShell = require('python-shell');
-
-/*Do I need raven?
-var raven = require('raven');
-var ravenClient = new raven.Client('https://020405d8e6ce4c66aca28d5fb76d486b:dd028890ac2145898c9d73bbc04dbc90@app.getsentry.com/82686');
-ravenClient.patchGlobal();*/
-
-var cronJob = cron.job("0 0 * * *", function(){
-  PythonShell.run('run_cnns.py', function (err) {
-    if (err) console.log(err);
-    console.log('Finished updating CNN accuracy');
-  });
-});
-cronJob.start();
+var s2utils = require('./s2utils.js');
+var shortid = require('shortid');
 
 var respond = function (response, responseData, err, errorMessage) {
   if (err || errorMessage) {
@@ -47,6 +35,24 @@ var respond = function (response, responseData, err, errorMessage) {
   response.end();
 };
 
+var app_version = 2 // Reset cookie if stored under smaller app version
+
+// Server-side user data
+var getUserData = function(req) {
+  sess = req.session;
+  if (!sess.user_data || sess.user_data.app_version < app_version )
+  {
+    sess.user_data = {
+        'click_count': 0,
+        'score': 0,
+        'name': s2utils.generateRandomName(),
+        'userid': shortid.generate(),
+        'app_version': app_version
+        };
+  }
+  return sess.user_data;
+};
+
 exports.setupRouter = function (db, router, errorFlag) {
 
     router.get('/',function(req,res){
@@ -73,16 +79,13 @@ exports.setupRouter = function (db, router, errorFlag) {
         var random_image_path = bound_data[0];
         var random_image_label = bound_data[1];
         var id = bound_data[2];
-        var high_score = bound_data[3];
-        var clicks_to_go = bound_data[4];
-        var click_goal = bound_data[5];
           fs.readFile(random_image_path, {encoding: 'base64'}, function(err,content){
             if (err){
               res.writeHead(400, {'Content-type':'text/html'})
               res.end('err')
             } else {
               res.writeHead(200,{'Content-type':'image/jpg'});
-              res.end(random_image_path + '!' + random_image_label + '!' + high_score + '!' + clicks_to_go  + '!' + click_goal + 'imagestart' + content); 
+              res.end(random_image_path + '!' + random_image_label + '!imagestart' + content);
             }
           });
           });
@@ -91,9 +94,28 @@ exports.setupRouter = function (db, router, errorFlag) {
     router.post('/clicks', function(req,res){
       var clicks = req.body.clicks;
       var label = req.body.image_id;
-      var score = req.body.score;
-      db.updateClicks(label,clicks,score,
+      var username = req.body.username;
+      // Count clicks server-side
+      user_data = getUserData(req);
+      user_data.click_count += 1;
+      user_data.score += 1;
+      var score = user_data.score;
+      var username = user_data.name;
+      var userid = user_data.userid; // ID to identify the user
+      // Update click map in DB
+      db.updateClicks(label,clicks,score,username,userid,
         respond.bind(null, res),
         respond.bind(null, res, null));
+    });
+
+    router.get('/user_data', function(req, res) {
+      // Return copy of session cookie object
+      user_data = s2utils.clone(getUserData(req));
+      // Add latest highscore data
+      db.getScoreData(function(score_data){
+        // Send it!
+        user_data.scores = score_data;
+        res.json(JSON.stringify(user_data));
+      });
     });
 }

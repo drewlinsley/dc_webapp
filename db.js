@@ -1,3 +1,4 @@
+const util = require('util');
 var sanitizer = require('sanitizer');
 var Q = require('q');
 var crypto = require('crypto');
@@ -21,8 +22,9 @@ function unique_ind(arr) {
 var DbManager = function (username, password, host, port, dbName) {
   var self = this;
   var deferred = Q.defer();
-  var pgUrl = `postgres://${username}:${password}@${host}:${port}/${dbName}`;
+  var pgUrl = util.format("postgres://%s:%s@%s:%s/%s", username, password, host, port, dbName);
   this.client = new pg.Client(pgUrl);
+  console.log('Connecting to: ', pgUrl);
   this.client.connect(function (err) {
     if (err) {
       console.log('Error connecting to local sql database: ', err); // eslint-disable-line no-console
@@ -61,7 +63,7 @@ DbManager.prototype.locateRandomImage = function (callback, errorCallback) {
           return;
         }
         var high_score = res.rows[0].high_score;
-        var bound_data = [selected_image,selected_label,selected_id,high_score,clicks_to_go,click_goal];
+        var bound_data = [selected_image,selected_label,selected_id];
         if ((click_goal - clicks_to_go) <= 0){// trigger training routine
           //PythonShell.run('train_model.py', function (pyerr) {
           PythonShell.run('send_email.py', function (pyerr) {
@@ -125,7 +127,7 @@ DbManager.prototype.cnn_accuracies = function (callback, errorCallback) {
   })
 }
 
-DbManager.prototype.updateClicks = function (label, click_path, score, callback, errorCallback) {
+DbManager.prototype.updateClicks = function (label, click_path, score, username, userid, callback, errorCallback) {
   var self = this;
   self.client.query('SELECT * FROM images WHERE image_path=$1', [label], function (err, res) {
     if (err) {
@@ -166,8 +168,70 @@ DbManager.prototype.updateClicks = function (label, click_path, score, callback,
       })
     callback();
     });
+    // Update users for highscores
+    self.client.query('SELECT * FROM users WHERE cookie=$1', [userid], function (err, res) {
+      if (err) {
+        errorCallback(err, 'Uer table error');
+        return;
+      }
+        if (res.rows.length > 0)
+        {
+            // Update entry
+            self.client.query('UPDATE users SET score=$1, name=$2 WHERE cookie=$3', [score, username, userid], function (err, res) {
+                // Update OK?
+                  if (err) {
+                    errorCallback(err, 'User update error');
+                    return;
+                  }
+                  });
+        }
+        else
+        {
+            // New user!
+            self.client.query('INSERT INTO users (score, name, cookie) VALUES ($1,$2,$3)', [score, username, userid], function (err, res) {
+                // Update OK?
+                  if (err) {
+                    errorCallback(err, 'User creation error');
+                    return;
+                  }
+                  });
+         }
+     });
   });
 };
 
+DbManager.prototype.getScoreData = function (callback, errorCallback) {
+  var self = this;
+  self.client.query('SELECT * FROM image_count WHERE _id=1', function(err,res){
+    var iteration_generation = parseInt(res.rows[0].iteration_generation);
+    var generations_to_epoch = parseInt(res.rows[0].generations_per_epoch);
+    var global_num_images = parseInt(res.rows[0].num_images);
+    var click_goal = generations_to_epoch * global_num_images;
+    self.client.query('SELECT * FROM images WHERE generations=$1', [iteration_generation], function (err, res) {
+      if (err) {
+        errorCallback(err, 'Error finding image');
+        return;
+      }
+      var num_ims_in_gen = res.rows.length;
+      var clicks_to_go = (iteration_generation * global_num_images) + (global_num_images - num_ims_in_gen);
+      self.client.query('SELECT high_score FROM clicks',function(err,res){
+        if (err) {
+          errorCallback(err, 'Error looking up score');
+          return;
+        }
+        var high_score = res.rows[0].high_score;
+        // High-score table
+        self.client.query('SELECT name, score FROM users ORDER BY score DESC LIMIT 10',function(err,res){
+            if (err) {
+              errorCallback(err, 'Error fetching highscore table');
+              return;
+            }
+            high_scores = res.rows;
+            callback({'global_high_score': high_score, 'clicks_to_go': clicks_to_go, 'click_goal': click_goal, 'high_scores': high_scores});
+          });
+       });
+     });
+   });
+};
 
 exports.DbManager = DbManager;

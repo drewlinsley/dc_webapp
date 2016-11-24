@@ -26,15 +26,18 @@ var pgName = 'mircs';
 var pgUser = 'mircs';
 var pgPassword = 'serrelab';
 
+const util = require('util');
+
 app.use('/node_modules',  express.static(__dirname + '/node_modules'));
 app.use('/style',  express.static(__dirname + '/style'));
 app.use('/script',  express.static(__dirname + '/script'));
 app.use('/web_content', express.static(__dirname + '/web_content'));
 
 // use this for storing the hashed password in the session
+//app.use(require('cookie-parser'));
 app.use(session({
-  store: new PgStore({pg : pg, conString : `postgres://${pgUser}:${pgPassword}@${pgHost}:${pgPort}/${pgName}`}),
-  secret: 'the_lab secret hash `! _=    &&&&`1234a56k78\'][90-=blah',
+  store: new PgStore({pg : pg, conString : util.format('postgres://%s:%s@%s:%s/%s', pgUser, pgPassword, pgHost, pgPort, pgName)}),
+  secret: 'the_lab secret hash \`! _=    &&&&\`1234a56k78\'][90-=blah',
   resave: false,
   saveUninitialized: false
 }));

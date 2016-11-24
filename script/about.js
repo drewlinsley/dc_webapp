@@ -10,7 +10,7 @@
                 data: [2, 3]
             },
             {
-                label: "Clicktionary-modulated VGG 16",
+                label: "CLICKTIONARY-modulated VGG 16",
                 borderColor: "#478dff",
                 pointBackgroundColor: "#478dff",
                 backgroundColor: "#478dff",
