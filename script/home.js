@@ -322,7 +322,7 @@ function update_user_data(){
    	    // Update display
         $('#click_count').html('Recognized images: ' + user_data.click_count);
         $('#click_high_score').html('Today\'s high score: ' + user_data.scores.global_high_score);
-        $('#login_info').html('Logged in as: ' + user_data.name);
+        $('#login_info').html('Your user name is: ' + user_data.name);
         var accum_clicks = user_data.scores.clicks_to_go;
         var clicks_to_go = user_data.scores.click_goal - accum_clicks;
         update_chart(myChart,accum_clicks,clicks_to_go);
