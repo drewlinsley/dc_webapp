@@ -25,6 +25,12 @@ myChart = new Chart(ctx, {
     },
     options: {
         responsive: false,
+        tooltips: {
+            bodyFontSize:8,
+            titleFontSize:0,
+            titleMarginBottom:0,
+            titleSpacing:0
+        },
     scales: {
         xAxes: [{
             ticks: {

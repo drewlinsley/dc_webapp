@@ -24,9 +24,14 @@ a:hover {
  * Base structure
  */
 
-html,
+html{
+  background: #4776E6;
+}
 body {
   height: 100%;
+  margin: 0;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
   /*background-color: #333; */
   background: #4776E6; /* fallback for old browsers */
   background: -webkit-linear-gradient(to left, #4776E6 , #8E54E9); /* Chrome 10-25, Safari 5.1-6 */

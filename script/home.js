@@ -82,8 +82,26 @@ function  getMousePos(canvas, evt) {
   }
 }
 
+function  getTouchPos(canvas, evt) {
+  var rect = canvas.getBoundingClientRect(), // abs. size of element
+      scaleX = canvas.width / rect.width,    // relationship bitmap vs. element for X
+      scaleY = canvas.height / rect.height;  // relationship bitmap vs. element for Y
+  return {
+    x: (evt.touches[0].screenX - rect.left) * scaleX,   // scale mouse coordinates after they have
+    y: (evt.touches[0].screenY - rect.top) * scaleY     // been adjusted to be relative to element
+  }
+}
+
 function process_coordinates(e){
     var pos = getMousePos(canvas, e);
+    posx = pos.x;
+    posy = pos.y;
+    //gate_coordinates(); //Can probably comment this out
+    return [posx,posy]
+}
+
+function process_touch_coordinates(e){
+    var pos = getTouchPos(canvas, e);
     posx = pos.x;
     posy = pos.y;
     //gate_coordinates(); //Can probably comment this out
@@ -100,6 +118,19 @@ function gate_coordinates(){
 function draw(e) {
     postImage(global_image_link,ctx)
     var pos = process_coordinates(e);
+    posx = pos[0];
+    posy = pos[1];
+    var rgb = hexToRgb(global_color)
+    draw_boxes(rgb,click_array);
+    if (click_array.length == 0){
+        ctx.fillStyle = 'rgba(' + rgb['r'] + ',' +rgb['g'] + ',' + rgb['b'] + ',' + '0.6)';
+        ctx.fillRect(posx-half_size, posy-half_size, reveal_size, reveal_size);
+    }
+}
+
+function draw_touch(e) {
+    postImage(global_image_link,ctx)
+    var pos = process_touch_coordinates(e);
     posx = pos[0];
     posy = pos[1];
     var rgb = hexToRgb(global_color)
@@ -376,8 +407,8 @@ $(document).ready(function(){
     global_height = canvas.height;
     // Initial score
     update_user_data();
-    canvas.addEventListener('mousemove', draw, false);
-    // canvas.addEventListener('dragover', draw, false);
+    if ('ontouchstart' in window) {canvas.addEventListener('mousemove', draw, false);} //touchmove
+    else{canvas.addEventListener('mousemove', draw, false);}
     canvas.addEventListener('mousedown', clicked, false);
     start_turn();
     // Modals
