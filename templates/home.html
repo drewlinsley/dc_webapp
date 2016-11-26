@@ -11,32 +11,121 @@
     <!-- js links -->
     <script src="../script/jquery-1.11.2.js" type="text/javascript"></script>
     <script src="../script/home.js" type="text/javascript"></script>
- 
-   <!-- Style stuff and title -->
-    <title>CLICKTIONARY</title>
-    <link rel="icon" href="web_content/favicon.ico">
 
-    <!-- Bootstrap core CSS -->
-    <link href="../node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Style stuff and title -->
+    <title>CLICKTIONARY</title>
+    <link rel="icon" href="web_content/favicon.ico" />
+
+    <!-- Bootstrap core -->
+    <link href="../node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <script src="../node_modules/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
 
     <!-- Custom styles for this template -->
-    <link href="../style/cover.css" rel="stylesheet">
+    <link href="../style/cover.css" rel="stylesheet" />
 
   </head>
 
   <body>
-    <!--<div class="site-wrapper">
-      <div class="site-wrapper-inner">-->
 
+        <!-- Modals -->
+        <div id="scoreModal" class="modal fade">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">All-time Greatest Clicktionares</h4>
+                    </div>
+                    <div class="modal-body">
+                        <table class="table table-inverse">
+                            <thead><tr><th>Name</th><th>Score</th></tr></thead>
+                            <tbody id="high_scores"></tbody>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="consentModal" class="modal fade">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">We need your consent to use your data to develop better AI</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="legal well">
+                            <p><strong> Purpose of the research: </strong> You are being asked to participate in a Brown University research study to measure human performance in visual recognition tasks. In this experiment, we seek to gain a basic understanding of how the visual system rapidly interprets and organizes visual scenes.
+
+                            <p><strong> Inclusion criteria: </strong> You must be 18 years or older to participate in this experiment. You must be a native English speaker.
+
+                            <p><strong> Behavioral Procedures: </strong> The task involves viewing images and responding based on instructions you will receive shortly.
+                                
+                            <p><strong> Time required: </strong> less than 30 minutes.
+
+                            <p><strong> Benefits: </strong> Although there are no direct benefits for the participants in the current study, results may improve our knowledge of the how the brain processes visual objects and scenes.
+
+                            <p><strong> <em> Compensation: You must complete the entire experiment to receive compensation for your participation. </em> </strong>
+
+                            <p><strong> Participant Risks: </strong> There are no anticipated risks for the participants in the current study.
+
+                            <p><strong> Confidentiality: </strong> Your participation in this study is confidential. By signing this document, you permit us to use anonymized information for scientific purposes including teaching and/or publication.
+
+                            <p><strong> Participation and Withdrawal: </strong> You do not have to participate, and you are free to withdraw at any time during the course of the study by closing the browser.
+
+                            <p> <strong> Contact: </strong> If you have questions or concerns about this research, please contact
+
+                            <p> Thomas Serre
+                            <br>
+                            Manning Assistant Professor
+                            <br>
+                            Department of Cognitive, Linguistic & Psychological Sciences
+                            <br>
+                            PO Box 1820, Brown University
+                            <br>
+                            Providence, RI 02912
+                            <br>
+                            <tt>serre.lab@gmail.com</tt>
+
+                            <p> Who to contact about your rights in this research, for questions, concerns, suggestions, or complaints that are not being addressed by the researcher, or research-related harm:    
+                                    <p>
+                                    Brown University Human Research Protection Program
+                                    <br>
+                                    Box 1986
+                                    <br>
+                                    Brown University
+                                    <br>
+                                    tel: (401) 863-3050
+                                    <br>
+                                    toll-free: (866) 309-2095
+                                    <br>
+                                    </p>
+                                By clicking 'I agree' below indicates that you have understood the information about the experiment and consent to your participation. The participation is voluntary and you may refuse to answer certain questions on the questionnaire and withdraw from the study at any time with no penalty. This does not waive your legal rights. You can print a copy of the consent form or save this browser window for your own record. If you have further questions related to this research, please contact the researcher.
+                            </p>
+
+                            <button type="button" class="btn btn-default btn-sm" onClick="window.print();">
+                            <span class="glyphicon glyphicon-print"></span> Print a copy of this
+                            </button>
+                        </div>
+
+                        <hr>
+                        <h4>Do you understand and consent to these terms?</h4>
+                        <br>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-success" data-dismiss="modal">I agree</button>
+                        <button type="button" class="btn btn-danger" onclick="location.href='http://google.com';">Get me out of here!</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main site content-->
         <nav class="navbar navbar-static-top navbar-dark bg-inverse">
-            <a class="navbar-brand" href="#">CLICKTIONARY</a>
-            <ul class="nav navbar-nav">
-                <li class="nav-item active">
-                    <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/about">What's the point?</a>
-                </li>
+            <a class="navbar-brand" style="font-size:200%" href="#">CLICKTIONARY</a>
+            <ul class="nav navbar-nav pull-left">
                 <li class="nav-item">
                     <a class="nav-link" style="background-color: transparent;" id="login_info"></a>
                 </li>
@@ -44,15 +133,25 @@
                     <a class="nav-link" href="mailto:...">Contact</a>
                 </li> -->
             </ul>
-
-                <!-- High scores -->
+            <ul class="nav navbar-nav pull-right">
+                <li class="nav-item active">
+                    <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/about">What's the point?</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="scoreboard-modal" href="#">Scoreboard</a>
+                </li>
+            </ul>
+                <!-- High scores
                 <div class="col-md-3" style="position:absolute;left:75%;top:0">
                     <p>All-time Greatest Clicktionares</p>
                     <table class="table table-inverse">
                         <thead><tr><th>Name</th><th>Score</th></tr></thead>
                         <tbody id="high_scores"></tbody>
                     </table>
-                </div>
+                </div> -->
         </nav>
 
         <div class="container">
@@ -86,4 +185,5 @@
     <script src="../script/mirc_charts.js" type="text/javascript"></script> 
     <script src="https://rawgit.com/kimmobrunfeldt/progressbar.js/master/dist/progressbar.js" type="text/javascript"></script>
   </body>
+
 </html>

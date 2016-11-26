@@ -30,7 +30,8 @@ myChart = new Chart(ctx, {
             ticks: {
                 beginAtZero:true,
                 fontFamily: "'Open Sans Bold', sans-serif",
-                fontSize:11
+                fontSize:11,
+		fontColor:"black"
             },
             scaleLabel:{
                 display:false
@@ -42,13 +43,12 @@ myChart = new Chart(ctx, {
         yAxes: [{
             gridLines: {
                 display:false,
-                color: "#fff",
                 zeroLineColor: "#fff",
                 zeroLineWidth: 0
             },
             ticks: {
                 fontFamily: "'Open Sans Bold', sans-serif",
-                color: "#fff",
+                fontColor: "black",
                 minRotation: 90, // angle in degrees
                 labelOffset: -20
             },

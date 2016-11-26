@@ -14,6 +14,7 @@ var time_limit = 10000;
 var answer_status_timer = 500;
 var posx, posy, true_posx, true_posy, global_guess, global_width, global_height;
 
+// Main content
 function getImage(ctx){
 	var jqxhr = $.get('/random_image', function () {
 	        })
@@ -379,4 +380,7 @@ $(document).ready(function(){
     // canvas.addEventListener('dragover', draw, false);
     canvas.addEventListener('mousedown', clicked, false);
     start_turn();
+    // Modals
+    $('#scoreboard-modal').click(function(){$("#scoreModal").modal('show');})
+    if (user_data.click_count == 0){$("#consentModal").modal('show');}
 })
