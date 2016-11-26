@@ -95,10 +95,11 @@ exports.setupRouter = function (db, router, errorFlag) {
       var clicks = req.body.clicks;
       var label = req.body.image_id;
       var username = req.body.username;
+      var correct = req.body.correct;
       // Count clicks server-side
       user_data = getUserData(req);
       user_data.click_count += 1;
-      user_data.score += 1;
+      if (correct == 'correct'){user_data.score += 1;}
       var score = user_data.score;
       var username = user_data.name;
       var userid = user_data.userid; // ID to identify the user

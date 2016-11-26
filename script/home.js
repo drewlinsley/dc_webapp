@@ -5,13 +5,14 @@ var user_data = { };
 var previous_loc = 0;//[0,0];
 var cnn_server = '/guess';
 var click_array = [];
-var reveal_size = 12;
-var half_size = Math.round(reveal_size*.5);
+var reveal_size = 8;
+var half_size = Math.round(reveal_size/2);
 var reveal_rate = 100;
 var playing_image = false;
 var clicks_till_update = 10; //Clicks between server calls
-var time_limit = 15000;
-var posx, posy, true_posx, true_posy;
+var time_limit = 10000;
+var answer_status_timer = 500;
+var posx, posy, true_posx, true_posy, global_guess, global_width, global_height;
 
 function getImage(ctx){
 	var jqxhr = $.get('/random_image', function () {
@@ -33,7 +34,7 @@ function getImage(ctx){
 }
 
 function postImage(image_link,ctx){
-	var image = new Image();
+    var image = new Image();
     image.src = 'data:image/jpg;base64,' + image_link;
     try{
         ctx.drawImage(image,0,0);
@@ -84,28 +85,26 @@ function process_coordinates(e){
     var pos = getMousePos(canvas, e);
     posx = pos.x;
     posy = pos.y;
-    gate_coordinates();
+    //gate_coordinates(); //Can probably comment this out
     return [posx,posy]
 }
 
 function gate_coordinates(){
     if (posx < 0){posx = 0;}
-    if (posx > 256){posx = 256;}
+    if (posx > global_width){posx = global_width;}
     if (posy < 0){posy = 0;}
-    if (posy > 256){posy = 256;}
+    if (posy > global_height){posy = global_height;}
 }
 
 function draw(e) {
     postImage(global_image_link,ctx)
     var pos = process_coordinates(e);
-    //console.log(pos)
-    //console.log(click_array[click_array.length-1])
     posx = pos[0];
     posy = pos[1];
     var rgb = hexToRgb(global_color)
     draw_boxes(rgb,click_array);
     if (click_array.length == 0){
-        ctx.fillStyle = 'rgba(' + rgb['r'] + ',' +rgb['g'] + ',' + rgb['b'] + ',' + '0.4)';
+        ctx.fillStyle = 'rgba(' + rgb['r'] + ',' +rgb['g'] + ',' + rgb['b'] + ',' + '0.6)';
         ctx.fillRect(posx-half_size, posy-half_size, reveal_size, reveal_size);
     }
 }
@@ -174,7 +173,7 @@ function calculate_new_dist(old_x,old_y,new_x,new_y,old_dist,new_dist){
 }
 
 function draw_boxes(rgb,click_array){
-    ctx.fillStyle = 'rgba(' + rgb['r'] + ',' +rgb['g'] + ',' + rgb['b'] + ',' + '0.6)';
+    ctx.fillStyle = 'rgba(' + rgb['r'] + ',' +rgb['g'] + ',' + rgb['b'] + ',' + '0.3)';
     for (var idx = 0; idx < click_array.length; idx++){
         ctx.fillRect(click_array[idx][0]-half_size, click_array[idx][1]-half_size, reveal_size, reveal_size);
     }
@@ -211,8 +210,6 @@ function calculate_new_click(){
     if (novel_coordinate(new_points) & playing_image){
         click_functions(new_points[0],new_points[1]);
     } //make sure that we're just delaying the drawing/storing process, but that there's a queue of coordinates building up.
-    //Then on every Nth coordinate, send the json to sven's server
-    //Depending on what's returned either do a "correct" or "incorrect" recognition
 }
 
 function check_deviation(){
@@ -225,7 +222,8 @@ function check_deviation(){
 }
 
 function update_guess(cnn_guess){
-    $('#ai_guess').html('The AI thinks this is a : ' + cnn_guess);
+    global_guess = cnn_guess;
+    $('#ai_guess').html('The AI thinks this is a: ' + cnn_guess);
 }
 
 function package_json(click_array,global_label){
@@ -246,7 +244,6 @@ function call_sven(){
             if (data === im_text){correct_recognition();}
         }
     });
-
 }
 
 function keep_clicking(){
@@ -263,27 +260,37 @@ function keep_clicking(){
     },reveal_rate)
 }
 
-function correct_recognition(){
+function round_reset(correct){
+    update_user_data();
     window.removeEventListener('mousedown', clicked, false);
     playing_image = false;
-    update_user_data();
-    upload_click_location(click_array);
+    upload_click_location(click_array,correct);
     click_array = [];
     bar.destroy();
     start_turn();
+}
+
+function correct_recognition(){
+    round_reset('correct');
+    answer_status(true);
 }
 
 function time_elapsed(){
-    window.removeEventListener('mousedown', clicked, false);
-    playing_image = false;
-    click_array = [];
-    bar.destroy();
-    start_turn();
+    round_reset('wrong');
+    answer_status(false);
 }
 
+function answer_status(c_i){
+    if (c_i) { //true
+        var text_color="#009b14";
+    }else{ //false
+        var text_color="#b50024";
+    }
+    $('#ai_guess').html('The AI thinks this is a: <span style="color:' + text_color + '">' + global_guess + '</span>');    
+}
 
 function clicked() {
-    if (posx < 0 || posx > 256 || posy < 0 || posy > 256){}
+    if (posx < 0 || posx > global_width || posy < 0 || posy > global_height){}
     else{
         if (click_array.length === 0){
             click_functions(posx,posy);
@@ -294,18 +301,17 @@ function clicked() {
     }
 }
 
-function upload_click_location(clicks){
+function upload_click_location(clicks,correct){
     var data = {};
     data.clicks = clicks;
     data.image_id = global_label;
+    data.correct = correct;
     $.ajax({
         type: 'POST',
         url: '/clicks',
         data: data,
         dataType: 'application/json',
-        success: function(data) {
-            console.log('uploaded image, now update the status bar.');
-        }
+        success: function(data) {}
     });
 }
 
@@ -357,12 +363,20 @@ function setup_progressbar(){
 }
 /////////
 $(document).ready(function(){
+    // Prepare canvas
     canvas = document.getElementById('myCanvas');
     ctx = canvas.getContext('2d');
+    // Adjust canvas element for phones
+    if ($(window).width() < canvas.width){
+        ctx.canvas.height = $(window).height();
+        ctx.canvas.width = $(window).width();
+    }
+    global_width = canvas.width;
+    global_height = canvas.height;
     // Initial score
     update_user_data();
-    //getImage(ctx);
-    window.addEventListener('mousemove', draw, false);
-    window.addEventListener('mousedown', clicked, false);
+    canvas.addEventListener('mousemove', draw, false);
+    // canvas.addEventListener('dragover', draw, false);
+    canvas.addEventListener('mousedown', clicked, false);
     start_turn();
 })

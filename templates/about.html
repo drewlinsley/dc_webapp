@@ -63,20 +63,19 @@
             <h1 class="cover-heading">CLICKTIONARY</h1>
             <p><em>A web-based application for exploring the atoms of object recognition.</em></p>
             <br>
-            <p style="text-align:left">Advances in AI have allowed computers to begin to see the world like humans. In fact, many of the services we use in our daily lives take advantage of these rapid developments, including Facebook face recognition, Google image search, and self-driving cars. However, we have found that there are nevertheless major differences between man and machine:
+            <p style="text-align:left">Rapid advances in Artificial Intelligence (AI) over recent years have allowed computers to see the world like humans. This has supported a variety of new technologies that change how we live our lives, including Facebook face recognition, Google image search, and self-driving cars. However, we have found that there still exist systematic differences between man and machine:
             <br>
             <p style="text-align:center"><img src="/web_content/realization_example.png" height=120 width=280></p>
-            <p><b>Modern AI systems recognize objects with different visual features than Humans.</b></p>
-            <p style="text-align:left">For example, in the figure above  we find that when recognizing glasses, leading AIs for computer vision such as the one featured on this website are strongly influenced by the glass lenses. In contrast, recognition for humans is typically based on the glasses frames. We find this difference is systematic, which opens up opportunities to build more human-like AI.<br></p>
-            <b>CLICKTIONARY is a game that provides us with data to drive AI towards human-like recognition.</b>
+            <p><b>Different parts of objects are important to humans than AI during object recognition.</b></p>
+            <p style="text-align:left">In the figure above we demonstrate that humans recognize objects using different information than AI: the glasses frames are important for humans whereas the lenses are important for AI. This means that forcing AI to focus on the same information as humans represents a clear path for driving them significantly closer to human-like recognition.</p><br><hr><br>
+            <b>CLICKTIONARY is a game that provides us with data to bridge the gap between AI and human object recognition.</b>
             <br><br>
-            <p style="text-align:left">Every time you play CLICKTIONARY, you provide us with valuable data about the parts of animals and objects that Humans use for recognition. We use this data in the following ways:</p>
-            <li style="text-align:left">First, to train AIs that will predict these feature locations in any image.</li><li style="text-align:left">Second, to use these predictions to train AIs for more human-like recognition, which we find improves their recognition accuracy.</li></p><b>See below for a real-time plot demonstrating the impact of CLICKTIONARY data on AI recognition. For more details on the project motivating this application, please visit our [<a href="http://___.edu/">arxiv</a>], currently under review for CVPR 2017.</b>
-            <hr>
+            <p style="text-align:left">Every time you play CLICKTIONARY, you provide us with data about what parts of animals and objects humans use for recognition. We use this data in the following ways:</p>
+            <ol><li style="text-align:left">To train AI to act human-like when identifying important image parts.</li><li style="text-align:left">To measure the extent to which paying attention to the same information as humans during object recognition improves accuracy.</li></ol></p><p style="text-align:left"><b>Our early findings, detailed [<a href="http://___.edu/">here</a>] suggest that this approach will significantly improve the performance of AI in object recognition.</b> See below for a graph updated daily showing how AI improves at object recognition when it is forced to pay attention to the same information as humans.</p><br>
+            <hr><br>
             <div class="inner cover">
-              <h1 class="cover-heading">Real-time results</h1>
-              <p>Here we record the accuracy of an AI (VGG 16) in recognizing images from a large-scale database (ImageNet). The trace in red shows accuracy of the baseline AI, and the trace in blue shows what happens to the AI's recognition after we force it to pay attention to the same parts of images as Humans.
-              <br><br>
+              <h1 class="cover-heading">Daily-tracking of AI recognition</h1>
+              <p>Here we record the accuracy of an AI (VGG 16) in recognizing images from a large-scale database (ImageNet). The trace in red is accuracy of a typical VGG 16, and the trace in blue is what happens to its recognition after we force it to pay attention to the same parts of objects as humans.<br><br>
               <canvas id="myChart" width="500" height="200"></canvas>
             </div>
           </div>
