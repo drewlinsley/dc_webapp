@@ -14,6 +14,66 @@ var time_limit = 10000;
 var answer_status_timer = 500;
 var posx, posy, true_posx, true_posy, global_guess, global_width, global_height;
 
+//Background
+var colors = new Array(
+  [62,35,255],
+  [60,255,60],
+  [255,35,98],
+  [45,175,230],
+  [255,0,255],
+  [255,128,0]);
+
+var step = 0;
+//color table indices for: 
+// current color left
+// next color left
+// current color right
+// next color right
+var colorIndices = [0,1,2,3];
+
+//transition speed
+var gradientSpeed = 0.02;
+
+function updateGradient()
+{
+  
+  if ( $===undefined ) return;
+  
+var c0_0 = colors[colorIndices[0]];
+var c0_1 = colors[colorIndices[1]];
+var c1_0 = colors[colorIndices[2]];
+var c1_1 = colors[colorIndices[3]];
+
+var istep = 1 - step;
+var r1 = Math.round(istep * c0_0[0] + step * c0_1[0]);
+var g1 = Math.round(istep * c0_0[1] + step * c0_1[1]);
+var b1 = Math.round(istep * c0_0[2] + step * c0_1[2]);
+var color1 = "rgb("+r1+","+g1+","+b1+")";
+
+var r2 = Math.round(istep * c1_0[0] + step * c1_1[0]);
+var g2 = Math.round(istep * c1_0[1] + step * c1_1[1]);
+var b2 = Math.round(istep * c1_0[2] + step * c1_1[2]);
+var color2 = "rgb("+r2+","+g2+","+b2+")";
+
+ $('#gradient').css({
+   background: "-webkit-gradient("+color1+","+color2+")"}).css({
+    background: "linear-gradient("+color1+" 0%, "+color2+" 100%)"});
+  
+  step += gradientSpeed;
+  if ( step >= 1 )
+  {
+    step %= 1;
+    colorIndices[0] = colorIndices[1];
+    colorIndices[2] = colorIndices[3];
+    
+    //pick two new target color indices
+    //do not pick the same as the current one
+    colorIndices[1] = ( colorIndices[1] + Math.floor( 1 + Math.random() * (colors.length - 1))) % colors.length;
+    colorIndices[3] = ( colorIndices[3] + Math.floor( 1 + Math.random() * (colors.length - 1))) % colors.length;
+    
+  }
+}
+
 // Main content
 function getImage(ctx){
 	var jqxhr = $.get('/random_image', function () {
@@ -52,7 +112,7 @@ function getRandomColor() {
     var letters = '0123456789ABCDEF';
     var color = '#';
     for (var i = 0; i < 6; i++ ) {
-        color += letters[Math.floor(Math.random() * 8)+8];
+        color += letters[Math.floor(Math.random() * letters.length)];
     }
     return color;
 }
@@ -302,9 +362,22 @@ function round_reset(correct){
     start_turn();
 }
 
+function refresh_gradient(){
+var timesRun = 0;
+var interval = setInterval(function(){
+    timesRun += 1;
+    if(timesRun === 60){
+        clearInterval(interval);
+    }
+    updateGradient();
+}, 2000); 
+}
+
 function correct_recognition(){
     round_reset('correct');
-    answer_status(true);
+    answer_status(true); //make this dissappear after answer_status_timer ms
+    add=setInterval(updateGradient(),10); //dont think this works
+    setTimeout(function(){clearInterval(add);},500)
 }
 
 function time_elapsed(){
@@ -314,9 +387,9 @@ function time_elapsed(){
 
 function answer_status(c_i){
     if (c_i) { //true
-        var text_color="#009b14";
+        var text_color="#00FF04";
     }else{ //false
-        var text_color="#b50024";
+        var text_color="#FF330A";
     }
     $('#ai_guess').html('The AI thinks this is a: <span style="color:' + text_color + '">' + global_guess + '</span>');    
 }
@@ -358,6 +431,7 @@ function update_user_data(){
    	$.get('/user_data', function () { }).done(function(json_data) {
    	    user_data = JSON.parse(json_data);
    	    // Update display
+        if (user_data.click_count == 0){$("#consentModal").modal('show');}
         $('#click_count').html('Recognized images: ' + user_data.click_count);
         $('#click_high_score').html('Today\'s high score: ' + user_data.scores.global_high_score);
         $('#login_info').html('Your user name is: ' + user_data.name);
@@ -369,7 +443,7 @@ function update_user_data(){
         hsdata = user_data.scores.high_scores;
         for (var i = 0; i < hsdata.length; ++i)
         {
-            high_score_table += '<tr><td>' + hsdata[i].name + '</td><td>' + hsdata[i].score + '</td></tr>'
+            high_score_table += '<tr class="align-left"><td>' + (i + 1).toString() + '</td><td>' + hsdata[i].name + '</td><td>' + hsdata[i].score + '</td></tr>'
         }
         $('#high_scores').html(high_score_table);
     });
@@ -393,6 +467,29 @@ function setup_progressbar(){
 });
 
 }
+
+function email_check(text){
+    if (text.indexOf('@') !== -1){
+        $('#agree').disable(false);
+    }
+}
+
+jQuery.fn.extend({
+    disable: function(state) {
+        return this.each(function() {
+            var $this = $(this);
+            $this.toggleClass('disabled', state);
+        });
+    }
+});
+
+function next_date(){
+    var D= new Date();
+    D.setMonth(D.getMonth()+1,1);
+    D.setHours(0, 0, 0, 0);
+    return D.toString().split(' 00')[0];
+}
+
 /////////
 $(document).ready(function(){
     // Prepare canvas
@@ -413,5 +510,10 @@ $(document).ready(function(){
     start_turn();
     // Modals
     $('#scoreboard-modal').click(function(){$("#scoreModal").modal('show');})
-    if (user_data.click_count == 0){$("#consentModal").modal('show');}
+    // Tooltips
+    $('#agree').tooltip({container: 'body'})
+    $('#email').on('input', function(){email_check($('#email').val())});
+    // Contest date
+    $('#next_prize').text('The top-5 scoring players by ' + next_date()  + ' win a gift-card! See the Scoreboard tab for details.')
+    $('#scoreboard_time').text('Prizes awarded to the top-5 players on ' + next_date() + '.')
 })

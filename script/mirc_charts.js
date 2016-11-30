@@ -37,7 +37,8 @@ myChart = new Chart(ctx, {
                 beginAtZero:true,
                 fontFamily: "'Open Sans Bold', sans-serif",
                 fontSize:11,
-		fontColor:"black"
+		fontColor:"black",
+                max: 20000
             },
             scaleLabel:{
                 display:false

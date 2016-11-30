@@ -26,18 +26,25 @@
   </head>
 
   <body>
-
+	<div id="gradient" />
         <!-- Modals -->
         <div id="scoreModal" class="modal fade">
-            <div class="modal-dialog">
+            <div class="modal-dialog" style="text-align:left">
                 <div class="modal-content">
-                    <div class="modal-header">
+                    <div class="modal-header" style="text-align:center">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">All-time Greatest Clicktionares</h4>
+                        <h4 class="modal-title">Highest-scoring players this month</h4>
+                        <dl id='scoreboard_time'>Prizes awarded to the top-5 Clicktionares on 1/1/2017 at 5:00PM ET</dl>
+                            <dt>1st place: $50 Amazon gift card</dt>
+                            <dt>2nd place: $40 Amazon gift card</dt>
+                            <dt>3rd place: $30 Amazon gift card</dt>
+                            <dt>4th place: $20 Amazon gift card</dt>
+                            <dt>5th place: $10 Amazon gift card</dt>
+                        </dl>
                     </div>
                     <div class="modal-body">
                         <table class="table table-inverse">
-                            <thead><tr><th>Name</th><th>Score</th></tr></thead>
+                            <thead><tr><th>Place</th><th>Name</th><th>Score</th></tr></thead>
                             <tbody id="high_scores"></tbody>
                         </table>
                     </div>
@@ -48,14 +55,13 @@
             </div>
         </div>
 
-        <div id="consentModal" class="modal fade">
+        <div id="consentModal" class="modal fade" data-backdrop="static" data-keyboard="false">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                         <h4 class="modal-title">We need your consent to use your data to develop better AI</h4>
                     </div>
-                    <div class="modal-body">
+                    <div class="modal-body" style="text-align:left">
                         <div class="legal well">
                             <p><strong> Purpose of the research: </strong> You are being asked to participate in a Brown University research study to measure human performance in visual recognition tasks. In this experiment, we seek to gain a basic understanding of how the visual system rapidly interprets and organizes visual scenes.
 
@@ -105,17 +111,17 @@
                                 By clicking 'I agree' below indicates that you have understood the information about the experiment and consent to your participation. The participation is voluntary and you may refuse to answer certain questions on the questionnaire and withdraw from the study at any time with no penalty. This does not waive your legal rights. You can print a copy of the consent form or save this browser window for your own record. If you have further questions related to this research, please contact the researcher.
                             </p>
 
-                            <button type="button" class="btn btn-default btn-sm" onClick="window.print();">
+                            <button type="button" class="btn btn-default btn-sm center-block" onClick="window.print();">
                             <span class="glyphicon glyphicon-print"></span> Print a copy of this
                             </button>
                         </div>
 
                         <hr>
                         <h4>Do you understand and consent to these terms?</h4>
-                        <br>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-success" data-dismiss="modal">I agree</button>
+                        <input type="text" id="email" style="float:left;width:245px;" placeholder="Enter your email here before agreeing.">
+                        <button type="button" id="agree" class="btn btn-success disabled" data-toggle="tooltip" data-placement="top" data-dismiss="modal" title="We need your email in order to contact you if you win a prize!">I agree</button>
                         <button type="button" class="btn btn-danger" onclick="location.href='http://google.com';">Get me out of here!</button>
                     </div>
                 </div>
@@ -141,6 +147,9 @@
                     <a class="nav-link" href="/about">What's the point?</a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link" href="mailto:clicktionary.ai@gmail.com?Subject=CLICKTIONARY" target="_top">Contact us</a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" id="scoreboard-modal" href="#">Scoreboard</a>
                 </li>
             </ul>
@@ -157,15 +166,17 @@
         <div class="container">
             <div class="row">
                 <!-- Main area -->
-                    <div class="inner cover" style="margin-top:50px;margin-bottom:200px;text-align:center;">
+                    <div class="inner cover" style="margin-top:0px;margin-bottom:200px;text-align:center;">
                         <h2 class="lead" id="spammer">Help the AI recognize this image before time runs out!</h2>
-                        <p id='progressbar'></p>
+                        <p style="font-size:66%;margin-top:-20px" id="next_prize">The top-5 scoring players by --  win a gift-card! See the Scoreboard tab for details.</p>
+                        <hr width="50%" style="margin-top:-5px">
                         <p class="lead">
-                            <em style="font-size:66%">Click and then drag your mouse to reveal image parts that best describe a:</em>
-                            <h2 class="lead" style="margin-top:-25px;margin-bottom:-25px;" id="image_label"></h2>
+                            <p style="font-size:66%">Click and then drag your mouse to reveal image parts that best describe a:</p>
+                            <h2 class="lead" style="margin-top:-12px;margin-bottom:-10px;" id="image_label"></h2>
                         </p>
-                        <canvas id="myCanvas" width="256" height="256" style="z:10000;text-align:center;margin-top:15px;margin-bottom:15px;"></canvas>
-                        <p class="lead"><small id='ai_guess'>The AI thinks this is a : </small><br><hr></p>
+                        <p id='progressbar'></p>
+                        <canvas id="myCanvas" width="256" height="256" style="z:10000;text-align:center;margin-bottom:15px;"></canvas>
+                        <p class="lead"><small id='ai_guess'>The AI thinks this is a : </small><br><hr width="50%"></p>
                         <p class="lead">Your status</p>
                         <p class="lead"><small id='click_count'>Recognized images: 0</small>&emsp;|&emsp;<small id='click_high_score'>Today's high score: 0</small>
                         <br>

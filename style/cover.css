@@ -32,15 +32,25 @@ body {
   margin: 0;
   background-repeat: no-repeat;
   background-attachment: fixed;
-  /*background-color: #333; */
+  background-color: #333; 
   background: #4776E6; /* fallback for old browsers */
-  background: -webkit-linear-gradient(to left, #4776E6 , #8E54E9); /* Chrome 10-25, Safari 5.1-6 */
-  background: linear-gradient(to left, #4776E6 , #8E54E9); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+  background: -webkit-linear-gradient(#8E54E9,#4776E6); /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(#8E54E9,#4776E6); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
 }
-body {
+
+
+/*body {
   color: #fff;
   text-align: center;
   text-shadow: 0 1px 3px rgba(0,0,0,.5);
+}*/
+
+#gradient
+{
+  width: 100%;
+  height: 800px;
+  padding: 0px;
+  margin: 0px;
 }
 
 /* Extra markup and styles for table-esque vertical and horizontal centering */
@@ -98,7 +108,7 @@ body {
 }
 .masthead-nav > .active > a,
 .masthead-nav > .active > a:hover,
-.masthead-nav > .active > a:focus {
+-.masthead-nav > .active > a:focus {
   color: #fff;
   border-bottom-color: #fff;
 }
