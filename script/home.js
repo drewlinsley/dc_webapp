@@ -490,9 +490,16 @@ function update_user_data(){
         // High score table
         high_score_table = '';
         hsdata = user_data.scores.high_scores;
+        var tt;
         for (var i = 0; i < hsdata.length; ++i)
         {
-            high_score_table += '<tr class="align-left"><td>' + (i + 1).toString() + '</td><td>' + hsdata[i].name + '</td><td>' + hsdata[i].score + '</td></tr>'
+            if (i == 0){tt = 'info'}
+            else if (i == 1){tt = 'success'}
+            else if (i == 2){tt = 'warning'}
+            else if (i == 3){tt = 'danger'}
+            else if (i == 4){tt = 'active'}
+            else {tt = '';}
+            high_score_table += '<tr class="' + tt + '"><td>' + (i + 1).toString() + '</td><td>' + hsdata[i].name + '</td><td>' + hsdata[i].score + '</td></tr>'
         }
         $('#high_scores').html(high_score_table);
     });
