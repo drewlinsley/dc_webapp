@@ -112,7 +112,7 @@ function getRandomColor() {
     var letters = '0123456789ABCDEF';
     var color = '#';
     for (var i = 0; i < 6; i++ ) {
-        color += letters[Math.floor(Math.random() * letters.length)];
+        color += letters[Math.floor(Math.random() * (letters.length * .5)) + 8];
     }
     return color;
 }
@@ -375,8 +375,8 @@ var interval = setInterval(function(){
 
 function correct_recognition(){
     round_reset('correct');
-    answer_status(true); //make this dissappear after answer_status_timer ms
-    add=setInterval(updateGradient(),10); //dont think this works
+    answer_status(true,answer_status_timer); //make this dissappear after answer_status_timer ms
+    add=setInterval(updateGradient,10); //dont think this works
     setTimeout(function(){clearInterval(add);},500)
 }
 
@@ -385,13 +385,22 @@ function time_elapsed(){
     answer_status(false);
 }
 
+function skip_question(){
+    round_reset('skip');
+    answer_status(false);
+}
+
 function answer_status(c_i){
     if (c_i) { //true
         var text_color="#00FF04";
+        $('#ai_guess').html('The AI correctly thought this was a: <span style="color:' + text_color + '">' + global_guess + '</span>');
     }else{ //false
         var text_color="#FF330A";
+        $('#ai_guess').html('The AI incorrectly thought this was a: <span style="color:' + text_color + '">' + global_guess + '</span>');
     }
-    $('#ai_guess').html('The AI thinks this is a: <span style="color:' + text_color + '">' + global_guess + '</span>');    
+    setTimeout(function(){
+        $('#ai_guess').html('[Waiting for your next click]');
+    },2000)
 }
 
 function clicked() {
@@ -490,6 +499,18 @@ function next_date(){
     return D.toString().split(' 00')[0];
 }
 
+function upload_email(){
+    var data = {};
+    data.email = $('#email').val();
+    $.ajax({
+        type: 'POST',
+        url: '/email',
+        data: data,
+        dataType: 'application/json',
+        success: function(data) {}
+    });    
+}
+
 /////////
 $(document).ready(function(){
     // Prepare canvas
@@ -513,6 +534,9 @@ $(document).ready(function(){
     // Tooltips
     $('#agree').tooltip({container: 'body'})
     $('#email').on('input', function(){email_check($('#email').val())});
+    $('#skip_button').tooltip({container: 'body'})
+    $('#skip_button').click(function(){skip_question()});
+    $('#agree').click(function(){upload_email()});
     // Contest date
     $('#next_prize').text('The top-5 scoring players by ' + next_date()  + ' win a gift-card! See the Scoreboard tab for details.')
     $('#scoreboard_time').text('Prizes awarded to the top-5 players on ' + next_date() + '.')

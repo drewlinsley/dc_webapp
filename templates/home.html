@@ -167,18 +167,20 @@
             <div class="row">
                 <!-- Main area -->
                     <div class="inner cover" style="margin-top:0px;margin-bottom:200px;text-align:center;">
-                        <h2 class="lead" id="spammer">Help the AI recognize this image before time runs out!</h2>
-                        <p style="font-size:66%;margin-top:-20px" id="next_prize">The top-5 scoring players by --  win a gift-card! See the Scoreboard tab for details.</p>
+                        <h2 class="lead" id="spammer" style="color:white;">Help the AI recognize this image before time runs out!</h2>
+                        <p style="font-size:66%;margin-top:-20px;color:white;" id="next_prize">The top-5 scoring players by --  win a gift-card! See the Scoreboard tab for details.</p>
                         <hr width="50%" style="margin-top:-5px">
                         <p class="lead">
-                            <p style="font-size:66%">Click and then drag your mouse to reveal image parts that best describe a:</p>
+                            <p style="font-size:66%;color:white;">Click and then drag your mouse to reveal image parts that best describe a:</p>
                             <h2 class="lead" style="margin-top:-12px;margin-bottom:-10px;" id="image_label"></h2>
                         </p>
-                        <p id='progressbar'></p>
                         <canvas id="myCanvas" width="256" height="256" style="z:10000;text-align:center;margin-bottom:15px;"></canvas>
-                        <p class="lead"><small id='ai_guess'>The AI thinks this is a : </small><br><hr width="50%"></p>
-                        <p class="lead">Your status</p>
-                        <p class="lead"><small id='click_count'>Recognized images: 0</small>&emsp;|&emsp;<small id='click_high_score'>Today's high score: 0</small>
+                        <p id='progressbar'></p>
+                        <p class="lead"><small id='ai_guess' style="color:white;">The AI thinks this is a : </small></p>
+                        <button type="button" style="height:20px;font-size:66%" class="btn btn-secondary" id="skip_button" data-toggle="tooltip" data-placement="bottom" title="Careful, this may deduct points from your score.">Click here to skip the image and mark it as bad</button>
+				<br><hr width="50%"> 
+                        <p class="lead" style="color:white;">Your status</p>
+                        <p class="lead"><small id='click_count' style="color:white;">Recognized images: 0</small>&emsp;|&emsp;<small id='click_high_score' style="color:white;">Today's high score: 0</small>
                         <br>
                         <br>
                         <em style="font-size:50%">Number of images needed until we can improve this AI's recognition.</em><br>

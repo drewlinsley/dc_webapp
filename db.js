@@ -127,7 +127,7 @@ DbManager.prototype.cnn_accuracies = function (callback, errorCallback) {
   })
 }
 
-DbManager.prototype.updateClicks = function (label, click_path, score, username, userid, callback, errorCallback) {
+DbManager.prototype.updateClicks = function (label, click_path, score, username, userid, answers, callback, errorCallback) {
   var self = this;
   self.client.query('SELECT * FROM images WHERE image_path=$1', [label], function (err, res) {
     if (err) {
@@ -135,16 +135,28 @@ DbManager.prototype.updateClicks = function (label, click_path, score, username,
       return;
     }
     var generations = parseInt(res.rows[0].generations) + 1;
+
+    //Handle the coordinates
     var prev_coors = res.rows[0].click_path;
     if (prev_coors != null){
       prev_coors['x'].push(click_path[0]);
       prev_coors['y'].push(click_path[1]);
-      console.log(prev_coors);
       coors = prev_coors; 
     }else{
       var coors = {'x':[click_path[0]],'y':[click_path[1]]};
     }
-    self.client.query('UPDATE images SET click_path=$1, generations=$2 WHERE image_path=$3', [coors,generations,label], function (err, res) {
+
+    //Handle the responses
+    var prev_answers = res.rows[0].answers;
+    if (prev_answers != null){
+      prev_answers['answers'].push(answers[0]);
+      answers = answers;
+    }else{
+      var coors = {'answers':[answers]};
+    }
+
+    //Update database
+    self.client.query('UPDATE images SET click_path=$1, generations=$2, answers=$3 WHERE image_path=$4', [coors,generations,answers,label], function (err, res) {
       if (err) {
         errorCallback(err, 'Error finding image');
         return;
@@ -233,5 +245,25 @@ DbManager.prototype.getScoreData = function (callback, errorCallback) {
      });
    });
 };
+
+DbManager.prototype.addEmail = function (email,username,userid, callback, errorCallback) {
+  var self = this;
+  /* Update entry
+  self.client.query('UPDATE users SET email=$1 WHERE cookie=$2', [email, userid], function (err, res) {
+      // Update OK?
+      if (err) {
+          errorCallback(err, 'User update error');
+          return;
+      }
+  });*/
+  //Add entry
+  self.client.query('INSERT INTO users (score, name, email, cookie) VALUES ($1,$2,$3,$4)', [0, username, email, userid], function (err, res) {
+      // Update OK?
+      if (err) {
+          errorCallback(err, 'User update error');
+          return;
+      }
+  });
+}
 
 exports.DbManager = DbManager;

@@ -97,14 +97,25 @@ exports.setupRouter = function (db, router, errorFlag) {
       var username = req.body.username;
       var correct = req.body.correct;
       // Count clicks server-side
-      user_data = getUserData(req);
+      var user_data = getUserData(req);
       user_data.click_count += 1;
       if (correct == 'correct'){user_data.score += 1;}
+      else if (correct == 'skip'){if (Math.random < 0.25){user_data.score -= 1;}}
       var score = user_data.score;
       var username = user_data.name;
       var userid = user_data.userid; // ID to identify the user
       // Update click map in DB
-      db.updateClicks(label,clicks,score,username,userid,
+      db.updateClicks(label,clicks,score,username,userid,correct,
+        respond.bind(null, res),
+        respond.bind(null, res, null));
+    });
+
+    router.post('/email', function(req,res){
+      var email = req.body.email;
+      var user_data = getUserData(req);
+      var username = user_data.name;
+      var userid = user_data.userid; // ID to identify the user
+      db.addEmail(email,username,userid,
         respond.bind(null, res),
         respond.bind(null, res, null));
     });
