@@ -7,7 +7,7 @@ var cnn_server = '/guess';
 var click_array = [];
 var reveal_size = 8;
 var half_size = Math.round(reveal_size/2);
-var reveal_rate = 100;
+var reveal_rate = 50;
 var playing_image = false;
 var clicks_till_update = 10; //Clicks between server calls
 var time_limit = 10000;
@@ -440,8 +440,8 @@ function update_user_data(){
    	$.get('/user_data', function () { }).done(function(json_data) {
    	    user_data = JSON.parse(json_data);
    	    // Update display
-        if (user_data.click_count == 0){$("#consentModal").modal('show');}
-        $('#click_count').html('Recognized images: ' + user_data.click_count);
+        //if (user_data.email == ''){$("#consentModal").modal('show');}
+        $('#click_count').html('Recognized images: ' + user_data.score);
         $('#click_high_score').html('Today\'s high score: ' + user_data.scores.global_high_score);
         $('#login_info').html('Your user name is: ' + user_data.name);
         var accum_clicks = user_data.scores.clicks_to_go;
@@ -511,6 +511,18 @@ function upload_email(){
     });    
 }
 
+function update_email(){
+    var data = {};
+    data.email = $('#update_email_text').val();
+    $.ajax({
+        type: 'POST',
+        url: '/email',
+        data: data,
+        dataType: 'application/json',
+        success: function(data) {}
+    });
+}
+
 /////////
 $(document).ready(function(){
     // Prepare canvas
@@ -537,6 +549,7 @@ $(document).ready(function(){
     $('#skip_button').tooltip({container: 'body'})
     $('#skip_button').click(function(){skip_question()});
     $('#agree').click(function(){upload_email()});
+    $('#update_email').click(function(){update_email()});
     // Contest date
     $('#next_prize').text('The top-5 scoring players by ' + next_date()  + ' win a gift-card! See the Scoreboard tab for details.')
     $('#scoreboard_time').text('Prizes awarded to the top-5 players on ' + next_date() + '.')

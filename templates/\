@@ -49,7 +49,7 @@
                         </table>
                     </div>
                     <div class="modal-footer">
-                        <input type="text" id="update_email_text" style="float:left;width:315px;" placeholder="Enter your email so we can contact you if you win.">
+                        <input type="text" id="email" style="float:left;width:245px;" placeholder="Enter your email here to update it.">
                         <button type="button" id="update_email" class="btn btn-primary" data-toggle="tooltip" data-placement="top" data-dismiss="modal" title="Click here to update your email address on file with what you type into the box on the left.">Update email address</button>
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                     </div>

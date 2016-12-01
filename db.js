@@ -47,7 +47,7 @@ DbManager.prototype.locateRandomImage = function (callback, errorCallback) {
     var click_goal = generations_to_epoch * global_num_images;
     self.client.query('SELECT * FROM images WHERE generations=$1', [iteration_generation], function (err, res) {
       if (err) {
-        errorCallback(err, 'Error finding image');
+        errorCallback(err, 'Error finding image 1');
         return;
       }
       var num_ims_in_gen = res.rows.length;
@@ -131,7 +131,7 @@ DbManager.prototype.updateClicks = function (label, click_path, score, username,
   var self = this;
   self.client.query('SELECT * FROM images WHERE image_path=$1', [label], function (err, res) {
     if (err) {
-      errorCallback(err, 'Error finding image');
+      errorCallback(err, 'Error finding image 4');
       return;
     }
     var generations = parseInt(res.rows[0].generations) + 1;
@@ -143,7 +143,9 @@ DbManager.prototype.updateClicks = function (label, click_path, score, username,
       prev_coors['y'].push(click_path[1]);
       coors = prev_coors; 
     }else{
+      if (click_path != null){ 
       var coors = {'x':[click_path[0]],'y':[click_path[1]]};
+      }else{coors = null;}
     }
 
     //Handle the responses
@@ -152,13 +154,13 @@ DbManager.prototype.updateClicks = function (label, click_path, score, username,
       prev_answers['answers'].push(answers[0]);
       answers = answers;
     }else{
-      var coors = {'answers':[answers]};
+      var answers = {'answers':[answers]};
     }
 
     //Update database
     self.client.query('UPDATE images SET click_path=$1, generations=$2, answers=$3 WHERE image_path=$4', [coors,generations,answers,label], function (err, res) {
       if (err) {
-        errorCallback(err, 'Error finding image');
+        errorCallback(err, 'Error finding image 3');
         return;
       }
       self.client.query('SELECT high_score FROM clicks',function(err,res){
@@ -221,7 +223,7 @@ DbManager.prototype.getScoreData = function (callback, errorCallback) {
     var click_goal = generations_to_epoch * global_num_images;
     self.client.query('SELECT * FROM images WHERE generations=$1', [iteration_generation], function (err, res) {
       if (err) {
-        errorCallback(err, 'Error finding image');
+        errorCallback(err, 'Error finding image 2');
         return;
       }
       var num_ims_in_gen = res.rows.length;
@@ -233,7 +235,7 @@ DbManager.prototype.getScoreData = function (callback, errorCallback) {
         }
         var high_score = res.rows[0].high_score;
         // High-score table
-        self.client.query('SELECT name, score FROM users ORDER BY score DESC LIMIT 10',function(err,res){
+        self.client.query('SELECT name, score, email FROM users ORDER BY score DESC LIMIT 10',function(err,res){
             if (err) {
               errorCallback(err, 'Error fetching highscore table');
               return;
@@ -246,24 +248,56 @@ DbManager.prototype.getScoreData = function (callback, errorCallback) {
    });
 };
 
+DbManager.prototype.resetScores = function(){
+  var self = this;
+  self.client.query('UPDATE users SET score=$1',[0],function (err,res){
+    if (err){
+      console.log('Error resetting users');
+      return;
+    }
+    self.client.query('UPDATE clicks SET high_score=$1',[0],function (err,res){
+      if (err){
+        console.log('Error resetting clicks');
+        return;
+      }
+      //callback();
+    });
+  });
+}
+
 DbManager.prototype.addEmail = function (email,username,userid, callback, errorCallback) {
   var self = this;
-  /* Update entry
-  self.client.query('UPDATE users SET email=$1 WHERE cookie=$2', [email, userid], function (err, res) {
-      // Update OK?
-      if (err) {
-          errorCallback(err, 'User update error');
-          return;
-      }
-  });*/
-  //Add entry
-  self.client.query('INSERT INTO users (score, name, email, cookie) VALUES ($1,$2,$3,$4)', [0, username, email, userid], function (err, res) {
-      // Update OK?
-      if (err) {
-          errorCallback(err, 'User update error');
-          return;
-      }
+  self.client.query('SELECT * FROM users WHERE cookie=$1', [userid], function (err, res) {
+
+    if (res.rows.length == 0){
+    self.client.query('INSERT INTO users (score, name, email, cookie) VALUES ($1,$2,$3,$4)', [0, username, email, userid], function (err, res) {
+        // Update OK?
+        if (err) {
+            errorCallback(err, 'User update error');
+            return;
+        }
+    });
+  }else{
+     self.client.query('UPDATE users SET email=$1 WHERE cookie=$2', [email, userid], function (err, res) {
+        // Update OK?
+        if (err) {
+            errorCallback(err, 'User update error');
+            return;
+        }
+    });
+  }
   });
+}
+
+DbManager.prototype.getEmail = function (userid, callback) {
+  var self = this;
+  self.client.query('SELECT * FROM users WHERE cookie=$1', [userid], function (err, res) { 
+    if (err) {
+       console.log(err, 'Error getting email');
+       return;
+    }  
+    callback({'email': res.rows[0].email});
+  })
 }
 
 exports.DbManager = DbManager;

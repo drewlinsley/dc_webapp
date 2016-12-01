@@ -28,7 +28,7 @@ Setting up the webapp
 #2. Initialize images into the database
 	python prepare_ims.py
 
-#3. Run a cron job to keep CNN accuracies updated for the "What's the point" page
+#3. (THIS IS CURRENTLY RUN FROM URLMAP WITH NODE-SCHEDULER. DISREGARD.)Run a cron job to keep CNN accuracies updated for the "What's the point" page
 	chmod +x run_cnn_script.sh
 	crontab -e
 	0 0 * * * /path/to/run_cnn_script.sh #Runs the script daily	

@@ -3,6 +3,13 @@ var url = require('url');
 var PythonShell = require('python-shell');
 var s2utils = require('./s2utils.js');
 var shortid = require('shortid');
+var schedule = require('node-schedule');
+
+var update_cnns = schedule.scheduleJob('0 0 * * *', function(){
+    PythonShell.run('run_cnns.py', function (pyerr) {
+        if (pyerr) console.log(pyerr);
+    });
+});
 
 var respond = function (response, responseData, err, errorMessage) {
   if (err || errorMessage) {
@@ -47,7 +54,8 @@ var getUserData = function(req) {
         'score': 0,
         'name': s2utils.generateRandomName(),
         'userid': shortid.generate(),
-        'app_version': app_version
+        'app_version': app_version,
+        'email': ''
         };
   }
   return sess.user_data;
@@ -55,6 +63,7 @@ var getUserData = function(req) {
 
 exports.setupRouter = function (db, router, errorFlag) {
 
+    //GET
     router.get('/',function(req,res){
         res.sendFile('home.html',{'root': __dirname + '/templates'});
     });
@@ -88,9 +97,24 @@ exports.setupRouter = function (db, router, errorFlag) {
               res.end(random_image_path + '!' + random_image_label + '!imagestart' + content);
             }
           });
-          });
+        });
     });
 
+    router.get('/user_data', function(req, res) {
+      // Return copy of session cookie object
+      user_data = s2utils.clone(getUserData(req));
+      db.getEmail(user_data.userid,function(email){
+        // Add latest highscore data
+        db.getScoreData(function(score_data){
+          // Send it!
+          user_data.email = email.email;
+          user_data.scores = score_data;
+          res.json(JSON.stringify(user_data));
+        });
+      });
+    });
+
+    //POST
     router.post('/clicks', function(req,res){
       var clicks = req.body.clicks;
       var label = req.body.image_id;
@@ -120,14 +144,16 @@ exports.setupRouter = function (db, router, errorFlag) {
         respond.bind(null, res, null));
     });
 
-    router.get('/user_data', function(req, res) {
-      // Return copy of session cookie object
-      user_data = s2utils.clone(getUserData(req));
-      // Add latest highscore data
-      db.getScoreData(function(score_data){
-        // Send it!
-        user_data.scores = score_data;
-        res.json(JSON.stringify(user_data));
-      });
+    var game_over = schedule.scheduleJob('0 0 1 * *', function(){ //0 0 1 * *
+        db.getScoreData(function(score_data){
+            email_list = score_data.high_scores; //Grab emails from the top 5 scores
+            var pyargs = {
+                args: ['--recipient','drewlinsley@gmail.com','--text',JSON.stringify(email_list)]
+            };
+            PythonShell.run('send_email.py', pyargs, function (pyerr) {
+                if (pyerr) console.log(pyerr);
+            });
+            db.resetScores();
+        });
     });
 }

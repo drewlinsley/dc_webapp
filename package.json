@@ -11,7 +11,7 @@
     "type": "git",
     "url": "git+https://github.com/drewlinsley/dc_webapp.git"
   },
-  "author": "",
+  "author": "drew and sven",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/drewlinsley/dc_webapp/issues"
@@ -29,6 +29,7 @@
     "express-session": "^1.14.2",
     "fs": "0.0.1-security",
     "install": "^0.8.2",
+    "node-schedule": "^1.2.0",
     "npm": "^3.10.9",
     "path": "^0.12.7",
     "pg": "^6.1.0",
