@@ -28,15 +28,12 @@ Setting up the webapp
 #2. Initialize images into the database
 	python prepare_ims.py
 
-<<<<<<< HEAD
-#3. (THIS IS CURRENTLY RUN FROM URLMAP WITH NODE-SCHEDULER. DISREGARD.)Run a cron job to keep CNN accuracies updated for the "What's the point" page
 =======
 #3. Run the CNN guess server (preferrably in a screen):
 	cd guess_server
 	python guess_server.py
 
-#4. Run a cron job to keep CNN accuracies updated for the "What's the point" page
->>>>>>> 63c6fc157ca8a462bbd7369760bed1f8921bc30a
+#4.  (THIS IS CURRENTLY RUN FROM URLMAP WITH NODE-SCHEDULER. DISREGARD.)Run a cron job to keep CNN accuracies updated for the "What's the point" page
 	chmod +x run_cnn_script.sh
 	crontab -e
 	0 0 * * * /path/to/run_cnn_script.sh #Runs the script daily	
