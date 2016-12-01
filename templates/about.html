@@ -47,19 +47,26 @@
   <body>
 
         <!-- Main site content-->
-        <nav class="navbar navbar-static-top navbar-dark bg-inverse">
-            <a class="navbar-brand" style="font-size:200%" href="#">CLICKTIONARY</a>
-            <ul class="nav navbar-nav pull-left">
-                <li class="nav-item">
-                    <a class="nav-link" style="background-color: transparent;" id="login_info"></a>
-                </li>
-                <!-- <li class="nav-item">
-                    <a class="nav-link" href="mailto:...">Contact</a>
-                </li> -->
-            </ul>
+        <nav class="navbar navbar-static-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" style="background-color:white;" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse" aria-expanded="true" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar" style="background-color:black;"></span>
+                    <span class="icon-bar" style="background-color:black;"></span>
+                    <span class="icon-bar"  style="background-color:black;"></span>
+                </button>
+                <ul class="nav navbar-nav pull-left">
+                    <li class="nav-item"><a class="navbar-brand" style="font-size:200%" href="#">CLICKTIONARY</a>
+                    <li class="nav-item">
+                        <a class="nav-link" style="background-color: transparent;" id="login_info"></a>
+                    </li>
+                </ul>
+            </div>
+            <div class="collapse navbar-collapse collapse-in" aria-expanded="true">
             <ul class="nav navbar-nav pull-right">
                 <li class="nav-item active">
-                    <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
+                    <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="/about">What's the point?</a>
@@ -68,16 +75,11 @@
                     <a class="nav-link" href="mailto:clicktionary.ai@gmail.com?Subject=CLICKTIONARY" target="_top">Contact us</a>
                 </li>
             </ul>
-                <!-- High scores
-                <div class="col-md-3" style="position:absolute;left:75%;top:0">
-                    <p>All-time Greatest Clicktionares</p>
-                    <table class="table table-inverse">
-                        <thead><tr><th>Name</th><th>Score</th></tr></thead>
-                        <tbody id="high_scores"></tbody>
-                    </table>
-                </div> -->
+            </div>
+        </div>
         </nav>
-        <div class="container" style="width:50%; color:white;">
+
+        <div class="container" style="width:100%; color:white;">
           <div class="row">
           <div class="inner cover">
             <h1 class="cover-heading" style="text-align:center;">CLICKTIONARY</h1>
@@ -94,7 +96,7 @@
             <ol><li style="text-align:left">To train the AI algorithm to act more human-like when identifying important image parts.</li><li style="text-align:left">To measure the extent to which human-like identification improves the object recognition capability of modern AI algorithms.</li></ol></p><p style="text-align:left"><b>Our findings, discussed in our [<a href="http://___.edu/">arXiv</a>] suggest that this approach will significantly improve the performance of computers for recognizing objects in images.</b> See below for a graph updated daily showing how AI improves at object recognition when it is forced to pay attention to the same information as humans.</p><br>
             <hr><br>
             </div>
-            <div class="row">
+            <div class="inner cover">
               <h1 class="cover-heading" style="text-align:center;">Daily-tracking of AI recognition</h1>
               <p>Here we record the accuracy of an AI algorithm (VGG 16) in recognizing images from a large database of object images (ImageNet). The trace in red is accuracy of a typical VGG 16, and the trace in blue is what happens to its recognition accuracy after it is trained to pay attention to the same parts of objects as humans.<br><br>
               <canvas id="myChart" width="500" height="200"></canvas>

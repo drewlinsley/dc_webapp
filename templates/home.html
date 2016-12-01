@@ -19,7 +19,6 @@
     <!-- Bootstrap core -->
     <link href="../node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
     <script src="../node_modules/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
-
     <!-- Custom styles for this template -->
     <link href="../style/cover.css" rel="stylesheet" />
 
@@ -131,16 +130,23 @@
         </div>
 
         <!-- Main site content-->
-        <nav class="navbar navbar-static-top navbar-dark bg-inverse">
-            <a class="navbar-brand" style="font-size:200%" href="#">CLICKTIONARY</a>
-            <ul class="nav navbar-nav pull-left">
-                <li class="nav-item">
-                    <a class="nav-link" style="background-color: transparent;" id="login_info"></a>
-                </li>
-                <!-- <li class="nav-item">
-                    <a class="nav-link" href="mailto:...">Contact</a>
-                </li> -->
-            </ul>
+        <nav class="navbar navbar-static-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" style="background-color:white;" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse" aria-expanded="true" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar" style="background-color:black;"></span>
+                    <span class="icon-bar" style="background-color:black;"></span>
+                    <span class="icon-bar"  style="background-color:black;"></span>
+                </button>
+                <ul class="nav navbar-nav pull-left">
+                    <li class="nav-item"><a class="navbar-brand" style="font-size:200%" href="#">CLICKTIONARY</a>
+                    <li class="nav-item">
+                        <a class="nav-link" style="background-color: transparent;" id="login_info"></a>
+                    </li>
+                </ul>
+            </div>
+            <div class="collapse navbar-collapse collapse-in" aria-expanded="true">
             <ul class="nav navbar-nav pull-right">
                 <li class="nav-item active">
                     <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
@@ -155,14 +161,8 @@
                     <a class="nav-link" id="scoreboard-modal" href="#">Scoreboard</a>
                 </li>
             </ul>
-                <!-- High scores
-                <div class="col-md-3" style="position:absolute;left:75%;top:0">
-                    <p>All-time Greatest Clicktionares</p>
-                    <table class="table table-inverse">
-                        <thead><tr><th>Name</th><th>Score</th></tr></thead>
-                        <tbody id="high_scores"></tbody>
-                    </table>
-                </div> -->
+            </div>
+        </div>
         </nav>
 
         <div class="container">
@@ -178,12 +178,13 @@
                         </p>
                         <canvas id="myCanvas" width="256" height="256" style="z:10000;text-align:center;margin-bottom:15px;"></canvas>
                         <p id='progressbar'></p>
-                        <p class="lead"><small id='ai_guess' style="color:white;">The AI thinks this is a : </small></p>
+                        <div class="row" style="color:white;margin-top:0px;"><p class="lead"><small id='ai_guess'>The AI thinks this is  likely a: </small></p></div>
+                        <div class="row" style="color:white;margin-top:-18px;margin-bottom:-20px;height:10px;"><span><small style="font-size:70%;display:float;">But could also be:</small></span><span><ul style="font-size:60%;list-style-type:none;display: inline-block;"><li id="g2"></li><li id="g3"></li></ul></span><span><ul style="font-size:60%;list-style-type:none;display: inline-block;"><li id="g4"></li><li id="g5"></li></ul></span></div>
+			<br><br>
                         <button type="button" style="height:20px;font-size:66%" class="btn btn-secondary" id="skip_button" data-toggle="tooltip" data-placement="top" title="Careful, this may deduct points from your score."><b>Skip this image</b>: it has a strange label or poor quality.</button>
-				<br><hr width="256px;"> 
-                        <p class="lead" style="color:white;">Your status</p>
-                        <p class="lead"><small id='click_count' style="color:white;">Recognized images: 0</small>&emsp;|&emsp;<small id='click_high_score' style="color:white;">Today's high score: 0</small>
-                        <br>
+                        <hr width="256px;"> 
+                        <!--<p class="lead" style="color:white;">Status</p> -->
+                        <p class="lead"><small id='click_count' style="color:white;">Your score: 0</small>&emsp;|&emsp;<small id='click_high_score' style="color:white;">Today's high score: 0</small>
                         <br>
                         <em style="font-size:50%">Number of images needed until we can improve this AI's recognition.</em><br>
                         <canvas id="myChart" style="margin-left:-50px" width="300" height="60"></canvas></p>
@@ -197,7 +198,7 @@
     <!-- Footer script -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.min.js"></script>
     <script src="../script/mirc_charts.js" type="text/javascript"></script> 
-    <script src="https://rawgit.com/kimmobrunfeldt/progressbar.js/master/dist/progressbar.js" type="text/javascript"></script>
+    <script src="../script/progressbar.js" type="text/javascript"></script>
   </body>
 
 </html>

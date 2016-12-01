@@ -169,8 +169,8 @@ DbManager.prototype.updateClicks = function (label, click_path, score, username,
           errorCallback(err, 'Error looking up scores');
           return;
         }
-          score = parseInt(score);
-          high_score = parseInt(high_score);
+          score = parseFloat(score);
+          high_score = parseFloat(high_score);
         if (score > high_score){
           self.client.query('UPDATE clicks SET high_score=$1 WHERE _id=1',[score],function(err,res){
             if (err) {

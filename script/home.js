@@ -10,7 +10,7 @@ var half_size = Math.round(reveal_size/2);
 var reveal_rate = 50;
 var playing_image = false;
 var clicks_till_update = 10; //Clicks between server calls
-var time_limit = 10000;
+var time_limit = 7000;
 var answer_status_timer = 500;
 var posx, posy, true_posx, true_posy, global_guess, global_width, global_height;
 
@@ -313,9 +313,22 @@ function check_deviation(){
     return deviation;
 }
 
-function update_guess(cnn_guess){
-    global_guess = cnn_guess;
-    $('#ai_guess').html('The AI thinks this is a: ' + cnn_guess);
+function get_colors(max_idx,correct_idx){
+    colors = [];
+    for (var idx = 0; idx < max_idx; idx++){
+        if (correct_idx === idx){colors[idx] = "#00FF04";}
+        else{colors[idx] = "#FF330A";}
+    }
+}
+
+function update_guess(cnn_guess,cc){
+    //get_colors(4,cc) //range(0,4) + color cc index as green
+    global_guess = cnn_guess[0];
+    $('#ai_guess').html('<span style="color:' + colors[0] + '">The AI thinks this is likely a: ' + cnn_guess[0] + '</span>');
+    $('#g2').html('<span style="color:' + colors[1] + '">' + cnn_guess[1] + '</span>');
+    $('#g3').html('<span style="color:' + colors[2] + '">' + cnn_guess[2] + '</span>');
+    $('#g4').html('<span style="color:' + colors[3] + '">' + cnn_guess[3] + '</span>');
+    $('#g5').html('<span style="color:' + colors[4] + '">' + cnn_guess[4] + '</span>');
 }
 
 function package_json(click_array,global_label){
@@ -325,6 +338,18 @@ function package_json(click_array,global_label){
     return JSON.stringify(json_data);
 }
 
+function check_correct(split_guesses,im_text){
+    var ci = -1;
+    var answer = false;
+    for (var idx = 0; idx < split_guesses.length;idx++){
+        if (split_guesses[idx] === im_text){
+            ci = idx;
+            answer = true;
+        }
+    }
+    return [ci,answer];
+}
+
 function call_sven(){
     $.ajax({
         url: cnn_server,
@@ -332,8 +357,10 @@ function call_sven(){
         data: package_json(click_array,global_label),
         //contentType: 'application/json',
         success: function (data) {
-            update_guess(data);
-            if (data === im_text){correct_recognition();}
+            var split_guesses = data.split('!'); //delimited with !
+            var cc = check_correct(split_guesses,im_text);
+            update_guess(split_guesses,cc);
+           if (cc[1] === true){correct_recognition(cc[0]);}
         }
     });
 }
@@ -363,19 +390,19 @@ function round_reset(correct){
 }
 
 function refresh_gradient(){
-var timesRun = 0;
-var interval = setInterval(function(){
-    timesRun += 1;
-    if(timesRun === 60){
-        clearInterval(interval);
-    }
-    updateGradient();
-}, 2000); 
+    var startTime = new Date().getTime();
+    var interval = setInterval(function(){
+        if(new Date().getTime() - startTime > 1000){
+            clearInterval(interval);
+            return;
+        } 
+        updateGradient();
+    }, 2000); 
 }
 
-function correct_recognition(){
-    round_reset('correct');
-    answer_status(true,answer_status_timer); //make this dissappear after answer_status_timer ms
+function correct_recognition(wc){
+    if (wc == 0){round_reset('correct');}else{round_reset('top5');}
+    answer_status(wc,answer_status_timer); //make this dissappear after answer_status_timer ms
     add=setInterval(updateGradient,10); //dont think this works
     setTimeout(function(){clearInterval(add);},500)
 }
@@ -387,19 +414,32 @@ function time_elapsed(){
 
 function skip_question(){
     round_reset('skip');
-    answer_status(false);
+    answer_status(-1);
 }
 
 function answer_status(c_i){
-    if (c_i) { //true
+    if (global_guess == undefined){global_guess = '???';}
+    if (c_i === 0) { //true
         var text_color="#00FF04";
-        $('#ai_guess').html('The AI correctly thought this was a: <span style="color:' + text_color + '">' + global_guess + '</span>');
-    }else{ //false
+        $('#ai_guess').html('+1 points for recognizing the: <span style="color:' + text_color + '">' + im_text + '</span>');
+    }
+    else if (c_i > 0) {
+        var text_color="#C3CC18";
+        $('#ai_guess').html('+0.5 points for coming close to recognizing the: <span style="color:' + text_color + '">' + im_text + '</span>');
+    }
+    else if (c_i < 0){
+        $('#ai_guess').html('We have recorded your skip.');
+    }
+    else if (c_i === false){
         var text_color="#FF330A";
         $('#ai_guess').html('The AI incorrectly thought this was a: <span style="color:' + text_color + '">' + global_guess + '</span>');
     }
     setTimeout(function(){
         $('#ai_guess').html('[Waiting for your next click]');
+        $('#g2').html('');
+        $('#g3').html('');
+        $('#g4').html('');
+        $('#g5').html('');
     },2000)
 }
 
@@ -441,8 +481,8 @@ function update_user_data(){
    	    user_data = JSON.parse(json_data);
    	    // Update display
         //if (user_data.email == ''){$("#consentModal").modal('show');}
-        $('#click_count').html('Recognized images: ' + user_data.score);
-        $('#click_high_score').html('Today\'s high score: ' + user_data.scores.global_high_score);
+        $('#click_count').html('Your score: ' + user_data.score);
+        $('#click_high_score').html('High score: ' + user_data.scores.global_high_score);
         $('#login_info').html('Your user name is: ' + user_data.name);
         var accum_clicks = user_data.scores.clicks_to_go;
         var clicks_to_go = user_data.scores.click_goal - accum_clicks;
@@ -523,6 +563,14 @@ function update_email(){
     });
 }
 
+function adjust_for_mobile(){
+
+    if(/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|ipad|iris|kindle|Android|Silk|lge |maemo|midp|mmp|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino/i.test(navigator.userAgent) 
+    || /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(navigator.userAgent.substr(0,4))){//Do stuff
+}
+    
+}
+
 /////////
 $(document).ready(function(){
     // Prepare canvas
@@ -546,11 +594,13 @@ $(document).ready(function(){
     // Tooltips
     $('#agree').tooltip({container: 'body'})
     $('#email').on('input', function(){email_check($('#email').val())});
-    $('#skip_button').tooltip({container: 'body'})
+    $('#skip_button').tooltip({container: 'body',trigger: 'hover'})
     $('#skip_button').click(function(){skip_question()});
     $('#agree').click(function(){upload_email()});
     $('#update_email').click(function(){update_email()});
     // Contest date
     $('#next_prize').text('The top-5 scoring players by ' + next_date()  + ' win a gift-card! See the Scoreboard tab for details.')
     $('#scoreboard_time').text('Prizes awarded to the top-5 players on ' + next_date() + '.')
+    // Refresh the screen for mobile
+    // adjust_for_mobile();
 })

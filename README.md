@@ -20,8 +20,8 @@ Setting up the webapp
 	create table images (_id bigserial primary key, image_path varchar, syn_name varchar, click_path json, answers json, generations bigint); #create a table that will point to all the images in the webapp
 	create table image_count (_id bigserial primary key,num_images bigint, current_generation bigint, iteration_generation bigint, generations_per_epoch bigint); #create a table that holds the number of images we are working with (for random selection later on)
 	create table cnn (_id bigserial primary key, sixteen_baseline_accuracy float, nineteen_baseline_accuracy float, sixteen_attention_accuracy float, nineteen_attention_accuracy float, epochs bigint, date varchar); #create a table that will track some fun stuff for the website, like consecutive clicks
-	create table clicks (_id bigserial primary key, high_score bigint, date timestamp with time zone); #create a table that will track some fun stuff for the website, like consecutive clicks
-	create table users (_id bigserial primary key, cookie varchar unique, name varchar, score bigint, email varchar, last_click_time timestamp with time zone); #user table
+	create table clicks (_id bigserial primary key, high_score float, date timestamp with time zone); #create a table that will track some fun stuff for the website, like consecutive clicks
+	create table users (_id bigserial primary key, cookie varchar unique, name varchar, score float, email varchar, last_click_time timestamp with time zone); #user table
 	\q # Exit sql
 	exit # Exit sql user
 
@@ -43,11 +43,11 @@ Setting up the webapp
 x8 / pclpslabserrecit3 setup
 
 We currently run the webservice under youssef@pclpslabserrecit3.services.brown.edu (VM3) and the CNN guess server under x8.clps.brown.edu.
-Opening a remote tunnel on from x8 to VM3, run on x8:
+Opening a remote tunnel from x8 to VM3, run on x8:
 
 	autossh -M 20000 -R 7777:localhost:7777 -N youssef@pclpslabserrecit3.services.brown.edu
 
-(TODO: Drew: Why did you use monitor port 20000 on autossh?)
+(TODO: Drew: Why did you use monitor port 20000 on autossh? Sven: Because I'm crazy like that.)
 
 From the guess_server, images are expected to be in ../images. On x8, this folder is symlinked to /media/data_gluster/attention/dc_webapp/images.
 To synchronize the image dataset from VM3 to x8, run on x8:
