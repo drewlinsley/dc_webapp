@@ -28,7 +28,42 @@ Setting up the webapp
 #2. Initialize images into the database
 	python prepare_ims.py
 
+<<<<<<< HEAD
 #3. (THIS IS CURRENTLY RUN FROM URLMAP WITH NODE-SCHEDULER. DISREGARD.)Run a cron job to keep CNN accuracies updated for the "What's the point" page
+=======
+#3. Run the CNN guess server (preferrably in a screen):
+	cd guess_server
+	python guess_server.py
+
+#4. Run a cron job to keep CNN accuracies updated for the "What's the point" page
+>>>>>>> 63c6fc157ca8a462bbd7369760bed1f8921bc30a
 	chmod +x run_cnn_script.sh
 	crontab -e
 	0 0 * * * /path/to/run_cnn_script.sh #Runs the script daily	
+
+---
+
+x8 / pclpslabserrecit3 setup
+
+We currently run the webservice under youssef@pclpslabserrecit3.services.brown.edu (VM3) and the CNN guess server under x8.clps.brown.edu.
+Opening a remote tunnel on from x8 to VM3, run on x8:
+
+	autossh -M 20000 -R 7777:localhost:7777 -N youssef@pclpslabserrecit3.services.brown.edu
+
+(TODO: Drew: Why did you use monitor port 20000 on autossh?)
+
+From the guess_server, images are expected to be in ../images. On x8, this folder is symlinked to /media/data_gluster/attention/dc_webapp/images.
+To synchronize the image dataset from VM3 to x8, run on x8:
+
+	rsync -avz youssef@pclpslabserrecit3.services.brown.edu:/home/youssef/dc_webapp/images /media/data_gluster/attention/dc_webapp/
+
+
+If something goes wrong on the guess server (i.e. returns HTTP status 500), you can uncomment in guess_server.py:
+
+	app.debug = True
+
+To test whether the guess_server is reachable on VM3 at all, you can run e.g. on VM3:
+
+	wget localhost:7777/guess
+
+which will return a 500 because of missing parameters, but should at least reach some kind of server. If you cannot open the remote tunnel because the port is in use, try killing any lingering sshd processes and restart the ssh daemon.
