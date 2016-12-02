@@ -56,40 +56,6 @@
             </div>
         </div>
 
-        <div id="instructionModal" class="modal fade">
-            <div class="modal-dialog" style="text-align:left">
-                <div class="modal-content">
-                    <div class="modal-header" style="text-align:center">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h2 class="modal-title">CLICKTIONARY</h2>
-                        <h4 class="modal-title">Game instructions</h4>
-                    </div>
-                    <div class="modal-body" style="text-align:left;">
-                        <div class="legal well">
-                            <p>Welcome to CLICKTIONARY, where you and an artificial intelligence (AI) partner will play to win prizes and provide the research community with valuable information about differences between how humans and machines see the world.</p>
-                            <p><strong>Goal: </strong>The goal of the game is to help your AI partner recognize as many object images as possible with as much confidence as possible.</p>
-                            <p><strong>Gameplay: </strong>You will help your partner recognize objects by revealing parts of images to it. This is done by "painting" over parts of the object image that help you recognize it. When you click on the image this begins your "brush stroke". After that you simply drag your cursor over the other parts of the image you think are important. These image parts will be revealed to your AI partner as you paint over them. Your AI partner's guesses are shown in the "AI score" graph. The green bar shows its confidence in the correct answer, the red bar in the incorrect answer. As soon as the green bar is greater than the red bar the round ends and you receive points. If the red timer elapses before then you will not receive points.</p> 
-                            <p><strong>Scoring: </strong>For every image that you and your partner answer correctly you will receive a score of how confident the AI was in that answer. This means that clicking on more "informative" image parts will help your score grow quickly. On the first day of every month we will provide prizes to the top scoring participants. You are automatically assigned a username. If you have not yet given us your email, please enter it below so that we can reward you if you win.</p>
-			</div>
-                    </div>
-                    <div class="modal-footer" style="text-align:center;">
-                        <dl id='scoreboard_time'>Prizes awarded to the top-5 Clicktionares on 1/1/2017 at 5:00PM ET</dl>
-                            <dt>1st place: $50 Amazon gift card</dt>
-                            <dt>2nd place: $40 Amazon gift card</dt>
-                            <dt>3rd place: $30 Amazon gift card</dt>
-                            <dt>4th place: $20 Amazon gift card</dt>
-                            <dt>5th place: $10 Amazon gift card</dt>
-                        </dl>
-                    </div>
-                    <div class="modal-footer">
-                        <input type="text" id="update_email_text" style="float:left;width:315px;" placeholder="Enter your email so we can contact you if you win.">
-                        <button type="button" id="update_email" class="btn btn-primary" data-toggle="tooltip" data-placement="top" data-dismiss="modal" title="Click here to update your email address on file with what you type into the box on the left.">Update email address</button>
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <div id="consentModal" class="modal fade" data-backdrop="static" data-keyboard="false">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -174,10 +140,7 @@
                     <span class="icon-bar"  style="background-color:black;"></span>
                 </button>
                 <ul class="nav navbar-nav pull-left">
-                    <!-- <li class="nav-item" id="manbot"><a class="navbar-brand" style="font-size:200%; background-color: transparent;display:inline-block;" href="#"><span style="background-image: url(web_content/favicon.ico); background-position:left center; background-repeat: no-repeat; padding-left: 40px; padding-right:5px; padding-bottom:20px;"></span><span style="padding-top:20px;">  |  CLICKTIONARY</span></a></li> -->
-                    <li class="nav-item">
-                        <a class="navbar-brand" id="main_status" style="font-size:200%; background-color: transparent;display:inline-block;" href="#">CLICKTIONARY</a>
-                    </li>
+                    <li class="nav-item"><a class="navbar-brand" style="font-size:200%" href="#">CLICKTIONARY</a>
                     <li class="nav-item">
                         <a class="nav-link" style="background-color: transparent;" id="login_info"></a>
                     </li>
@@ -185,14 +148,14 @@
             </div>
             <div class="collapse navbar-collapse collapse-in" aria-expanded="true">
             <ul class="nav navbar-nav pull-right">
-                <!--<li class="nav-item active">
+                <li class="nav-item active">
                     <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
-                </li>-->
+                </li>
                 <li class="nav-item">
                     <a class="nav-link" href="/about">What's the point?</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" id="instruction-modal" href="#" target="_top">Instructions</a>
+                    <a class="nav-link" href="mailto:clicktionary.ai@gmail.com?Subject=CLICKTIONARY" target="_top">Contact us</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" id="scoreboard-modal" href="#">Scoreboard</a>
@@ -205,23 +168,25 @@
         <div class="container">
             <div class="row">
                 <!-- Main area -->
-                    <div class="inner cover" style="margin-top:-30px;text-align:center;">
+                    <div class="inner cover" style="margin-top:0px;margin-bottom:200px;text-align:center;">
                         <h2 class="lead" id="spammer" style="color:white;">Help the AI recognize this image before time runs out!</h2>
                         <p style="font-size:66%;margin-top:-20px;color:white;" id="next_prize">The top-5 scoring players by --  win a gift-card! See the Scoreboard tab for details.</p>
                         <hr width="50%" style="margin-top:-5px">
                         <p class="lead">
-                            <p style="font-size:66%;color:white;margin-top:-12px">Click and then drag your mouse to reveal image parts that best describe a:</p>
+                            <p style="font-size:66%;color:white;">Click and then drag your mouse to reveal image parts that best describe a:</p>
                             <h2 class="lead" style="margin-top:-12px;margin-bottom:-10px;" id="image_label"></h2>
                         </p>
                         <canvas id="myCanvas" width="256" height="256" style="z:10000;text-align:center;margin-bottom:15px;"></canvas>
-                        <p id='progressbar' style="margin-top:-20px;"></p>
-                        <canvas id="ppChart" style="margin-left:-50px; margin-top:-10px;" width="300" height="60"></canvas></p>
-                        <button type="button" style="height:20px;font-size:66%;margin-top:-35px;line-height:5px;" class="btn btn-secondary" id="skip_button" data-toggle="tooltip" data-placement="top" title="Careful, this may deduct points from your score."><b>Skip this image</b>: it has a strange label or poor quality.</button>
-                        <hr width="256px;" style="margin-top:-10px;"> 
+                        <p id='progressbar'></p>
+                        <div class="row" style="color:white;margin-top:0px;"><p class="lead"><small id='ai_guess'>The AI thinks this is  likely a: </small></p></div>
+                        <div class="row" style="color:white;margin-top:-18px;margin-bottom:-20px;height:10px;"><span><small style="font-size:70%;display:float;">But could also be:</small></span><span><ul style="font-size:60%;list-style-type:none;display: inline-block;"><li id="g2"></li><li id="g3"></li></ul></span><span><ul style="font-size:60%;list-style-type:none;display: inline-block;"><li id="g4"></li><li id="g5"></li></ul></span></div>
+			<br><br>
+                        <button type="button" style="height:20px;font-size:66%" class="btn btn-secondary" id="skip_button" data-toggle="tooltip" data-placement="top" title="Careful, this may deduct points from your score."><b>Skip this image</b>: it has a strange label or poor quality.</button>
+                        <hr width="256px;"> 
                         <!--<p class="lead" style="color:white;">Status</p> -->
-                        <p class="lead" style="margin-top:-20px;"><small id='click_count' style="color:white;">Your score: 0</small>&emsp;|&emsp;<small id='click_high_score' style="color:white;">Today's high score: 0</small>
+                        <p class="lead"><small id='click_count' style="color:white;">Your score: 0</small>&emsp;|&emsp;<small id='click_high_score' style="color:white;">Today's high score: 0</small>
                         <br>
-                        <em style="font-size:50%;">Number of images needed until we can improve this AI's recognition.</em><br>
+                        <em style="font-size:50%">Number of images needed until we can improve this AI's recognition.</em><br>
                         <canvas id="myChart" style="margin-left:-50px" width="300" height="60"></canvas></p>
                     </div>
             </div>

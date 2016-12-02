@@ -11,8 +11,7 @@ var reveal_rate = 50;
 var playing_image = false;
 var clicks_till_update = 10; //Clicks between server calls
 var time_limit = 7000;
-var answer_status_timer = 2000;
-var global_precision = 2;
+var answer_status_timer = 500;
 var posx, posy, true_posx, true_posy, global_guess, global_width, global_height;
 
 //Background
@@ -343,30 +342,13 @@ function package_json(click_array,global_label){
 function check_correct(split_guesses,im_text){
     var ci = -1;
     var answer = false;
-    for (var idx = 0; idx < 5;idx++){ //Top-5 recognition
+    for (var idx = 0; idx < split_guesses.length;idx++){
         if (split_guesses[idx] === im_text){
             ci = idx;
             answer = true;
         }
     }
     return [ci,answer];
-}
-
-function str_to_float(data){
-   var out = [];
-   for (var idx = 0; idx < data.length - 1; idx++){
-       out[idx] = parseFloat(data[idx]);
-   }
-   return out
-}
-
-function find_target_pp(split_guesses,im_text){
-    var target;
-    for (var idx = 0; idx < split_guesses.length; idx++){
-        if (split_guesses[idx] === im_text){
-            return idx
-        }
-    }
 }
 
 function call_sven(){
@@ -376,14 +358,10 @@ function call_sven(){
         data: package_json(click_array,global_label),
         //contentType: 'application/json',
         success: function (data) {
-            var guess_pp = data.split('@');
-            var pps = str_to_float(guess_pp[1].split('!'));
-            var split_guesses = guess_pp[0].split('!'); //delimited with !
+            var split_guesses = data.split('!'); //delimited with !
             var cc = check_correct(split_guesses,im_text);
-            var max_non = Math.max.apply(null,pps.splice(5,pps.length)) * 100;
-            var max_in = pps[find_target_pp(split_guesses,im_text)] * 100;
-            if (isNaN(max_in)) {max_in = 0;}
-            if (cc[1] === true){update_pps(ppChart,max_in,max_non);correct_recognition(0,max_in);}else{update_pps(ppChart,max_in,max_non)}
+            update_guess(split_guesses,cc);
+           if (cc[1] === true){correct_recognition(cc[0]);}
         }
     });
 }
@@ -423,12 +401,11 @@ function refresh_gradient(){
     }, 2000); 
 }
 
-function correct_recognition(wc,pp){
-    if (wc == 0){round_reset(pp);}
-    answer_status(wc,answer_status_timer,pp); //make this dissappear after answer_status_timer ms
-    //refresh_gradient();
-    var si =setInterval(updateGradient,10); //dont think this works
-    setTimeout(function(){clearInterval(si);},500)
+function correct_recognition(wc){
+    if (wc == 0){round_reset('correct');}else{round_reset('top5');}
+    answer_status(wc,answer_status_timer); //make this dissappear after answer_status_timer ms
+    add=setInterval(updateGradient,10); //dont think this works
+    setTimeout(function(){clearInterval(add);},500)
 }
 
 function time_elapsed(){
@@ -441,30 +418,30 @@ function skip_question(){
     answer_status(-1);
 }
 
-function answer_status(c_i,answer_status_timer,pp){
+function answer_status(c_i){
     if (global_guess == undefined){global_guess = '???';}
-    if (typeof(c_i) === 'boolean'){
-        if (c_i === false){
-            var text_color="#FF330A";
-            $('#main_status').html('<span style="color:' + text_color + '">Time elapsed!</span>');
-            revert_title();
-        }
-    } else{
-        if (c_i >= 0) { //true
-            var text_color="#00FF04";
-            $('#main_status').html('<span style="text-outline:' + text_color + '">+' + String(pp.toFixed(global_precision)) + ' points!</span>');
-        }
-        else if (c_i < 0){
-            $('#main_status').html('Image skipped.');
-        }
-        revert_title();
+    if (c_i === 0) { //true
+        var text_color="#00FF04";
+        $('#ai_guess').html('+1 points for recognizing the: <span style="color:' + text_color + '">' + im_text + '</span>');
     }
-}
-
-function revert_title(){
+    else if (c_i > 0) {
+        var text_color="#C3CC18";
+        $('#ai_guess').html('+0.5 points for coming close to recognizing the: <span style="color:' + text_color + '">' + im_text + '</span>');
+    }
+    else if (c_i < 0){
+        $('#ai_guess').html('We have recorded your skip.');
+    }
+    else if (c_i === false){
+        var text_color="#FF330A";
+        $('#ai_guess').html('The AI incorrectly thought this was a: <span style="color:' + text_color + '">' + global_guess + '</span>');
+    }
     setTimeout(function(){
-        $('#main_status').html('CLICKTIONARY');
-    },answer_status_timer)
+        $('#ai_guess').html('[Waiting for your next click]');
+        $('#g2').html('');
+        $('#g3').html('');
+        $('#g4').html('');
+        $('#g5').html('');
+    },2000)
 }
 
 function clicked() {
@@ -505,9 +482,8 @@ function update_user_data(){
    	    user_data = JSON.parse(json_data);
    	    // Update display
         //if (user_data.email == ''){$("#consentModal").modal('show');}
-        //if (user_data.email == ''){$('#instruction-modal').modal('show');}
-        $('#click_count').html('Your score: ' + user_data.score.toFixed(global_precision));
-        $('#click_high_score').html('High score: ' + user_data.scores.global_high_score.toFixed(global_precision));
+        $('#click_count').html('Your score: ' + user_data.score);
+        $('#click_high_score').html('High score: ' + user_data.scores.global_high_score);
         $('#login_info').html('Your user name is: ' + user_data.name);
         var accum_clicks = user_data.scores.clicks_to_go;
         var clicks_to_go = user_data.scores.click_goal - accum_clicks;
@@ -524,7 +500,7 @@ function update_user_data(){
             else if (i == 3){tt = 'danger'}
             else if (i == 4){tt = 'active'}
             else {tt = '';}
-            high_score_table += '<tr class="' + tt + '"><td>' + (i + 1).toString() + '</td><td>' + hsdata[i].name + '</td><td>' + hsdata[i].score.toFixed(global_precision) + '</td></tr>'
+            high_score_table += '<tr class="' + tt + '"><td>' + (i + 1).toString() + '</td><td>' + hsdata[i].name + '</td><td>' + hsdata[i].score + '</td></tr>'
         }
         $('#high_scores').html(high_score_table);
     });
@@ -622,18 +598,17 @@ $(document).ready(function(){
     canvas.addEventListener('mousedown', clicked, false);
     start_turn();
     // Modals
-    $('#scoreboard-modal').click(function(){$("#scoreModal").modal('show');});
-    $('#instruction-modal').click(function(){$("#instructionModal").modal('show');});
+    $('#scoreboard-modal').click(function(){$("#scoreModal").modal('show');})
     // Tooltips
-    $('#agree').tooltip({container: 'body'});
+    $('#agree').tooltip({container: 'body'})
     $('#email').on('input', function(){email_check($('#email').val())});
-    $('#skip_button').tooltip({container: 'body',trigger: 'hover'});
+    $('#skip_button').tooltip({container: 'body',trigger: 'hover'})
     $('#skip_button').click(function(){skip_question()});
     $('#agree').click(function(){upload_email()});
     $('#update_email').click(function(){update_email()});
     // Contest date
-    $('#next_prize').text('The top-5 scoring players by ' + next_date()  + ' win a gift-card! See the Scoreboard tab for details.');
-    $('#scoreboard_time').text('Prizes awarded to the top-5 players on ' + next_date() + '.');
+    $('#next_prize').text('The top-5 scoring players by ' + next_date()  + ' win a gift-card! See the Scoreboard tab for details.')
+    $('#scoreboard_time').text('Prizes awarded to the top-5 players on ' + next_date() + '.')
     // Refresh the screen for mobile
     // adjust_for_mobile();
 })

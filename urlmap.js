@@ -123,9 +123,11 @@ exports.setupRouter = function (db, router, errorFlag) {
       // Count clicks server-side
       var user_data = getUserData(req);
       user_data.click_count += 1;
-      if (correct == 'correct'){user_data.score += 1;}
-      else if (correct == 'top5'){user_data.score += 0.5;}
-      else if (correct == 'skip'){if (Math.random < 0.25){user_data.score -= 1;}}
+      //if (correct == 'correct'){user_data.score += 1;}
+      //else if (correct == 'top5'){user_data.score += 0.5;}
+      if (correct == 'skip'){if (Math.random < 0.25){user_data.score -= 1;}}
+      else if (correct == 'wrong'){}
+      else{user_data.score+=parseFloat(correct);}
       var score = user_data.score;
       var username = user_data.name;
       var userid = user_data.userid; // ID to identify the user
