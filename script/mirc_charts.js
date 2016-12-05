@@ -74,7 +74,7 @@ function update_chart(myChart,clicks_to_epoch,click_goal){
 	myChart.update();
 }
 
-
+/*
 var ctx = document.getElementById("ppChart");
 ppChart = new Chart(ctx, {
     type: 'horizontalBar',
@@ -149,4 +149,4 @@ function update_pps(ppChart,in_pp,out_pp){
         ppChart.update();
 }
 
-
+*/

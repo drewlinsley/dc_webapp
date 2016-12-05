@@ -11,6 +11,8 @@
     <!-- js links -->
     <script src="../script/jquery-1.11.2.js" type="text/javascript"></script>
     <script src="../script/home.js" type="text/javascript"></script>
+    <script src="../script/smoothscroll.js" type="text/javascript"></script>
+    <script src="../script/chroma.js" type="text/javascript"></script>
 
     <!-- Style stuff and title -->
     <title>CLICKTIONARY</title>
@@ -33,12 +35,12 @@
                     <div class="modal-header" style="text-align:center">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                         <h4 class="modal-title">Highest-scoring players this month</h4>
-                        <dl id='scoreboard_time'>Prizes awarded to the top-5 Clicktionares on 1/1/2017 at 5:00PM ET</dl>
-                            <dt>1st place: $50 Amazon gift card</dt>
-                            <dt>2nd place: $40 Amazon gift card</dt>
-                            <dt>3rd place: $30 Amazon gift card</dt>
-                            <dt>4th place: $20 Amazon gift card</dt>
-                            <dt>5th place: $10 Amazon gift card</dt>
+                        <dl id='scoreboard_time_1'>Amazon gift cards awarded to the top-5 Clicktionares on 1/1/2017 at 5:00PM ET in the following amounts:</dl>
+                            <dt>1st place: $50</dt>
+                            <dt>2nd place: $40</dt>
+                            <dt>3rd place: $30</dt>
+                            <dt>4th place: $20</dt>
+                            <dt>5th place: $10</dt>
                         </dl>
                     </div>
                     <div class="modal-body">
@@ -73,12 +75,12 @@
 			</div>
                     </div>
                     <div class="modal-footer" style="text-align:center;">
-                        <dl id='scoreboard_time'>Prizes awarded to the top-5 Clicktionares on 1/1/2017 at 5:00PM ET</dl>
-                            <dt>1st place: $50 Amazon gift card</dt>
-                            <dt>2nd place: $40 Amazon gift card</dt>
-                            <dt>3rd place: $30 Amazon gift card</dt>
-                            <dt>4th place: $20 Amazon gift card</dt>
-                            <dt>5th place: $10 Amazon gift card</dt>
+                        <dl id='scoreboard_time_2'>Amazon gift cards awarded to the top-5 Clicktionares on 1/1/2017 at 5:00PM ET in the following amounts:</dl>
+                            <dt>1st place: $50</dt>
+                            <dt>2nd place: $40</dt>
+                            <dt>3rd place: $30</dt>
+                            <dt>4th place: $20</dt>
+                            <dt>5th place: $10</dt>
                         </dl>
                     </div>
                     <div class="modal-footer">
@@ -210,14 +212,15 @@
                         <p style="font-size:66%;margin-top:-20px;color:white;" id="next_prize">The top-5 scoring players by --  win a gift-card! See the Scoreboard tab for details.</p>
                         <hr width="50%" style="margin-top:-5px">
                         <p class="lead">
-                            <p style="font-size:66%;color:white;margin-top:-12px">Click and then drag your mouse to reveal image parts that best describe a:</p>
+                            <p id="extra_info" style="font-size:66%;color:white;margin-top:-12px">Click and then brush with your mouse to reveal image parts best describing a:</p>
                             <h2 class="lead" style="margin-top:-12px;margin-bottom:-10px;" id="image_label"></h2>
                         </p>
                         <canvas id="myCanvas" width="256" height="256" style="z:10000;text-align:center;margin-bottom:15px;"></canvas>
-                        <p id='progressbar' style="margin-top:-20px;"></p>
-                        <canvas id="ppChart" style="margin-left:-50px; margin-top:-10px;" width="300" height="60"></canvas></p>
-                        <button type="button" style="height:20px;font-size:66%;margin-top:-35px;line-height:5px;" class="btn btn-secondary" id="skip_button" data-toggle="tooltip" data-placement="top" title="Careful, this may deduct points from your score."><b>Skip this image</b>: it has a strange label or poor quality.</button>
-                        <hr width="256px;" style="margin-top:-10px;"> 
+                        <p style="margin-top:-20px;"><span style="color:white;font-size:50%;">100 pts </span><a id='progressbar' style="margin-top:-20px;"></a><span style="color:white;font-size:50%;"> 0 pts</span></p>
+                        <!--<canvas id="ppChart" style="margin-left:-50px; margin-top:-10px;" width="300" height="60"></canvas></p>-->
+                        <p id="text_feedback" style="color:white;margin-top:-15px;">_____</p>
+                        <button type="button" style="height:20px;font-size:66%;margin-top:0px;margin-bottom:5px;line-height:5px;" class="btn btn-secondary" id="skip_button" data-toggle="tooltip" data-placement="top" title="Careful, this may deduct points from your score."><b>Skip this image</b>: it has a strange label or poor quality.</button>
+                        <hr width="256px;" style="margin-top:0px;"> 
                         <!--<p class="lead" style="color:white;">Status</p> -->
                         <p class="lead" style="margin-top:-20px;"><small id='click_count' style="color:white;">Your score: 0</small>&emsp;|&emsp;<small id='click_high_score' style="color:white;">Today's high score: 0</small>
                         <br>

@@ -186,6 +186,8 @@ body {
 
 .modal {
   color:black;
+  overflow:visible;
+  background: none !important;
 }
 
 .modal-content {

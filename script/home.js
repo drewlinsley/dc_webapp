@@ -11,9 +11,13 @@ var reveal_rate = 50;
 var playing_image = false;
 var clicks_till_update = 10; //Clicks between server calls
 var time_limit = 7000;
-var answer_status_timer = 2000;
+var answer_status_timer = 2500;
 var global_precision = 2;
-var posx, posy, true_posx, true_posy, global_guess, global_width, global_height;
+var max_in = 0;
+var prev_max = 0;
+var num_turns = 0;
+var remove_info_after = 3;
+var posx, posy, true_posx, true_posy, global_guess, global_width, global_height, imgLoaded,image;
 
 //Background
 var colors = new Array(
@@ -96,25 +100,31 @@ function getImage(ctx){
 }
 
 function postImage(image_link,ctx){
-    var image = new Image();
+    image = new Image();
+    imgLoaded = false;
     image.src = 'data:image/jpg;base64,' + image_link;
-    try{
+    image.onload = function(){
         ctx.drawImage(image,0,0);
-    }catch(err){}
+        imgLoaded = true;
+        draw_scored_box(0);
+    }
+    //try{
+    //    ctx.drawImage(image,0,0);
+    //}catch(err){}
     
 }
 
 function change_title(text){
-    /*global_color = getRandomColor();
-    $('#image_label').html('<p style="color:' + global_color + ';">' + text + '</p>')*/
-    $('#image_label').html('<p style="color:white;">' + text + '</p>')
+    global_color = getRandomColor();
+    //$('#image_label').html('<p style="color:' + global_color + ';">' + text + '</p>')
+    $('#image_label').html('<p style="color:' + global_color  + ';">' + text + '</p>')
 }
 
 function getRandomColor() {
     var letters = '0123456789ABCDEF';
     var color = '#';
     for (var i = 0; i < 6; i++ ) {
-        color += letters[Math.floor(Math.random() * (letters.length * .5)) + 8];
+        color += letters[Math.floor(Math.random() * (4)) + 12];
     }
     return color;
 }
@@ -177,8 +187,13 @@ function gate_coordinates(){
     if (posy > global_height){posy = global_height;}
 }
 
+function fastDraw(){
+    if (imgLoaded) ctx.drawImage(image,0,0);
+}
 function draw(e) {
-    postImage(global_image_link,ctx)
+    //postImage(global_image_link,ctx)
+    fastDraw();
+    interp_box();
     var pos = process_coordinates(e);
     posx = pos[0];
     posy = pos[1];
@@ -191,7 +206,9 @@ function draw(e) {
 }
 
 function draw_touch(e) {
-    postImage(global_image_link,ctx)
+    //postImage(global_image_link,ctx)
+    fastDraw();
+    interp_box();
     var pos = process_touch_coordinates(e);
     posx = pos[0];
     posy = pos[1];
@@ -279,7 +296,9 @@ function get_dist(new_x,new_y,old_x,old_y){
 }
 
 function click_functions(click_posx,click_posy){
-    postImage(global_image_link,ctx);
+    //postImage(global_image_link,ctx);
+    fastDraw();
+    interp_box();
     var rgb = hexToRgb(global_color)
     draw_boxes(rgb,click_array)
     click_array.push([click_posx,click_posy])
@@ -380,12 +399,49 @@ function call_sven(){
             var pps = str_to_float(guess_pp[1].split('!'));
             var split_guesses = guess_pp[0].split('!'); //delimited with !
             var cc = check_correct(split_guesses,im_text);
+            max_in = pps[find_target_pp(split_guesses,im_text)] * 100;
             var max_non = Math.max.apply(null,pps.splice(5,pps.length)) * 100;
-            var max_in = pps[find_target_pp(split_guesses,im_text)] * 100;
             if (isNaN(max_in)) {max_in = 0;}
-            if (cc[1] === true){update_pps(ppChart,max_in,max_non);correct_recognition(0,max_in);}else{update_pps(ppChart,max_in,max_non)}
+            if (cc[1] === true){
+                //update_pps(ppChart,max_in,max_non);
+                //correct_recognition(0,max_in);
+                correct_recognition(0,(1 - bar.value()) * 100);
+                max_in = 0;
+            }else{
+                //update_pps(ppChart,max_in,max_non)
+            }
         }
     });
+}
+
+function interp_box(){
+   //var color_score = cs_map(prev_max/100);
+   //draw_scored_box(color_score);
+   draw_scored_box(0);
+   /*var color_score;
+   var num_steps = 100 * (Math.abs(max_in - prev_max) * 0.1);
+   for (var idx = 0; idx < num_steps; idx++){
+       setTimeout(function(){
+           color_score = cs_map(prev_max/100);
+           draw_scored_box(color_score);
+           if (prev_max < max_in){
+               prev_max+=0.1;
+           }else if (prev_max > max_in){
+               prev_max-=0.1;
+           }
+       },10); 
+   }*/
+}
+
+function draw_scored_box(color_score){
+    //var color_score = cs_map(max_in/100);
+    ctx.beginPath();
+    //ctx.strokeStyle = 'rgb('+color_score._rgb[0]+', '+color_score._rgb[1]+', '+color_score._rgb[2] + ')';
+    ctx.strokeStyle = global_color;//'white';
+    ctx.lineWidth = 5;
+    ctx.rect(0,0,global_height,global_width);
+    ctx.stroke();
+    ctx.closePath();
 }
 
 function keep_clicking(){
@@ -407,6 +463,7 @@ function round_reset(correct){
     window.removeEventListener('mousedown', clicked, false);
     playing_image = false;
     upload_click_location(click_array,correct);
+    num_turns++;
     click_array = [];
     bar.destroy();
     start_turn();
@@ -446,16 +503,16 @@ function answer_status(c_i,answer_status_timer,pp){
     if (typeof(c_i) === 'boolean'){
         if (c_i === false){
             var text_color="#FF330A";
-            $('#main_status').html('<span style="color:' + text_color + '">Time elapsed!</span>');
+            $('#text_feedback').html('<span style="color:' + text_color + '">Time elapsed!</span>');
             revert_title();
         }
     } else{
         if (c_i >= 0) { //true
             var text_color="#00FF04";
-            $('#main_status').html('<span style="text-outline:' + text_color + '">+' + String(pp.toFixed(global_precision)) + ' points!</span>');
+            $('#text_feedback').html('<span style="text-outline:' + text_color + '">+' + String(pp.toFixed(global_precision)) + ' points!</span>');
         }
         else if (c_i < 0){
-            $('#main_status').html('Image skipped.');
+            $('#text_feedback').html('Image skipped.');
         }
         revert_title();
     }
@@ -463,7 +520,7 @@ function answer_status(c_i,answer_status_timer,pp){
 
 function revert_title(){
     setTimeout(function(){
-        $('#main_status').html('CLICKTIONARY');
+        $('#text_feedback').html('_____');
     },answer_status_timer)
 }
 
@@ -498,14 +555,18 @@ function start_turn(){
     setup_progressbar();
     window.addEventListener('mousemove', draw, false);
     window.addEventListener('mousedown', clicked, false);
+    if (num_turns > remove_info_after){
+        $('#next_prize').fadeOut();
+        $('#extra_info').fadeOut();
+    }
 }
 
 function update_user_data(){
    	$.get('/user_data', function () { }).done(function(json_data) {
    	    user_data = JSON.parse(json_data);
    	    // Update display
-        //if (user_data.email == ''){$("#consentModal").modal('show');}
-        //if (user_data.email == ''){$('#instruction-modal').modal('show');}
+        if (user_data.email == ''){$("#consentModal").modal('show');}
+        if (user_data.email == ''){$('#instruction-modal').modal('show');}
         $('#click_count').html('Your score: ' + user_data.score.toFixed(global_precision));
         $('#click_high_score').html('High score: ' + user_data.scores.global_high_score.toFixed(global_precision));
         $('#login_info').html('Your user name is: ' + user_data.name);
@@ -527,8 +588,7 @@ function update_user_data(){
             high_score_table += '<tr class="' + tt + '"><td>' + (i + 1).toString() + '</td><td>' + hsdata[i].name + '</td><td>' + hsdata[i].score.toFixed(global_precision) + '</td></tr>'
         }
         $('#high_scores').html(high_score_table);
-    });
-
+    }).fail(function(){update_user_data()});
 }
 
 function setup_progressbar(){
@@ -539,7 +599,7 @@ function setup_progressbar(){
     color: '#FFEA82',
     trailColor: '#eee',
     trailWidth: 1,
-    svgStyle: {width: '40%', height: '80%'},
+    svgStyle: {width: '210px', height: '80%'},
     from: {color: '#FFEA82'},
     to: {color: '#ED6A5A'},
     step: (state, bar) => {
@@ -617,9 +677,19 @@ $(document).ready(function(){
     global_height = canvas.height;
     // Initial score
     update_user_data();
-    if ('ontouchstart' in window) {canvas.addEventListener('mousemove', draw, false);} //touchmove
-    else{canvas.addEventListener('mousemove', draw, false);}
-    canvas.addEventListener('mousedown', clicked, false);
+    if ('ontouchstart' in window) {
+        canvas.addEventListener('touchmove', draw, false);
+        canvas.addEventListener('touchstart', clicked, false);
+        smoothScroll.init();
+        setTimeout(function(){
+            smoothScroll.animateScroll(90);
+            $.scrollLock();
+        },1500)
+    }
+    else{
+        canvas.addEventListener('mousemove', draw, false);
+        canvas.addEventListener('mousedown', clicked, false);
+    }
     start_turn();
     // Modals
     $('#scoreboard-modal').click(function(){$("#scoreModal").modal('show');});
@@ -632,8 +702,10 @@ $(document).ready(function(){
     $('#agree').click(function(){upload_email()});
     $('#update_email').click(function(){update_email()});
     // Contest date
-    $('#next_prize').text('The top-5 scoring players by ' + next_date()  + ' win a gift-card! See the Scoreboard tab for details.');
-    $('#scoreboard_time').text('Prizes awarded to the top-5 players on ' + next_date() + '.');
+    $('#next_prize').text('The top-5 scoring players by ' + next_date()  + ' win a gift card! See the Scoreboard tab for details.');
+    $('#scoreboard_time_1').text('Amazon gift cards awarded to the top-5 scoring players on ' + next_date() + ' in the following amounts:');
+    $('#scoreboard_time_2').text('Amazon gift cards awarded to the top-5 scoring players on ' + next_date() + ' in the following amounts:');
     // Refresh the screen for mobile
     // adjust_for_mobile();
+    //cs_map = chroma.scale(chroma.brewer.Reds).domain([0,1],'log');
 })
