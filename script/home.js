@@ -682,7 +682,7 @@ $(document).ready(function(){
         canvas.addEventListener('touchstart', clicked, false);
         smoothScroll.init();
         setTimeout(function(){
-            smoothScroll.animateScroll(90);
+            smoothScroll.animateScroll(80);
             $.scrollLock();
         },1500)
     }
