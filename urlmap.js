@@ -44,10 +44,24 @@ var respond = function (response, responseData, err, errorMessage) {
 
 var app_version = 2 // Reset cookie if stored under smaller app version
 
+
+var getNextDate = function() {
+    var D= new Date();
+    D.setMonth(D.getMonth()+1,1);
+    D.setHours(0, 0, 0, 0);
+    return D.getTime();
+}
+
+var getCurrentDate = function() {
+    var D= new Date();
+    return D.getTime();
+}
+
+
 // Server-side user data
 var getUserData = function(req) {
   sess = req.session;
-  if (!sess.user_data || sess.user_data.app_version < app_version )
+  if (!sess.user_data || sess.user_data.app_version < app_version || (parseFloat(sess.user_data.expiration) - parseFloat(getCurrentDate()) < 0)) //no cookie or bad app version or expired
   {
     sess.user_data = {
         'click_count': 0,
@@ -55,7 +69,8 @@ var getUserData = function(req) {
         'name': s2utils.generateRandomName(),
         'userid': shortid.generate(),
         'app_version': app_version,
-        'email': ''
+        'email': '',
+        'expiration': getNextDate()
         };
   }
   return sess.user_data;

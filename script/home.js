@@ -446,7 +446,6 @@ function draw_scored_box(color_score){
 
 function keep_clicking(){
     setTimeout(function(){
-        //console.log(check_deviation())
         if (playing_image === false){
             return;
         }
@@ -566,7 +565,7 @@ function update_user_data(){
    	    user_data = JSON.parse(json_data);
    	    // Update display
         if (user_data.email == ''){$("#consentModal").modal('show');}
-        if (user_data.email == ''){$('#instruction-modal').modal('show');}
+        //if (user_data.email == ''){$('#instruction-modal').modal('show');}
         $('#click_count').html('Your score: ' + user_data.score.toFixed(global_precision));
         $('#click_high_score').html('High score: ' + user_data.scores.global_high_score.toFixed(global_precision));
         $('#login_info').html('Your user name is: ' + user_data.name);
@@ -612,6 +611,7 @@ function setup_progressbar(){
 function email_check(text){
     if (text.indexOf('@') !== -1){
         $('#agree').disable(false);
+        $('#update_email_modal').disable(false);
     }
 }
 
@@ -644,8 +644,9 @@ function upload_email(){
 }
 
 function update_email(){
+    console.log('here')
     var data = {};
-    data.email = $('#update_email_text').val();
+    data.email = $('#update_email_text_modal').val();
     $.ajax({
         type: 'POST',
         url: '/email',
@@ -663,6 +664,10 @@ function adjust_for_mobile(){
     
 }
 
+function check_email(){
+    var new_email = user_data.email; if (new_email == ''){new_email = 'Enter your email so we can contact you if you win.'};
+    return new_email
+}
 /////////
 $(document).ready(function(){
     // Prepare canvas
@@ -693,14 +698,15 @@ $(document).ready(function(){
     start_turn();
     // Modals
     $('#scoreboard-modal').click(function(){$("#scoreModal").modal('show');});
-    $('#instruction-modal').click(function(){$("#instructionModal").modal('show');});
+    $('#instruction-modal').click(function(){$("#update_email_text_modal").attr('placeholder',check_email());$("#instructionModal").modal('show');});
     // Tooltips
     $('#agree').tooltip({container: 'body'});
     $('#email').on('input', function(){email_check($('#email').val())});
     $('#skip_button').tooltip({container: 'body',trigger: 'hover'});
     $('#skip_button').click(function(){skip_question()});
-    $('#agree').click(function(){upload_email()});
-    $('#update_email').click(function(){update_email()});
+    $('#agree').click(function(){upload_email();$("#consentModal").modal('hide');$("#instructionModal").modal('show');});
+    $('#update_email_modal').click(function(){update_email()});
+    $('#update_email_text_modal').on('input', function(){email_check($('#update_email_text_modal').val());});
     // Contest date
     $('#next_prize').text('The top-5 scoring players by ' + next_date()  + ' win a gift card! See the Scoreboard tab for details.');
     $('#scoreboard_time_1').text('Amazon gift cards awarded to the top-5 scoring players on ' + next_date() + ' in the following amounts:');

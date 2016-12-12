@@ -6,6 +6,8 @@ var pg = require('pg');
 var fs = require('fs');
 var tokenExpirationTime = 3600000;
 var PythonShell = require('python-shell');
+var exec = require('child_process').exec;
+var db_pw = 'serrelab';
 
 function unique_ind(arr) {
     var hash = {}, result = [];
@@ -65,6 +67,18 @@ DbManager.prototype.locateRandomImage = function (callback, errorCallback) {
         var high_score = res.rows[0].high_score;
         var bound_data = [selected_image,selected_label,selected_id];
         if ((click_goal - clicks_to_go) <= 0){// trigger training routine
+          //Backup database
+
+
+          //Either start training or tell someone to do it
+          var dt = new Date().getTime();
+          var cmd = 'PGPASSWORD="' + db_pw + '" pg_dump -h 127.0.0.1 -U mircs -d mircs > db_dump/' + String(dt) + '.sql';
+          exec(cmd, function(err, stdout, stderr) {
+            if (err){
+              console.log('Error dumping database');
+              return;
+            }
+          })
           //PythonShell.run('train_model.py', function (pyerr) {
           PythonShell.run('send_email.py', function (pyerr) {
             if (pyerr) console.log(pyerr);
@@ -250,17 +264,25 @@ DbManager.prototype.getScoreData = function (callback, errorCallback) {
 
 DbManager.prototype.resetScores = function(){
   var self = this;
-  self.client.query('UPDATE users SET score=$1',[0],function (err,res){
+  var dt = new Date().getTime();
+  var cmd = 'PGPASSWORD="' + db_pw + '" pg_dump -h 127.0.0.1 -U mircs -d mircs > db_dump/' + String(dt) + '.sql';
+  exec(cmd, function(err, stdout, stderr) {
     if (err){
-      console.log('Error resetting users');
-      return;
+       console.log('Error dumping database');
+       return;
     }
-    self.client.query('UPDATE clicks SET high_score=$1',[0],function (err,res){
+    self.client.query('UPDATE users SET score=$1',[0],function (err,res){
       if (err){
-        console.log('Error resetting clicks');
+        console.log('Error resetting users');
         return;
       }
+      self.client.query('UPDATE clicks SET high_score=$1',[0],function (err,res){
+        if (err){
+          console.log('Error resetting clicks');
+          return;
+        }
       //callback();
+      });
     });
   });
 }
@@ -268,7 +290,6 @@ DbManager.prototype.resetScores = function(){
 DbManager.prototype.addEmail = function (email,username,userid, callback, errorCallback) {
   var self = this;
   self.client.query('SELECT * FROM users WHERE cookie=$1', [userid], function (err, res) {
-
     if (res.rows.length == 0){
     self.client.query('INSERT INTO users (score, name, email, cookie) VALUES ($1,$2,$3,$4)', [0, username, email, userid], function (err, res) {
         // Update OK?
@@ -294,9 +315,12 @@ DbManager.prototype.getEmail = function (userid, callback) {
   self.client.query('SELECT * FROM users WHERE cookie=$1', [userid], function (err, res) { 
     if (err) {
        console.log(err, 'Error getting email');
-       return;
     }  
-    callback({'email': res.rows[0].email});
+    if (typeof(res.rows[0]) == 'undefined'){
+        callback({'email': ''});
+    }else{
+        callback({'email': res.rows[0].email});
+    }
   })
 }
 

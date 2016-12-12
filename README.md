@@ -11,7 +11,7 @@ Setting up the webapp
 	sudo apt-get install postgresql libpq-dev postgresql-client postgresql-client-common #Install posetgresql with online installer
 	sudo -i -u postgres #goes into postgres default user
 	psql postgres #enter the postgres interface
-	create role mircs WITH LOGIN superuser password 'XXX'; #create the admin for this webapp
+	create role mircs WITH LOGIN superuser password 'XXX'; #create the admin for this webapp. make sure this password is also reflected in db.js/db_pw
 	alter role mircs superuser; #ensure we are sudo
 	create database mircs with owner mircs; #create the webapp's database
 	\q #quit

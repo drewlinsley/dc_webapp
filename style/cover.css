@@ -30,6 +30,7 @@ html{
 body {
   height: 100%;
   margin: 0;
+  background-size: 100% 100%;
   background-repeat: no-repeat;
   background-attachment: fixed;
   background-color: #333; 
@@ -51,6 +52,7 @@ body {
   height: 100%;
   padding: 0px;
   margin: 0px;
+  background-size: 100% 100%;
 }
 
 /* Extra markup and styles for table-esque vertical and horizontal centering */
@@ -188,6 +190,7 @@ body {
   color:black;
   overflow:visible;
   background: none !important;
+  position: absolute;
 }
 
 .modal-content {
