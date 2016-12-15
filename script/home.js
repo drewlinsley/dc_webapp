@@ -17,6 +17,7 @@ var max_in = 0;
 var prev_max = 0;
 var num_turns = 0;
 var remove_info_after = 3;
+var mobile = false;
 var posx, posy, true_posx, true_posy, global_guess, global_width, global_height, imgLoaded,image;
 
 //Background
@@ -63,6 +64,11 @@ var color2 = "rgb("+r2+","+g2+","+b2+")";
  $('#gradient').css({
    background: "-webkit-gradient("+color1+","+color2+")"}).css({
     background: "linear-gradient("+color1+" 0%, "+color2+" 100%)"});
+    if (mobile){
+        $('#gradient').css({'height':String(parseInt(window.innerHeight) + 300)+ 'px'});
+    }else{
+        $('#gradient').css({'height':window.innerHeight + 'px'});
+    }
   
   step += gradientSpeed;
   if ( step >= 1 )
@@ -154,13 +160,16 @@ function  getMousePos(canvas, evt) {
   }
 }
 
-function  getTouchPos(canvas, evt) {
-  var rect = canvas.getBoundingClientRect(), // abs. size of element
+function getTouchPos(canvas, evt) {
+  if(evt.targetTouches.length == 1){ //one finger touch
+    var touch = event.targetTouches[0];
+    var rect = canvas.getBoundingClientRect(), // abs. size of element
       scaleX = canvas.width / rect.width,    // relationship bitmap vs. element for X
       scaleY = canvas.height / rect.height;  // relationship bitmap vs. element for Y
-  return {
-    x: (evt.touches[0].screenX - rect.left) * scaleX,   // scale mouse coordinates after they have
-    y: (evt.touches[0].screenY - rect.top) * scaleY     // been adjusted to be relative to element
+    return {
+      x: (touch.clientX - rect.left) * scaleX,   // scale mouse coordinates after they have
+      y: (touch.clientY - rect.top) * scaleY     // been adjusted to be relative to element
+    }
   }
 }
 
@@ -207,6 +216,7 @@ function draw(e) {
 
 function draw_touch(e) {
     //postImage(global_image_link,ctx)
+    e.preventDefault();
     fastDraw();
     interp_box();
     var pos = process_touch_coordinates(e);
@@ -214,10 +224,6 @@ function draw_touch(e) {
     posy = pos[1];
     var rgb = hexToRgb(global_color)
     draw_boxes(rgb,click_array);
-    if (click_array.length == 0){
-        ctx.fillStyle = 'rgba(' + rgb['r'] + ',' +rgb['g'] + ',' + rgb['b'] + ',' + '0.6)';
-        ctx.fillRect(posx-half_size, posy-half_size, reveal_size, reveal_size);
-    }
 }
 
 function sum(array) {
@@ -459,7 +465,7 @@ function keep_clicking(){
 
 function round_reset(correct){
     update_user_data();
-    window.removeEventListener('mousedown', clicked, false);
+    //window.removeEventListener('mousedown', clicked, false);
     playing_image = false;
     upload_click_location(click_array,correct);
     num_turns++;
@@ -523,10 +529,15 @@ function revert_title(){
     },answer_status_timer)
 }
 
-function clicked() {
+function clicked(e) {
     if (posx < 0 || posx > global_width || posy < 0 || posy > global_height){}
     else{
         if (click_array.length === 0){
+            if (mobile){freeze();
+               var pos = process_touch_coordinates(e);
+               posx = pos[0];
+               posy = pos[1];
+            }            
             click_functions(posx,posy);
             playing_image = true;
             keep_clicking();
@@ -552,10 +563,17 @@ function upload_click_location(clicks,correct){
 function start_turn(){
     getImage(ctx);
     setup_progressbar();
-    window.addEventListener('mousemove', draw, false);
-    window.addEventListener('mousedown', clicked, false);
+    if (mobile){
+        canvas.addEventListener('touchmove', draw_touch, false);
+        canvas.addEventListener('touchstart', clicked, false);
+    }else{
+        canvas.addEventListener('mousemove', draw, false);
+        canvas.addEventListener('mousedown', clicked, false);
+    }
     if (num_turns > remove_info_after){
-        $('#next_prize').fadeOut();
+        if (mobile){}else{
+            $('#next_prize').fadeOut();
+        }
         $('#extra_info').fadeOut();
     }
 }
@@ -656,19 +674,59 @@ function update_email(){
     });
 }
 
-function adjust_for_mobile(){
-
-    if(/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|ipad|iris|kindle|Android|Silk|lge |maemo|midp|mmp|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino/i.test(navigator.userAgent) 
-    || /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(navigator.userAgent.substr(0,4))){//Do stuff
-}
-    
-}
-
 function check_email(){
     var new_email = user_data.email; if (new_email == ''){new_email = 'Enter your email so we can contact you if you win.'};
     return new_email
 }
+
+//Freeze page content scrolling
+var keys = {37: 1, 38: 1, 39: 1, 40: 1};
+
+function preventDefault(e) {
+  e = e || window.event;
+  if (e.preventDefault)
+      e.preventDefault();
+  e.returnValue = false;  
+}
+
+function preventDefaultForScrollKeys(e) {
+    if (keys[e.keyCode]) {
+        preventDefault(e);
+        return false;
+    }
+}
+
+function disableScroll() {
+  if (window.addEventListener) // older FF
+      window.addEventListener('DOMMouseScroll', preventDefault, false);
+  window.onwheel = preventDefault; // modern standard
+  window.onmousewheel = document.onmousewheel = preventDefault; // older browsers, IE
+  window.ontouchmove  = preventDefault; // mobile
+  document.onkeydown  = preventDefaultForScrollKeys;
+}
+
+function enableScroll() {
+    if (window.removeEventListener)
+        window.removeEventListener('DOMMouseScroll', preventDefault, false);
+    window.onmousewheel = document.onmousewheel = null; 
+    window.onwheel = null; 
+    window.ontouchmove = null;  
+    document.onkeydown = null;  
+}
+
+function freeze() {
+    disableScroll();
+}
+//Unfreeze page content scrolling
+function unfreeze() {
+    enableScroll();
+}
 /////////
+// device detection
+if (/Mobi/.test(navigator.userAgent)) {
+    mobile = true;
+}
+
 $(document).ready(function(){
     // Prepare canvas
     canvas = document.getElementById('myCanvas');
@@ -682,14 +740,20 @@ $(document).ready(function(){
     global_height = canvas.height;
     // Initial score
     update_user_data();
-    if ('ontouchstart' in window) {
-        canvas.addEventListener('touchmove', draw, false);
+    if (mobile) {
+        canvas.addEventListener('touchmove', draw_touch, false);
         canvas.addEventListener('touchstart', clicked, false);
-        smoothScroll.init();
-        setTimeout(function(){
-            smoothScroll.animateScroll(80);
-            $.scrollLock();
-        },1500)
+        if (user_data.email !== ''){
+            smoothScroll.init({callback: function(){freeze();
+                $('#next_prize').html('<button id="scrolling" style="color:black;background-color:white;height:20px;font-size:66%;margin-top:0px;margin-bottom:5px;line-height:5px;">Tap to enable scrolling</button>');
+                $('#next_prize').click(function(){unfreeze();});
+            }});
+            setTimeout(function(){
+                smoothScroll.animateScroll(80);
+                window.scrollTo(0,80);
+            },1000)}
+        $('#extra_info').html('Drag your finger across the image to reveal parts best describing a:');
+
     }
     else{
         canvas.addEventListener('mousemove', draw, false);
@@ -698,11 +762,16 @@ $(document).ready(function(){
     start_turn();
     // Modals
     $('#scoreboard-modal').click(function(){$("#scoreModal").modal('show');});
-    $('#instruction-modal').click(function(){$("#update_email_text_modal").attr('placeholder',check_email());$("#instructionModal").modal('show');});
+    $('#instruction-modal').click(function(){$("#update_email_text_modal").attr('placeholder',check_email());$('#instructionModal').modal('show');});
     // Tooltips
     $('#agree').tooltip({container: 'body'});
     $('#email').on('input', function(){email_check($('#email').val())});
-    $('#skip_button').tooltip({container: 'body',trigger: 'hover'});
+    if (mobile === false){
+        $('#skip_button').tooltip({container: 'body',trigger: 'hover'});
+    }else{
+        $('#skip_button').css({'background-color':'white'});
+    }
+     
     $('#skip_button').click(function(){skip_question()});
     $('#agree').click(function(){upload_email();$("#consentModal").modal('hide');$("#instructionModal").modal('show');});
     $('#update_email_modal').click(function(){update_email()});
@@ -713,5 +782,4 @@ $(document).ready(function(){
     $('#scoreboard_time_2').text('Amazon gift cards awarded to the top-5 scoring players on ' + next_date() + ' in the following amounts:');
     // Refresh the screen for mobile
     // adjust_for_mobile();
-    //cs_map = chroma.scale(chroma.brewer.Reds).domain([0,1],'log');
 })
