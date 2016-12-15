@@ -3,6 +3,7 @@ import numpy as np
 from glob import glob
 from scipy import misc
 from synset import get_synset
+from data_proc_config import project_settings
 
 #Images
 #1. 1000 random images from imagenet training set, to be reused on every clicktionary generation
@@ -40,12 +41,15 @@ def add_to_db(files,syns,image_count):
         cur.execute("INSERT INTO images (image_path, syn_name, generations) VALUES (%s,%s,%s)",(im,syn,0))
     image_count += len(files)
     return image_count
+
+config = project_settings()
+
 #Fixed directories
-nsf_dir = 'nsf_images' #1000 nsf images
-mirc_dir = 'mirc_images' #10 mirc images
+nsf_dir =  config.nsf_image_path #~1000 nsf images
+mirc_dir = config.mirc_image_path #10 mirc images
 
 #Random sampling directories
-im_dir = 'lmdb_training'
+im_dir = config.imagenet_train_path
 target_dir = 'images'
 validation_dir = 'validation_images' #only used if create_validation_set = True (vestige)
 
@@ -102,7 +106,8 @@ for cn in range(num_categories):
 
 #Now add in our fixed images
 nsf_images = glob(os.path.join(nsf_dir,'*.JPEG'))
-nsf_syns#UNFINISHED. WAITING ON SVEN FOR NSF IMAGE INFO.
+nsf_syns = [re.split('_',re.split('/',x)[-1])[0] for x in nsf_images]
+image_count = add_to_db(nsf_images,nsf_syns,image_count)
 
 mirc_images = glob(os.path.join(mirc_dir,'*.JPEG'))
 mirc_syns = get_mirc_syns(mirc_images)

@@ -49,11 +49,12 @@ def project_settings():
     #Images for the click map prediction and folders for saving the predictions
     'training_map_path' : 'database_click_images/',
     'click_map_predictions' : 'model_click_predictions/',
-    'validation_image_path' : 'validation_images/', #Originally we just used these files
+    'validation_image_path' : 'lmdb_validations/',#'validation_images/', #Originally we just used these files
     'training_image_path' : 'images/',
     'im_ext' : '.JPEG',
     'imagenet_train_path' : '/media/data_cifs/clicktionary/webapp_data/lmdb_trains/', #Now combine a subset of these, with a subset of validation_image_path, and the below 10 images
     'mirc_image_path' : '/media/data_cifs/clicktionary/webapp_data/mircs/',
+    'nsf_image_path' : '/media/data_cifs/clicktionary/webapp_data/nsf_images',
 
     #Images for the click map prediction and folders for saving the predictions
     'click_box_radius' : 9,
