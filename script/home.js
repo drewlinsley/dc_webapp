@@ -578,15 +578,35 @@ function start_turn(){
     }
 }
 
+function prepare_mobile(){
+            smoothScroll.init({callback: function(){freeze();
+                $('#next_prize').html('<button id="scrolling" style="color:black;background-color:white;height:20px;font-size:66%;margin-top:0px;margin-bottom:5px;line-height:5px;">Tap to enable scrolling</button>');
+                $('#next_prize').click(function(){unfreeze();});
+            }});
+            setTimeout(function(){
+                smoothScroll.animateScroll(80);
+                window.scrollTo(0,80);
+            },1000)
+}
+
 function update_user_data(){
    	$.get('/user_data', function () { }).done(function(json_data) {
    	    user_data = JSON.parse(json_data);
    	    // Update display
-        if (user_data.email == ''){$("#consentModal").modal('show');}
+        if (user_data.email == ''){
+            $("#consentModal").modal('show');
+            $("#consentModal").on('hidden',function(){
+                $("#instructionModal").modal('show');
+                if (mobile){
+                    $("#instructionModal").on('hidden',function(){prepare_mobile()});
+                }
+            });
+        }else{if (mobile && num_turns > 0){prepare_mobile();}}
         //if (user_data.email == ''){$('#instruction-modal').modal('show');}
         $('#click_count').html('Your score: ' + user_data.score.toFixed(global_precision));
         $('#click_high_score').html('High score: ' + user_data.scores.global_high_score.toFixed(global_precision));
-        $('#login_info').html('Your user name is: ' + user_data.name);
+        if (mobile){$('#login_info').html('Username: ' + user_data.name);}else{
+        $('#login_info').html('Your user name is: ' + user_data.name);}
         var accum_clicks = user_data.scores.clicks_to_go;
         var clicks_to_go = user_data.scores.click_goal - accum_clicks;
         update_chart(myChart,accum_clicks,clicks_to_go);
@@ -626,8 +646,14 @@ function setup_progressbar(){
 
 }
 
+function validateEmail(email) {
+    var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(email);
+}
+
 function email_check(text){
-    if (text.indexOf('@') !== -1){
+    //if (text.indexOf('@') !== -1){
+    if (validateEmail(text)){
         $('#agree').disable(false);
         $('#update_email_modal').disable(false);
     }
@@ -743,17 +769,7 @@ $(document).ready(function(){
     if (mobile) {
         canvas.addEventListener('touchmove', draw_touch, false);
         canvas.addEventListener('touchstart', clicked, false);
-        if (user_data.email !== ''){
-            smoothScroll.init({callback: function(){freeze();
-                $('#next_prize').html('<button id="scrolling" style="color:black;background-color:white;height:20px;font-size:66%;margin-top:0px;margin-bottom:5px;line-height:5px;">Tap to enable scrolling</button>');
-                $('#next_prize').click(function(){unfreeze();});
-            }});
-            setTimeout(function(){
-                smoothScroll.animateScroll(80);
-                window.scrollTo(0,80);
-            },1000)}
         $('#extra_info').html('Drag your finger across the image to reveal parts best describing a:');
-
     }
     else{
         canvas.addEventListener('mousemove', draw, false);
@@ -764,16 +780,16 @@ $(document).ready(function(){
     $('#scoreboard-modal').click(function(){$("#scoreModal").modal('show');});
     $('#instruction-modal').click(function(){$("#update_email_text_modal").attr('placeholder',check_email());$('#instructionModal').modal('show');});
     // Tooltips
-    $('#agree').tooltip({container: 'body'});
     $('#email').on('input', function(){email_check($('#email').val())});
     if (mobile === false){
         $('#skip_button').tooltip({container: 'body',trigger: 'hover'});
+        $('#agree').tooltip({container: 'body'});
     }else{
         $('#skip_button').css({'background-color':'white'});
     }
      
     $('#skip_button').click(function(){skip_question()});
-    $('#agree').click(function(){upload_email();$("#consentModal").modal('hide');$("#instructionModal").modal('show');});
+    $('#agree').click(function(){upload_email();$("#consentModal").modal('hide');});
     $('#update_email_modal').click(function(){update_email()});
     $('#update_email_text_modal').on('input', function(){email_check($('#update_email_text_modal').val());});
     // Contest date

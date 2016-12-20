@@ -37,6 +37,20 @@ body {
   background: linear-gradient(#8E54E9,#4776E6); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
 }
 
+#main_status {
+  display: inline;
+  position: relative;
+  letter-spacing: -2px;
+  color: #00b2b3;
+}
+
+#main_status:after {
+  content: 'CLICKTIONARY';
+  position: absolute;
+  top: 17px;
+  left: 17px;
+  color: #ff4d4d;
+}
 
 /*body {
   color: #fff;
