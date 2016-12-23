@@ -583,6 +583,7 @@ function prepare_mobile(){
                 $('#next_prize').html('<button id="scrolling" style="color:black;background-color:white;height:20px;font-size:66%;margin-top:0px;margin-bottom:5px;line-height:5px;">Tap to enable scrolling</button>');
                 $('#next_prize').click(function(){unfreeze();});
             }});
+            zoomOut();
             setTimeout(function(){
                 smoothScroll.animateScroll(80);
                 window.scrollTo(0,80);
@@ -722,6 +723,17 @@ function preventDefaultForScrollKeys(e) {
     }
 }
 
+function zoomOut() {
+    $(document.body).css({
+        zoom : '',
+        position : '',
+        left: "",
+        top: "",
+        "-moz-transform" : "",
+        width : ''  
+    });
+}
+
 function disableScroll() {
   if (window.addEventListener) // older FF
       window.addEventListener('DOMMouseScroll', preventDefault, false);
@@ -796,6 +808,7 @@ $(document).ready(function(){
     $('#next_prize').text('The top-5 scoring players by ' + next_date()  + ' win a gift card! See the Scoreboard tab for details.');
     $('#scoreboard_time_1').text('Amazon gift cards awarded to the top-5 scoring players on ' + next_date() + ' in the following amounts:');
     $('#scoreboard_time_2').text('Amazon gift cards awarded to the top-5 scoring players on ' + next_date() + ' in the following amounts:');
+    zoomOut();
     // Refresh the screen for mobile
     // adjust_for_mobile();
 })
