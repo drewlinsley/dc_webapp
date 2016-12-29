@@ -21,6 +21,18 @@ function unique_ind(arr) {
     return unique_ind;//result;
 }
 
+function prepare_click_vectors(clicks){
+    var x = [];
+    var y = [];
+    if (clicks != null){
+        for (var idx = 0; idx < clicks.length; idx++){
+            x[idx] = clicks[idx][0];
+            y[idx] = clicks[idx][1];
+        }
+    }
+    return {x:x,y:y}
+}
+
 var DbManager = function (username, password, host, port, dbName) {
   var self = this;
   var deferred = Q.defer();
@@ -47,7 +59,7 @@ DbManager.prototype.locateRandomImage = function (callback, errorCallback) {
     var generations_to_epoch = parseInt(res.rows[0].generations_per_epoch);
     var global_num_images = parseInt(res.rows[0].num_images);
     var click_goal = generations_to_epoch * global_num_images;
-    self.client.query('SELECT * FROM images WHERE generations=$1', [iteration_generation], function (err, res) {
+    self.client.query('SELECT * FROM images WHERE generations<=$1', [iteration_generation], function (err, res) {
       if (err) {
         errorCallback(err, 'Error finding image 1');
         return;
@@ -143,6 +155,8 @@ DbManager.prototype.cnn_accuracies = function (callback, errorCallback) {
 
 DbManager.prototype.updateClicks = function (label, click_path, score, username, userid, answers, callback, errorCallback) {
   var self = this;
+  self.answers = answers;
+  self.click_path = click_path
   self.client.query('SELECT * FROM images WHERE image_path=$1', [label], function (err, res) {
     if (err) {
       errorCallback(err, 'Error finding image 4');
@@ -150,25 +164,26 @@ DbManager.prototype.updateClicks = function (label, click_path, score, username,
     }
     var generations = parseInt(res.rows[0].generations) + 1;
 
-    //Handle the coordinates
+    //Handle the coordinates -- need function to convert click_path into x/y vectors
     var prev_coors = res.rows[0].click_path;
+    prepared_clicks = prepare_click_vectors(self.click_path);
     if (prev_coors != null){
-      prev_coors['x'].push(click_path[0]);
-      prev_coors['y'].push(click_path[1]);
+      prev_coors['x'].push(prepared_clicks.x);
+      prev_coors['y'].push(prepared_clicks.y);
       coors = prev_coors; 
     }else{
       if (click_path != null){ 
-      var coors = {'x':[click_path[0]],'y':[click_path[1]]};
+      var coors = {'x':[self.click_path[0]],'y':[self.click_path[1]]};
       }else{coors = null;}
     }
 
     //Handle the responses
     var prev_answers = res.rows[0].answers;
     if (prev_answers != null){
-      prev_answers['answers'].push(answers[0]);
-      answers = answers;
+      prev_answers['answers'].push(self.answers);
+      answers = prev_answers;
     }else{
-      var answers = {'answers':[answers]};
+      var answers = {'answers':[self.answers]};
     }
 
     //Update database
@@ -198,8 +213,8 @@ DbManager.prototype.updateClicks = function (label, click_path, score, username,
     });
     // Update users for highscores
     self.client.query('SELECT * FROM users WHERE cookie=$1', [userid], function (err, res) {
-      if (err) {
-        errorCallback(err, 'Uer table error');
+		    if (err) {
+		    errorCallback(err, 'Uer table error');
         return;
       }
         if (res.rows.length > 0)

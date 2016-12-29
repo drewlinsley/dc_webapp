@@ -124,6 +124,11 @@ function change_title(text){
     global_color = getRandomColor();
     //$('#image_label').html('<p style="color:' + global_color + ';">' + text + '</p>')
     $('#image_label').html('<p style="color:' + global_color  + ';">' + text + '</p>')
+    /*$('#image_label').textillate({ 
+      in: { effect: 'rotateInDownLeft', sync: true},
+      out: { effect: 'rotateOutUpRight', sync: true },
+    });
+    $('.tlt').textillate('in');*/
 }
 
 function getRandomColor() {
@@ -656,6 +661,7 @@ function email_check(text){
     //if (text.indexOf('@') !== -1){
     if (validateEmail(text)){
         $('#agree').disable(false);
+        $('#agree').click(function(){upload_email();$("#consentModal").modal('hide');});
         $('#update_email_modal').disable(false);
     }
 }
@@ -801,7 +807,7 @@ $(document).ready(function(){
     }
      
     $('#skip_button').click(function(){skip_question()});
-    $('#agree').click(function(){upload_email();$("#consentModal").modal('hide');});
+    //$('#agree').click(function(){upload_email();$("#consentModal").modal('hide');});
     $('#update_email_modal').click(function(){update_email()});
     $('#update_email_text_modal').on('input', function(){email_check($('#update_email_text_modal').val());});
     // Contest date

@@ -142,7 +142,7 @@ exports.setupRouter = function (db, router, errorFlag) {
       //else if (correct == 'top5'){user_data.score += 0.5;}
       if (correct == 'skip'){if (Math.random < 0.25){user_data.score -= 1;}}
       else if (correct == 'wrong'){}
-      else{user_data.score+=parseFloat(correct);}
+      else{user_data.score+=parseFloat(correct);correct = 'correct';}
       var score = user_data.score;
       var username = user_data.name;
       var userid = user_data.userid; // ID to identify the user
@@ -154,6 +154,7 @@ exports.setupRouter = function (db, router, errorFlag) {
 
     router.post('/email', function(req,res){
       var email = req.body.email;
+      //if (email == null){email = 'no email recorded';}
       var user_data = getUserData(req);
       var username = user_data.name;
       var userid = user_data.userid; // ID to identify the user
