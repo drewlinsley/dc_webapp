@@ -1,17 +1,19 @@
 #!/usr/bin/env python
 # CNN server that returns model guesses on a partially revealed image
 
-import os
+import os, sys
 from flask import Flask, request, Response
 import numpy as np
 import json
 from guesser import load_guesser, get_image_prediction
+import traceback
 
 # Init CNN
 oracle = load_guesser()
 
 # Init Flask
 app = Flask(__name__)
+#app.debug = True
 
 # Setup query route
 @app.route('/guess', methods=['GET', 'POST', 'OPTIONS'])
@@ -23,7 +25,13 @@ def guess_path(): # #
     class_index = int(os.path.basename(rdata['image_name']).split('_')[0])
     print 'True label: %s' % oracle.class_names[class_index]
     # Ask the oracle
-    prediction = get_image_prediction(oracle, rdata['image_name'], rdata['click_array'])
+    try:
+        prediction = get_image_prediction(oracle, rdata['image_name'], rdata['click_array'])
+    except:
+        print "Exception in user code:"
+        print '-'*60
+        traceback.print_exc(file=sys.stdout)
+        print '-'*60
     print '...guess: %s' % prediction
     # Allow cross origin
     resp = Response(prediction)
