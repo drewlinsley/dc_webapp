@@ -18,6 +18,7 @@ var prev_max = 0;
 var num_turns = 0;
 var remove_info_after = 3;
 var mobile = false;
+var previous_place = 100;
 var posx, posy, true_posx, true_posy, global_guess, global_width, global_height, imgLoaded,image;
 
 //Background
@@ -117,7 +118,6 @@ function postImage(image_link,ctx){
     //try{
     //    ctx.drawImage(image,0,0);
     //}catch(err){}
-    
 }
 
 function change_title(text){
@@ -136,6 +136,15 @@ function getRandomColor() {
     var color = '#';
     for (var i = 0; i < 6; i++ ) {
         color += letters[Math.floor(Math.random() * (4)) + 12];
+    }
+    return color;
+}
+
+function getDarkRandomColor() {
+    var letters = '0123456789ABCDEF';
+    var color = '#';
+    for (var i = 0; i < 6; i++ ) {
+        color += letters[Math.floor(Math.random() * (10))];
     }
     return color;
 }
@@ -585,7 +594,7 @@ function start_turn(){
 
 function prepare_mobile(){
             smoothScroll.init({callback: function(){freeze();
-                $('#next_prize').html('<button id="scrolling" style="color:black;background-color:white;height:20px;font-size:66%;margin-top:0px;margin-bottom:5px;line-height:5px;">Tap to enable scrolling</button>');
+                $('#next_prize').html('<button id="scrolling" style="color:black;background-color:white;height:20px;font-size:66%;margin-top:0px;margin-bottom:5px;line-height:5px;">Tap to unfreeze scrolling and check out the menu above.</button>');
                 $('#next_prize').click(function(){unfreeze();});
             }});
             zoomOut();
@@ -599,12 +608,12 @@ function update_user_data(){
    	$.get('/user_data', function () { }).done(function(json_data) {
    	    user_data = JSON.parse(json_data);
    	    // Update display
-        if (user_data.email == ''){
+        if (user_data.click_count == 0 && num_turns == 0){
             $("#consentModal").modal('show');
-            $("#consentModal").on('hidden',function(){
+            $("#consentModal").on('hidden.bs.modal',function(){
                 $("#instructionModal").modal('show');
                 if (mobile){
-                    $("#instructionModal").on('hidden',function(){prepare_mobile()});
+                    $("#instructionModal").on('hidden.bs.modal',function(){prepare_mobile()});
                 }
             });
         }else{if (mobile && num_turns > 0){prepare_mobile();}}
@@ -631,6 +640,32 @@ function update_user_data(){
             high_score_table += '<tr class="' + tt + '"><td>' + (i + 1).toString() + '</td><td>' + hsdata[i].name + '</td><td>' + hsdata[i].score.toFixed(global_precision) + '</td></tr>'
         }
         $('#high_scores').html(high_score_table);
+        // Find current place
+        var cp;
+        for (var i = 0; i < hsdata.length; ++i){
+            if (user_data.scores.high_scores[i].name == user_data.name){
+               cp = i;
+            }
+        }         
+        if (cp < previous_place && num_turns > 0){
+             
+             if (cp < 5){
+             $('#place_notification_sup').html('<kbd>Go to the Scoreboard tab and enter your email address so we can reward you if you maintain your place in the top-5.</kbd>');}
+             else{$('#place_notification_sup').html('<kbd>The top-5 scoring players at the end of the month get a prize. Play on and good luck!.</kbd>');}
+             previous_place = cp;
+             if (cp > 2){
+             $('#place_notification_text').html('You are now in ' + String(cp) + 'th place!');}
+             else if(cp == 2){$('#place_notification_text').html('You are now in ' + String(cp) + 'rd place!');} 
+             else if(cp == 1){$('#place_notification_text').html('You are now in ' + String(cp) + 'nd place!');}
+             else if(cp == 1){$('#place_notification_text').html('You are now in ' + String(cp) + 'st place!');}
+             var nc = getDarkRandomColor();
+             $('#place_notification_bg').css('background-color',nc);
+             $('#placeModal').modal('show');
+             setTimeout(function(){
+                 $('#placeModal').modal('hide');
+             }, 3500);
+        }
+
     }).fail(function(){update_user_data()});
 }
 
@@ -657,6 +692,7 @@ function validateEmail(email) {
     return re.test(email);
 }
 
+/*
 function email_check(text){
     //if (text.indexOf('@') !== -1){
     if (validateEmail(text)){
@@ -664,7 +700,7 @@ function email_check(text){
         $('#agree').click(function(){upload_email();$("#consentModal").modal('hide');});
         $('#update_email_modal').disable(false);
     }
-}
+}*/
 
 jQuery.fn.extend({
     disable: function(state) {
@@ -682,6 +718,7 @@ function next_date(){
     return D.toString().split(' 00')[0];
 }
 
+/*
 function upload_email(){
     var data = {};
     data.email = $('#email').val();
@@ -692,10 +729,9 @@ function upload_email(){
         dataType: 'application/json',
         success: function(data) {}
     });    
-}
+}*/
 
 function update_email(){
-    console.log('here')
     var data = {};
     data.email = $('#update_email_text_modal').val();
     $.ajax({
@@ -801,7 +837,7 @@ $(document).ready(function(){
     $('#email').on('input', function(){email_check($('#email').val())});
     if (mobile === false){
         $('#skip_button').tooltip({container: 'body',trigger: 'hover'});
-        $('#agree').tooltip({container: 'body'});
+        //$('#agree').tooltip({container: 'body'});
     }else{
         $('#skip_button').css({'background-color':'white'});
     }
@@ -809,7 +845,10 @@ $(document).ready(function(){
     $('#skip_button').click(function(){skip_question()});
     //$('#agree').click(function(){upload_email();$("#consentModal").modal('hide');});
     $('#update_email_modal').click(function(){update_email()});
-    $('#update_email_text_modal').on('input', function(){email_check($('#update_email_text_modal').val());});
+    //$('#update_email_text_modal').on('input', function(){email_check($('#update_email_text_modal').val());});
+    $('#agree').disable(false);
+    $('#agree').click(function(){$("#consentModal").modal('hide');});
+
     // Contest date
     $('#next_prize').text('The top-5 scoring players by ' + next_date()  + ' win a gift card! See the Scoreboard tab for details.');
     $('#scoreboard_time_1').text('Amazon gift cards awarded to the top-5 scoring players on ' + next_date() + ' in the following amounts:');
