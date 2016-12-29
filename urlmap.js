@@ -61,7 +61,7 @@ var getCurrentDate = function() {
 // Server-side user data
 var getUserData = function(req) {
   sess = req.session;
-  if (!sess.user_data || sess.user_data.app_version < app_version || (parseFloat(sess.user_data.expiration) - parseFloat(getCurrentDate()) < 0)) //no cookie or bad app version or expired
+  if (!sess.user_data || sess.user_data.app_version < app_version )//|| (parseFloat(sess.user_data.expiration) - parseFloat(getCurrentDate()) < 0)) //no cookie or bad app version or expired
   {
     sess.user_data = {
         'click_count': 0,

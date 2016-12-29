@@ -48,7 +48,8 @@ app.use(session({
   store: new PgStore({pg : pg, conString : util.format('postgres://%s:%s@%s:%s/%s', pgUser, pgPassword, pgHost, pgPort, pgName)}),
   secret: 'the_lab secret hash \`! _=    &&&&\`1234a56k78\'][90-=blah',
   resave: false,
-  saveUninitialized: false
+  saveUninitialized: false,
+  cookie: {maxAge: 24 * 60 * 60 * 1000 * 365} 
 }));
 
 Server.setup(app, router, pgHost, pgPort, pgName, pgUser, pgPassword, errorFlag, function () {
