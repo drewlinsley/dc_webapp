@@ -6,6 +6,11 @@ Setting up the webapp
 	They are set up under the assumption that (c) lives on a VM, while (a,b) live on a workstation with a GPU that is accessible via SSH.
 	sudo apt-get install npm nodejs
 	npm install
+        (if using anaconda, you may need to use the following commands:
+        conda install nomkl numpy scipy scikit-learn numexpr
+        conda remove mkl mkl-service
+        )
+
 
 #1. Prepare postgresql databse
 	sudo apt-get install postgresql libpq-dev postgresql-client postgresql-client-common #Install posetgresql with online installer

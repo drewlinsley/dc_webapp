@@ -19,25 +19,25 @@ def process_images(images,category_ims,mi,target_dir):
 
 def mirc_syns():
     syn = {};
-    syn['bald_eagle'] = 'n01614925'
-    syn['sorrel'] = 'n02389026'
-    syn['airliner'] = 'n02690373'#n02106166
-    syn['sportscar'] = 'n04285008'#n02106166
-    syn['bike'] = 'n03792782'#n02106166
-    syn['warship'] = 'n02687172'#n02106166
-    syn['bug'] = 'n02190166'#n02106166
-    syn['glasses'] = 'n04356056'#n02106166
-    syn['suit'] = 'n04350905'#n02106166
+    syn['7'] = 'n01614925' #bald eagle
+    syn['1'] = 'n02389026' #sorrel
+    syn['4'] = 'n02690373'#airliner n02106166
+    syn['0'] = 'n04285008'#sportscar n02106166
+    syn['2'] = 'n03792782'#bike n02106166
+    syn['3'] = 'n02687172'#warship n02106166
+    syn['8'] = 'n02190166'#bug n02106166
+    syn['5'] = 'n04356056'#glasses n02106166
+    syn['6'] = 'n04350905'#suit n02106166
     skeys = syn.keys()
     return syn, skeys
 
 def get_mirc_syns(files):
-    syns = mirc_syns()
-    fnames = [re.split('\.',x)[0] for x in files]
+    syns = mirc_syns()[0]
+    fnames = [re.split('\.',re.split('mircs',x)[-1])[0] for x in files]
     return [syns[x] for x in fnames]  
 
 def add_to_db(files,syns,image_count):
-    for im, syn in enumerate(zip(files,syns):
+    for im, syn in enumerate(zip(files,syns)):
         cur.execute("INSERT INTO images (image_path, syn_name, generations) VALUES (%s,%s,%s)",(im,syn,0))
     image_count += len(files)
     return image_count
