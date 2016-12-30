@@ -505,6 +505,7 @@ function correct_recognition(wc,pp){
     //refresh_gradient();
     var si =setInterval(updateGradient,10); //dont think this works
     setTimeout(function(){clearInterval(si);},500)
+    var aa = 2
 }
 
 function time_elapsed(){
@@ -604,6 +605,16 @@ function prepare_mobile(){
             },1000)
 }
 
+function get_current_place(){
+    var cp;
+    for (var i = 0; i < user_data.scores.high_scores.length; ++i){
+        if (user_data.scores.high_scores[i].name == user_data.name){
+            cp = i;
+        }
+    }
+    return cp;
+}
+
 function update_user_data(){
    	$.get('/user_data', function () { }).done(function(json_data) {
    	    user_data = JSON.parse(json_data);
@@ -641,12 +652,7 @@ function update_user_data(){
         }
         $('#high_scores').html(high_score_table);
         // Find current place
-        var cp;
-        for (var i = 0; i < hsdata.length; ++i){
-            if (user_data.scores.high_scores[i].name == user_data.name){
-               cp = i;
-            }
-        }         
+        var cp = get_current_place();
         if (cp < previous_place && num_turns > 0){
              
              if (cp < 5){
@@ -654,10 +660,10 @@ function update_user_data(){
              else{$('#place_notification_sup').html('<kbd>The top-5 scoring players at the end of the month get a prize. Play on and good luck!.</kbd>');}
              previous_place = cp;
              if (cp > 2){
-             $('#place_notification_text').html('You are now in ' + String(cp) + 'th place!');}
-             else if(cp == 2){$('#place_notification_text').html('You are now in ' + String(cp) + 'rd place!');} 
-             else if(cp == 1){$('#place_notification_text').html('You are now in ' + String(cp) + 'nd place!');}
-             else if(cp == 1){$('#place_notification_text').html('You are now in ' + String(cp) + 'st place!');}
+             $('#place_notification_text').html('You are now in ' + String(cp+1) + 'th place!');}
+             else if(cp == 2){$('#place_notification_text').html('You are now in ' + String(cp+1) + 'rd place!');} 
+             else if(cp == 1){$('#place_notification_text').html('You are now in ' + String(cp+1) + 'nd place!');}
+             else if(cp == 0){$('#place_notification_text').html('You are now in ' + String(cp+1) + 'st place!');}
              var nc = getDarkRandomColor();
              $('#place_notification_bg').css('background-color',nc);
              $('#placeModal').modal('show');
