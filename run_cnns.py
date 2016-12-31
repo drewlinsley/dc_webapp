@@ -2,7 +2,7 @@
 
 import numpy as np
 import os, sys
-#os.environ['CUDA_VISIBLE_DEVICES'] = '0' # Run only on GPU 0 to speed up init time
+os.environ['CUDA_VISIBLE_DEVICES'] = '0' # Run only on GPU 0 to speed up init time
 import psycopg2
 import credentials
 import json
@@ -52,11 +52,18 @@ def main():
     sys.path.append(p.tf_path) #location of model prototxts
     from web_cnns import run_model
     programs = list_permutations(p.cnn_types,p.cnn_models)
-    test_ims = sorted(glob(p.validation_image_path + '*' + p.im_ext))
-    attention_maps = sorted(glob(p.model_path + p.click_map_predictions + '*' + p.im_ext))
+    test_ims = np.asarray(sorted(glob(p.validation_image_path + '*' + p.im_ext)))
+    attention_maps = np.asarray(sorted(glob(p.model_path + p.click_map_predictions + '*' + p.im_ext)))
+
+    #At some point we should use tfrecords instead of this placeholder bullshit. Or at the least remove the dependency on ram that's in place now. But because there is not time right now, we will evaluate on a subset of validation data (hardcoded to 5000)
+    np.random.shuffle(test_ims)
+    np.random.shuffle(attention_maps)
+    test_ims = test_ims[:5000]
+    attention_maps = attention_maps[:5000]
+    #
+
     ts = datetime.datetime.now()
     timestamp = str(ts.year) + '-' + str(ts.month) + '-' + str(ts.day)
-
 
     #Run each model
     for idx,prog in enumerate(programs):
