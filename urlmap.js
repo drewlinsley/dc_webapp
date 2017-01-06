@@ -4,6 +4,7 @@ var PythonShell = require('python-shell');
 var s2utils = require('./s2utils.js');
 var shortid = require('shortid');
 var schedule = require('node-schedule');
+var image_root_path = '/media/data_cifs/clicktionary/webapp_data';
 
 var update_cnns = schedule.scheduleJob('0 0 * * *', function(){
     PythonShell.run('run_cnns.py', function (pyerr) {
@@ -100,16 +101,17 @@ exports.setupRouter = function (db, router, errorFlag) {
 
     router.get('/random_image',function(req,res){
       db.locateRandomImage(function(bound_data){
-        var random_image_path = bound_data[0];
-        var random_image_label = bound_data[1];
+        var random_image_path = bound_data.image_path;
+        var random_image_full_label = bound_data.image_display_label;
+        var random_image_label = bound_data.name;
         var id = bound_data[2];
-          fs.readFile(random_image_path, {encoding: 'base64'}, function(err,content){
+          fs.readFile(image_root_path + '/' + random_image_path, {encoding: 'base64'}, function(err,content){
             if (err){
               res.writeHead(400, {'Content-type':'text/html'})
               res.end('err')
             } else {
               res.writeHead(200,{'Content-type':'image/jpg'});
-              res.end(random_image_path + '!' + random_image_label + '!imagestart' + content);
+              res.end(random_image_path + '!' + random_image_label + '!' + random_image_full_label + '!imagestart' + content);
             }
           });
         });
@@ -131,6 +133,7 @@ exports.setupRouter = function (db, router, errorFlag) {
 
     //POST
     router.post('/clicks', function(req,res){
+      var generation = req.body.generation;
       var clicks = req.body.clicks;
       var label = req.body.image_id;
       var username = req.body.username;
@@ -147,7 +150,7 @@ exports.setupRouter = function (db, router, errorFlag) {
       var username = user_data.name;
       var userid = user_data.userid; // ID to identify the user
       // Update click map in DB
-      db.updateClicks(label,clicks,score,username,userid,correct,
+      db.updateClicks(label,generation,clicks,score,username,userid,correct,
         respond.bind(null, res),
         respond.bind(null, res, null));
     });

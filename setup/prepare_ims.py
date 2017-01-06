@@ -43,7 +43,7 @@ def prepare_ims():
             elif synset_prefix[0] == 'n':
                 syn_id = synset_prefix
             else:
-                syn_id = all_labels[int(synset_prefix)]
+                syn_id = index2synset[int(synset_prefix)]
             print '    %s ID is %s' % (target_path, syn_id)
             cur.execute("INSERT INTO images (image_path, syn_id, set_name) VALUES (%s,%s,%s)",
                         (target_path, syn_id, set_name))
@@ -55,8 +55,8 @@ def prepare_ims():
     image_count = 0
 
     #First add in our randomly sampled images
-    ilsvrc2012train_images = glob(im_dir + '/*.JPEG')
-    image_count += add_to_db(rel_to_path, ilsvrc2012train_images, 'ilsvrc2012train')
+    #ilsvrc2012train_images = glob(im_dir + '/*.JPEG')
+    #image_count += add_to_db(rel_to_path, ilsvrc2012train_images, 'ilsvrc2012train')
 
     #Now add in our fixed images
     nsf_images = glob(os.path.join(nsf_dir,'*.JPEG'))
@@ -67,7 +67,8 @@ def prepare_ims():
     image_count += add_to_db(rel_to_path, mirc_images, 'mirc', mirc_syn_table)
 
     ####
-    cur.execute("INSERT INTO image_count (num_images,current_generation,iteration_generation,generations_per_epoch) VALUES (%s,%s,%s,%s)",(image_count,0,0,config.iterations_per_generation))
+    start_generation = -1
+    cur.execute("INSERT INTO image_count (num_images,current_generation,iterations_per_generation,generation_finished) VALUES (%s,%s,%s,%s)",(image_count,start_generation,config.iterations_per_generation,False))
     cur.execute("INSERT INTO clicks (high_score) VALUES (%s)",(0,))
     #cur.execute("INSERT INTO cnn (_id) VALUES (%s)",(0,))
 

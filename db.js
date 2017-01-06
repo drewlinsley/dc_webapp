@@ -51,81 +51,75 @@ var DbManager = function (username, password, host, port, dbName) {
   return deferred.promise;
 };
 
+function do_db_query(self, query, vars, callback, params)
+{
+    console.log('self=' + self);
+    console.log('self.client=' + self.client);
+    self.client.query(query, vars, function(err, res) {
+        res.params = params;
+        if (err) { self.errorCallback(err, 'Error in query ' + query); }
+        else { return callback(self, res, params); }
+     });
+}
+
+function sample_random_image(self, current_generation, iteration_limit, callback)
+{
+    return do_db_query(self, 'SELECT * FROM generation_images WHERE generation=$1 AND iteration<$2 OFFSET FLOOR(RANDOM() * (SELECT COUNT(*) FROM generation_images WHERE generation=$1 AND iteration<$2)) LIMIT 1',
+            [current_generation, iteration_limit], callback)
+}
+
+
+
 DbManager.prototype.locateRandomImage = function (callback, errorCallback) {
   var self = this;
-  self.client.query('SELECT * FROM image_count WHERE _id=1', function(err,res){
-    var global_current_generation = parseInt(res.rows[0].current_generation);
-    var iteration_generation = parseInt(res.rows[0].iteration_generation);
-    var generations_to_epoch = parseInt(res.rows[0].generations_per_epoch);
-    var global_num_images = parseInt(res.rows[0].num_images);
-    var click_goal = generations_to_epoch * global_num_images;
-    self.client.query('SELECT * FROM images WHERE generations<=$1', [iteration_generation], function (err, res) {
-      if (err) {
-        errorCallback(err, 'Error finding image 1');
-        return;
-      }
-      var num_ims_in_gen = res.rows.length;
-      var click_normalization = iteration_generation * (global_current_generation + 1)
-      var clicks_to_go = (iteration_generation * global_num_images) + (global_num_images - num_ims_in_gen);
-      var rand_selection = Math.floor((Math.random() * res.rows.length));
-      var selected_image = res.rows[rand_selection].image_path;
-      var selected_label = res.rows[rand_selection].syn_name;
-      var selected_id = res.rows[rand_selection]._id;
-      self.client.query('SELECT high_score FROM clicks',function(err,res){
-        if (err) {
-          errorCallback(err, 'Error looking up score');
-          return;
-        }
-        var high_score = res.rows[0].high_score;
-        var bound_data = [selected_image,selected_label,selected_id];
-        if ((click_goal - clicks_to_go) <= 0){// trigger training routine
-          //Backup database
+  console.log('Client=' + self.client);
+  self.errorCallback = errorCallback;
+  self.sample_callback = callback;
+  do_db_query(self, 'SELECT * FROM image_count WHERE _id=1', [], locateRandomImage_counted);
+}
 
+locateRandomImage_counted = function(self, res) {
+    self.global_current_generation = parseInt(res.rows[0].current_generation);
+    self.iterations_per_generation = parseInt(res.rows[0].iterations_per_generation);
+    sample_random_image(self, self.global_current_generation, self.iterations_per_generation, locateRandomImage_sample1);
+}
 
-          //Either start training or tell someone to do it
-          var dt = new Date().getTime();
-          var cmd = 'PGPASSWORD="' + db_pw + '" pg_dump -h 127.0.0.1 -U mircs -d mircs > db_dump/' + String(dt) + '.sql';
-          exec(cmd, function(err, stdout, stderr) {
-            if (err){
-              console.log('Error dumping database');
-              return;
-            }
-          })
-          //PythonShell.run('train_model.py', function (pyerr) {
-          PythonShell.run('send_email.py', function (pyerr) {
-            if (pyerr) console.log(pyerr);
-            console.log('finished training');
-          })
-          //Iterate current_generation by generations_per_epoch here
-          var new_generation = global_current_generation + generations_to_epoch
-          self.client.query('UPDATE image_count SET current_generation=$1',[new_generation],function(iterr){
-            if (iterr) console.log(iterr);
-              console.log('Iterated current_generation by generations_to_epoch');
-          })
-          //And reset iteration_generation in image_count
-          var new_generation = global_current_generation + generations_to_epoch
-          self.client.query('UPDATE image_count SET iteration_generation=0',function(iterr){
-            if (iterr) console.log(iterr);
-              console.log('Reset iteration_generation in image_count');
-          })
-          //And reset iteration_generation in images
-          var new_generation = global_current_generation + generations_to_epoch
-          self.client.query('UPDATE images SET generations=0',function(iterr){
-            if (iterr) console.log(iterr);
-              console.log('Reset iteration_generation in images');
-          })
-        }
-        if (num_ims_in_gen <= 1){//iterate iteration_generation
-          iteration_generation += 1
-          self.client.query('UPDATE image_count SET iteration_generation=$1',[iteration_generation],function(iterr){
-            if (iterr) console.log(iterr);
-              console.log('Iterated iteration_generation');
-          })
-        }
-        callback(bound_data);
-      });
-    });
-  });
+locateRandomImage_sample1 = function(self, res) {
+    if (res.rows.length == 0)
+    {
+        // Generation finished - just let people continue on a randomly selected image from this generation
+        sample_random_image(self, self.global_current_generation, 999999, locateRandomImage_sample2);
+        self.client.query("UPDATE image_count SET generation_finished = TRUE");
+    }
+    else
+    {
+        locateRandomImage_sample2(self, res)
+    }
+}
+
+locateRandomImage_sample2 = function(self, res)
+{
+    if (res.rows.length == 0)
+    {
+        self.errorCallback(0, "No images in DB.");
+        return [];
+    }
+    sample = res.rows[0];
+
+    do_db_query(self, 'SELECT * FROM images LEFT JOIN synsets ON synsets.syn_id = images.syn_id WHERE images._id = $1', [sample.image_id], locateRandomImage_sample3)
+}
+
+locateRandomImage_sample3 = function(self, res)
+{
+    if (res.rows.length == 0)
+    {
+        self.errorCallback(0, "Inconsistent image table state. (pray to jesus.)");
+        return [];
+    }
+    result = res.rows[0];
+    var bound_data = { image_path: result.image_path, image_display_label: result.all_names, name: result.name, index_ilsvrc012: result.index_ilsvrc012 };
+    console.log('Returning bound data: ' + JSON.stringify(bound_data));
+    self.sample_callback(bound_data);
 };
 
 DbManager.prototype.cnn_accuracies = function (callback, errorCallback) {
@@ -153,74 +147,55 @@ DbManager.prototype.cnn_accuracies = function (callback, errorCallback) {
   })
 }
 
-DbManager.prototype.updateClicks = function (label, click_path, score, username, userid, answers, callback, errorCallback) {
+DbManager.prototype.updateClicks = function (image_path, generation, click_path, score, username, userid, answers, callback, errorCallback) {
   var self = this;
-  self.answers = answers;
-  self.click_path = click_path
-  self.client.query('SELECT * FROM images WHERE image_path=$1', [label], function (err, res) {
-    if (err) {
-      errorCallback(err, 'Error finding image 4');
-      return;
-    }
-    var generations = parseInt(res.rows[0].generations) + 1;
+  self.errorCallback = errorCallback;
+  do_db_query(self, 'SELECT * FROM images WHERE image_path=$1', [image_path], updateClicks_2, { answers: answers, click_path: click_path, score:score, username:username, userid: userid, callback:callback });
+}
 
+
+updateClicks_2 = function(self, res) {
+    // Get image ID from query
+    image_id = res.rows[0]._id
+    params = res.params;
     //Handle the coordinates -- need function to convert click_path into x/y vectors
-    var prev_coors = res.rows[0].click_path;
-    prepared_clicks = prepare_click_vectors(self.click_path);
-    if (prev_coors != null){
-      prev_coors['x'].push(prepared_clicks.x);
-      prev_coors['y'].push(prepared_clicks.y);
-      coors = prev_coors; 
-    }else{
-      if (click_path != null){ 
-      var coors = {'x':[self.click_path[0]],'y':[self.click_path[1]]};
-      }else{coors = null;}
-    }
+    var coors = prepare_click_vectors(params.click_path);
 
     //Handle the responses
-    var prev_answers = res.rows[0].answers;
-    if (prev_answers != null){
-      prev_answers['answers'].push(self.answers);
-      answers = prev_answers;
-    }else{
-      var answers = {'answers':[self.answers]};
-    }
+    var answers = params.answers;
 
-    //Update database
-    self.client.query('UPDATE images SET click_path=$1, generations=$2, answers=$3 WHERE image_path=$4', [coors,generations,answers,label], function (err, res) {
-      if (err) {
-        errorCallback(err, 'Error finding image 3');
-        return;
-      }
-      self.client.query('SELECT high_score FROM clicks',function(err,res){
+    // Record clicks in database
+    do_db_query(self, 'INSERT INTO click_paths (image_id, user_id, clicks, generation, result, clicktime) VALUES ($1, $2, $3, -1, $4, current_timestamp)',
+            [image_id, params.userid, coors, answers], function (err, res) { params.callback(); });
+
+    // Update global high score
+    self.client.query('SELECT high_score FROM clicks',function(err,res){
         var high_score = res.rows[0].high_score;
         if (err) {
           errorCallback(err, 'Error looking up scores');
           return;
         }
-          score = parseFloat(score);
+          score = parseFloat(params.score);
           high_score = parseFloat(high_score);
         if (score > high_score){
-          self.client.query('UPDATE clicks SET high_score=$1 WHERE _id=1',[score],function(err,res){
+          self.client.query('UPDATE clicks SET high_score=$1',[score],function(err,res){
             if (err) {
               errorCallback(err, 'Error setting high score');
               return;
             }
           })
         }
-      })
-    callback();
-    });
+
     // Update users for highscores
     self.client.query('SELECT * FROM users WHERE cookie=$1', [userid], function (err, res) {
 		    if (err) {
-		    errorCallback(err, 'Uer table error');
+		    errorCallback(err, 'User table error');
         return;
       }
         if (res.rows.length > 0)
         {
             // Update entry
-            self.client.query('UPDATE users SET score=$1, name=$2 WHERE cookie=$3', [score, username, userid], function (err, res) {
+            self.client.query('UPDATE users SET score=$1, name=$2 WHERE cookie=$3', [params.score, params.username, params.userid], function (err, res) {
                 // Update OK?
                   if (err) {
                     errorCallback(err, 'User update error');
@@ -231,7 +206,7 @@ DbManager.prototype.updateClicks = function (label, click_path, score, username,
         else
         {
             // New user!
-            self.client.query('INSERT INTO users (score, name, cookie) VALUES ($1,$2,$3)', [score, username, userid], function (err, res) {
+            self.client.query('INSERT INTO users (score, name, cookie) VALUES ($1,$2,$3)', [params.score, params.username, params.userid], function (err, res) {
                 // Update OK?
                   if (err) {
                     errorCallback(err, 'User creation error');
@@ -250,14 +225,8 @@ DbManager.prototype.getScoreData = function (callback, errorCallback) {
     var generations_to_epoch = parseInt(res.rows[0].generations_per_epoch);
     var global_num_images = parseInt(res.rows[0].num_images);
     var click_goal = generations_to_epoch * global_num_images;
-    self.client.query('SELECT * FROM images WHERE generations=$1', [iteration_generation], function (err, res) {
-      if (err) {
-        errorCallback(err, 'Error finding image 2');
-        return;
-      }
-      var num_ims_in_gen = res.rows.length;
-      var clicks_to_go = (iteration_generation * global_num_images) + (global_num_images - num_ims_in_gen);
-      self.client.query('SELECT high_score FROM clicks',function(err,res){
+    var clicks_to_go = click_goal / 2;
+    self.client.query('SELECT high_score FROM clicks',function(err,res){
         if (err) {
           errorCallback(err, 'Error looking up score');
           return;
@@ -274,7 +243,6 @@ DbManager.prototype.getScoreData = function (callback, errorCallback) {
           });
        });
      });
-   });
 };
 
 DbManager.prototype.resetScores = function(){

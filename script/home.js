@@ -97,6 +97,7 @@ function getImage(ctx){
       //
       global_label = split_label[0];
       im_text = split_label[1].trimLeft(1); //we are wandering into a space at the start of labels at some point in the pipeline :(
+      im_label = split_label[2];
       //
       change_title(im_text);
       //

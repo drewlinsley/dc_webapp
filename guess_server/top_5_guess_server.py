@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # CNN server that returns model guesses on a partially revealed image
+# Used by nothing
 
 import os, sys
 from flask import Flask, request, Response
