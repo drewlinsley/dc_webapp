@@ -21,16 +21,9 @@ Setting up the webapp
 	create database mircs with owner mircs; #create the webapp's database
 	\q #quit
 	psql mircs -h 127.0.0.1 -d mircs < node_modules/connect-pg-simple/table.sql #prepare the database for connect-pg-simple middlware
-	psql mircs -h 127.0.0.1 -d mircs #log into the database with the admin credentials
-	create table images (_id bigserial primary key, image_path varchar, syn_id varchar, set_name varchar); #create a table that will point to all the images in the webapp
-	create table generation_images (_id bigserial primary key, image_id bigint, generation bigint, iteration bigint); # Create table for click maps
-	create table click_paths (_id bigserial primary key, image_id bigint, user_id bigint, generation bigint, result varchar, clicktime timestamp with time zone); # Create table for click maps
-	create table image_count (_id bigserial primary key,num_images bigint, current_generation bigint, iteration_generation bigint, generations_per_epoch bigint); #create a table that holds the number of images we are working with (for random selection later on)
-	create table cnn (_id bigserial primary key, sixteen_baseline_accuracy float, nineteen_baseline_accuracy float, sixteen_attention_accuracy float, nineteen_attention_accuracy float, epochs bigint, date varchar); #create a table that will track some fun stuff for the website, like consecutive clicks
-	create table clicks (_id bigserial primary key, high_score float, date timestamp with time zone); #create a one-row table that will track some fun stuff for the website, like consecutive clicks
-	create table users (_id bigserial primary key, cookie varchar unique, name varchar, score float, email varchar, last_click_time timestamp with time zone); #user table
-	\q # Exit sql
 	exit # Exit sql user
+        run setup function in /setup
+        
 
 #2. Initialize images into the database
 	python prepare_ims.py
