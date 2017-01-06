@@ -53,51 +53,46 @@ def add_to_db(rel_to_path, files, set_name, syn_map=None):
     print '%d images added for set %s.' % (n_files, set_name)
     return n_files
 
-config = project_settings()
+def prepare_ims():
+    config = project_settings()
 
-#Fixed directories
-nsf_dir =  config.nsf_image_path #~1000 nsf images
-mirc_dir = config.mirc_image_path #10 mirc images
-im_dir = config.imagenet_train_path
-rel_to_path = config.image_base_path
+    #Fixed directories
+    nsf_dir =  config.nsf_image_path #~1000 nsf images
+    mirc_dir = config.mirc_image_path #10 mirc images
+    im_dir = config.imagenet_train_path
+    rel_to_path = config.image_base_path
 
-#Connect to database
-connection_string = credentials.python_postgresql()
-conn = psycopg2.connect(connection_string)
-cur = conn.cursor()
+    #Connect to database
+    connection_string = credentials.python_postgresql()
+    conn = psycopg2.connect(connection_string)
+    cur = conn.cursor()
 
-#Grab an equal number of images from each category
-num_per_category = 4
-generations_per_epoch = 4
-create_validation_set = False
+    #Grab an equal number of images from each category
+    num_per_category = 4
+    generations_per_epoch = 4
+    create_validation_set = False
 
-image_count = 0
+    image_count = 0
 
-#First add in our randomly sampled images
-ilsvrc2012train_images = glob(im_dir + '/*.JPEG')
-image_count += add_to_db(rel_to_path, ilsvrc2012train_images, 'ilsvrc2012train')
+    #First add in our randomly sampled images
+    ilsvrc2012train_images = glob(im_dir + '/*.JPEG')
+    image_count += add_to_db(rel_to_path, ilsvrc2012train_images, 'ilsvrc2012train')
 
-#Now add in our fixed images
-nsf_images = glob(os.path.join(nsf_dir,'*.JPEG'))
-nsf_syns = [re.split('_',re.split('/',x)[-1])[0] for x in nsf_images]
-image_count += add_to_db(rel_to_path, nsf_images, 'nsf')
+    #Now add in our fixed images
+    nsf_images = glob(os.path.join(nsf_dir,'*.JPEG'))
+    nsf_syns = [re.split('_',re.split('/',x)[-1])[0] for x in nsf_images]
+    image_count += add_to_db(rel_to_path, nsf_images, 'nsf')
 
-mirc_images = glob(os.path.join(mirc_dir,'*.JPEG'))
-mirc_syns = get_mirc_syns(mirc_images)
-image_count += add_to_db(rel_to_path, mirc_images, 'mirc', mirc_syns)
+    mirc_images = glob(os.path.join(mirc_dir,'*.JPEG'))
+    mirc_syns = get_mirc_syns(mirc_images)
+    image_count += add_to_db(rel_to_path, mirc_images, 'mirc', mirc_syns)
 
-####                
-cur.execute("INSERT INTO image_count (num_images,current_generation,iteration_generation,generations_per_epoch) VALUES (%s,%s,%s,%s)",(image_count,0,0,generations_per_epoch))
-cur.execute("INSERT INTO clicks (high_score) VALUES (%s)",(0,))
-#cur.execute("INSERT INTO cnn (_id) VALUES (%s)",(0,))
+    ####
+    cur.execute("INSERT INTO image_count (num_images,current_generation,iteration_generation,generations_per_epoch) VALUES (%s,%s,%s,%s)",(image_count,0,0,generations_per_epoch))
+    cur.execute("INSERT INTO clicks (high_score) VALUES (%s)",(0,))
+    #cur.execute("INSERT INTO cnn (_id) VALUES (%s)",(0,))
 
-#Finalize and close connections
-conn.commit()
-cur.close()
-conn.close()
-
-#Initialize CNN accuracies
-print('DB is initialized. Now running CNNs.')
-##If you have local GPUs
-import run_cnns
-run_cnns.main()
+    #Finalize and close connections
+    conn.commit()
+    cur.close()
+    conn.close()
