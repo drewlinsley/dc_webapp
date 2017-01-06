@@ -15,7 +15,7 @@ def process_images(images,category_ims,mi,target_dir):
     image_id = labels[int(re.split('_',im_name)[0])] #FIX THIS... WORDS ARE GETTING TRUNCATED
     target_path = target_dir + '/' + im_name
     shutil.copyfile(images[category_ims[mi]],target_path)
-    return target_path,image_id 
+    return target_path,image_id
 
 def mirc_syns():
     syn = {};
@@ -34,11 +34,11 @@ def mirc_syns():
 def get_mirc_syns(files):
     syns = mirc_syns()[0]
     fnames = [re.split('\.',re.split('mircs',x)[-1])[0] for x in files]
-    return [syns[x] for x in fnames]  
+    return [syns[x] for x in fnames]
 
-def add_to_db(files,syns,image_count):
+def add_to_db(files,syns,image_count, set_name):
     for im, syn in enumerate(zip(files,syns)):
-        cur.execute("INSERT INTO images (image_path, syn_name, generations) VALUES (%s,%s,%s)",(im,syn,0))
+        cur.execute("INSERT INTO images (image_path, syn_name, set_name) VALUES (%s,%s,%s)",(im,syn,set_name))
     image_count += len(files)
     return image_count
 
@@ -86,13 +86,15 @@ selected_categories = selected_categories[:num_categories]
 # Clear previous images -- no reason to do this unless debugging
 if clear_previous:
     cur.execute("TRUNCATE TABLE images")
-    cur.execute("TRUNCATE TABLE image_count")
+    cur.execute("TRUNCATE TABLE generation_images")
+    cur.execute("TRUNCATE TABLE click_paths")
     cur.execute("TRUNCATE TABLE clicks")
     for emptydir in [target_dir, validation_dir]:
         for fn in glob(os.path.join(emptydir, '*.JPEG')):
             os.remove(fn)
 
 #First add in our randomly sampled images
+set_name = 'ilsvrc2012train'
 image_count = 0
 for cn in range(num_categories):
     category_ims = np.where(im_names == selected_categories[cn])[0]
@@ -100,7 +102,7 @@ for cn in range(num_categories):
     for mi in range(num_per_category):
         target_path,image_id = process_images(images,category_ims,mi,target_dir)
         image_count+=1 #to ensure we are getting an accuracte count of images
-        cur.execute("INSERT INTO images (image_path, syn_name, generations) VALUES (%s,%s,%s)",(target_path,image_id,0))
+        cur.execute("INSERT INTO images (image_path, syn_name, set_name) VALUES (%s,%s,%s)",(target_path,image_id,set_name))
     if create_validation_set:
         #Now copy the rest of the images into the validation folder
         for mi in range(num_per_category,len(category_ims)):
@@ -115,7 +117,7 @@ mirc_images = glob(os.path.join(mirc_dir,'*.JPEG'))
 mirc_syns = get_mirc_syns(mirc_images)
 image_count = add_to_db(mirc_images,mirc_syns,image_count)
 
-####                
+####
 cur.execute("INSERT INTO image_count (num_images,current_generation,iteration_generation,generations_per_epoch) VALUES (%s,%s,%s,%s)",(image_count,0,0,generations_per_epoch))
 cur.execute("INSERT INTO clicks (high_score) VALUES (%s)",(0,))
 #cur.execute("INSERT INTO cnn (_id) VALUES (%s)",(0,))

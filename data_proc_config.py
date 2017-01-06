@@ -39,25 +39,23 @@ def project_settings():
     if node_name == 'x8':
         model_path = '/media/data_gluster/attention/mlnet/'
         tf_path = '/media/data_gluster/attention/tf_experiments/'
-        image_path = '/media/data_gluster/attention/dc_webapp/'
+        image_base_path = '/media/data_cifs/clicktionary/webapp_data/'
     elif node_name == 'x9':
         model_path = '/home/drew/Documents/mlnet/'
         tf_path = '/home/drew/Documents/tf_experiments/'
     elif node_name == 'g15':
         model_path = '/home/drew/clickmap_prediction/'
         tf_path = '/home/drew/tf_experiments/'
-        mirc_image_path = '/home/drew/webapp_data/mircs/'
-        nsf_image_path = '/home/drew/webapp_data/nsf_images/'
-        imagenet_train_path = '/home/drew/webapp_data/lmdb_trains/'
-        imagenet_validation_path = '/home/drew/webapp_data/lmdb_validations/'
-        image_path = '/media/data_clicktionary/webapp_data/'
+        image_base_path = '/media/data_clicktionary/webapp_data/'
     else:
         model_path = '/home/youssef/clickmap_prediction/'
         tf_path = '/home/youssef/tf_experiments/'
-        mirc_image_path = '/media/data_cifs/clicktionary/webapp_data/mircs/'
-        nsf_image_path = '/media/data_cifs/clicktionary/webapp_data/nsf_images/'
-        imagenet_train_path = '/media/data_cifs/clicktionary/webapp_data/lmdb_trains/'
-        imagenet_validation_path = '/media/data_cifs/clicktionary/webapp_data/lmdb_validations/'
+        image_base_path = '/media/data_cifs/clicktionary/webapp_data/'
+
+    mirc_image_path = os.path.join(image_base_path, 'mircs')
+    nsf_image_path = os.path.join(image_base_path, 'nsf_images')
+    imagenet_train_path = os.path.join(image_base_path, 'lmdb_trains')
+    imagenet_validation_path = os.path.join(image_base_path, 'lmdb_validations')
 
     d = {
     #Images for the click map prediction and folders for saving the predictions
@@ -69,7 +67,7 @@ def project_settings():
     'imagenet_train_path' : imagenet_train_path, #Now combine a subset of these, with a subset of validation_image_path, and the below 10 images
     'mirc_image_path' : mirc_image_path,
     'nsf_image_path' : nsf_image_path,
-    'image_path' : image_path,
+    'image_base_path' : image_base_path,
 
     #Images for the click map prediction and folders for saving the predictions
     'click_box_radius' : 9,

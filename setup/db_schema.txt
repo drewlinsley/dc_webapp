@@ -1,0 +1,14 @@
+DROP TABLE IF EXISTS images
+DROP TABLE IF EXISTS generation_images
+DROP TABLE IF EXISTS click_paths
+DROP TABLE IF EXISTS image_count
+DROP TABLE IF EXISTS cnn
+DROP TABLE IF EXISTS clicks
+DROP TABLE IF EXISTS users
+create table images (_id bigserial primary key, image_path varchar, syn_id varchar, set_name varchar)
+create table generation_images (_id bigserial primary key, image_id bigint, generation bigint, iteration bigint)
+create table click_paths (_id bigserial primary key, image_id bigint, user_id bigint, generation bigint, result varchar, clicktime timestamp with time zone)
+create table image_count (_id bigserial primary key,num_images bigint, current_generation bigint, iteration_generation bigint, generations_per_epoch bigint)
+create table cnn (_id bigserial primary key, sixteen_baseline_accuracy float, nineteen_baseline_accuracy float, sixteen_attention_accuracy float, nineteen_attention_accuracy float, epochs bigint, date varchar)
+create table clicks (_id bigserial primary key, high_score float, date timestamp with time zone)
+create table users (_id bigserial primary key, cookie varchar unique, name varchar, score float, email varchar, last_click_time timestamp with time zone)
