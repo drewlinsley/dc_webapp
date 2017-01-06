@@ -1009,5 +1009,30 @@ def get_synset():
     for i, l in enumerate(synset):
         label, desc = l.split(' ', 1)
         all_labels.append(re.split('\d+',re.split(',',l)[0])[-1])
-        synset_map[label] = {"index": i, "desc": desc, }
+        synset_map[label] = {"index": i, "desc": desc }
     return synset_map, all_labels
+
+def get_index2synset_map():
+    synset_map, all_labels = get_synset()
+    index2synset = {}
+    for k,v in synset_map.iteritems():
+        index2synset[v['index']] = k
+    return index2synset
+
+def mirc_syns():
+    syn = {};
+    syn['7'] = 'n01614925' #bald eagle
+    syn['1'] = 'n02389026' #sorrel
+    syn['4'] = 'n02690373'#airliner n02106166
+    syn['0'] = 'n04285008'#sportscar n02106166
+    syn['2'] = 'n03792782'#bike n02106166
+    syn['3'] = 'n02687172'#warship n02106166
+    syn['8'] = 'n02190166'#bug n02106166
+    syn['5'] = 'n04356056'#glasses n02106166
+    syn['6'] = 'n04350905'#suit n02106166
+    skeys = syn.keys()
+    return syn, skeys
+
+if __name__ == '__main__':
+    # Test get_index2synset_map
+    print get_index2synset_map()

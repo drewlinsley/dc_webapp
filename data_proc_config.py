@@ -69,10 +69,9 @@ def project_settings():
     'nsf_image_path' : nsf_image_path,
     'image_base_path' : image_base_path,
 
-    #Images for the click map prediction and folders for saving the predictions
+    # Epoch training
     'click_box_radius' : 9,
-
-    #For finetuning
+    'iterations_per_generation' : 4, # Number of annotations per images until we re-train
     'train_iters' : 10000, #not implemented yet
     'val_iters' : 100, #not implemented yet
     'nb_epoch' : 1,
