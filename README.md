@@ -22,7 +22,7 @@ Setting up the webapp
 	\q #quit
 	psql mircs -h 127.0.0.1 -d mircs < node_modules/connect-pg-simple/table.sql #prepare the database for connect-pg-simple middlware
 	psql mircs -h 127.0.0.1 -d mircs #log into the database with the admin credentials
-	create table images (_id bigserial primary key, image_path varchar, syn_name varchar, generations bigint, set_name varchar); #create a table that will point to all the images in the webapp
+	create table images (_id bigserial primary key, image_path varchar, syn_id varchar, set_name varchar); #create a table that will point to all the images in the webapp
 	create table generation_images (_id bigserial primary key, image_id bigint, generation bigint, iteration bigint); # Create table for click maps
 	create table click_paths (_id bigserial primary key, image_id bigint, user_id bigint, generation bigint, result varchar, clicktime timestamp with time zone); # Create table for click maps
 	create table image_count (_id bigserial primary key,num_images bigint, current_generation bigint, iteration_generation bigint, generations_per_epoch bigint); #create a table that holds the number of images we are working with (for random selection later on)
