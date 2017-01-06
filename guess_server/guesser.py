@@ -5,10 +5,12 @@ import os
 os.environ['CUDA_VISIBLE_DEVICES'] = '3' # Run only on GPU 0 to speed up init time
 import tensorflow as tf
 import numpy as np
-from tf_experiments.experiments.config import pretrained_weights_path, full_syn, dc_data_dir
+from dc_webapp.data_proc_config import project_settings
 from tf_experiments.model_depo import vgg16
 from utils import ImageCache
 from dc_webapp.synset import get_synset
+
+config = project_settings()
 
 def init_session():
     return tf.Session(config=tf.ConfigProto(gpu_options=(tf.GPUOptions(per_process_gpu_memory_fraction=0.95))))
@@ -16,6 +18,7 @@ def init_session():
 def load_model_vgg16(batch_size):
     # Load a default vgg16
     image_shape = (224, 224, 3)
+    pretrained_weights_path = config.cnn_model_path
     weight_path = os.path.join(pretrained_weights_path, 'vgg16.npy')
     vgg = vgg16.Vgg16(vgg16_npy_path=weight_path)
     input = tf.placeholder("float", (batch_size,) + image_shape)
@@ -36,6 +39,7 @@ def load_guesser():
     guesser.input_batch = np.zeros(guesser.batch_shape)
     guesser.feed_dict = {guesser.input: guesser.input_batch}
     # Prepare image cache
+    dc_data_dir = config.image_path
     guesser.image_cache = ImageCache(dc_data_dir, input_size=(256, 256, 3), crop_size=guesser.batch_shape[1:3])
     guesser.session = init_session()
     return guesser

@@ -86,6 +86,8 @@ selected_categories = selected_categories[:num_categories]
 # Clear previous images -- no reason to do this unless debugging
 if clear_previous:
     cur.execute("TRUNCATE TABLE images")
+    cur.execute("TRUNCATE TABLE image_count")
+    cur.execute("TRUNCATE TABLE clicks")
     for emptydir in [target_dir, validation_dir]:
         for fn in glob(os.path.join(emptydir, '*.JPEG')):
             os.remove(fn)
