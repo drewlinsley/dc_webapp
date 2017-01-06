@@ -27,6 +27,7 @@ Setting up the webapp
 	create table cnn (_id bigserial primary key, sixteen_baseline_accuracy float, nineteen_baseline_accuracy float, sixteen_attention_accuracy float, nineteen_attention_accuracy float, epochs bigint, date varchar); #create a table that will track some fun stuff for the website, like consecutive clicks
 	create table clicks (_id bigserial primary key, high_score float, date timestamp with time zone); #create a table that will track some fun stuff for the website, like consecutive clicks
 	create table users (_id bigserial primary key, cookie varchar unique, name varchar, score float, email varchar, last_click_time timestamp with time zone); #user table
+        create table synsets (_id bigserial primary key, syn_id varchar, name varchar, all_names varchar, index_ilsvrc012 bigint default -1); #synset table
 	\q # Exit sql
 	exit # Exit sql user
 
