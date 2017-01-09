@@ -4,24 +4,24 @@ myChart = new Chart(ctx, {
     data: {
         labels: ["Progress"], //"Number of clicks recorded", "Clicks until next epoch of training"
         datasets: [{
-            data: [5000],
-            label: "Image realization maps provided by users",
+            data: [10],
+            label: "Clicks until AI evolves",
             backgroundColor: [
                 'rgba(247,247,247, 0.2)',
             ],
             borderColor: [
                 'rgba(247,247,247,1)',
             ],
-            borderWidth: 1},{
-            data: [20000],
-            label: "Maps needed until next epoch of model training",
+            borderWidth: 1},/*{
+            data: [200],
+            label: "Clicks until AI evolves",
             backgroundColor: [
                 'rgba(18,22,23, 0.2)',
             ],
             borderColor: [
                 'rgba(18,22,23, 1)',
             ],
-            borderWidth: 1}]
+            borderWidth: 1}*/]
     },
     options: {
         responsive: false,
@@ -38,7 +38,7 @@ myChart = new Chart(ctx, {
                 fontFamily: "'Open Sans Bold', sans-serif",
                 fontSize:11,
 		fontColor:"black",
-                max: 20000
+                max: 2009*1
             },
             scaleLabel:{
                 display:false
@@ -68,10 +68,12 @@ myChart = new Chart(ctx, {
     }
 });
 
-function update_chart(myChart,clicks_to_epoch,click_goal){
-	myChart.data.datasets[0].data[0] = clicks_to_epoch;
-	myChart.data.datasets[0].data[1] = click_goal;
+function update_chart(myChart,accum_clicks,clicks_to_go){
+	myChart.data.datasets[0].data[0] = clicks_to_go;
 	myChart.update();
+	//myChart.data.datasets[0].data[1] = clicks_to_go;
+	//myChart.scales.xAxes[0].ticks.max = accum_clicks + clicks_to_go;
+	//myChart.update();
 }
 
 /*

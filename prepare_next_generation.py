@@ -35,8 +35,8 @@ def prepare_next_generation():
         return len(image_ids)
 
     image_count += add_images_to_generation('mirc', generation=new_generation, limit=3)
-    cur.execute("UPDATE image_count SET (num_images,current_generation,generation_finished) = (%s,%s,%s)",
-                (image_count, new_generation, False))
+    cur.execute("UPDATE image_count SET (num_images,current_generation,generation_finished,clicks_in_generation) = (%s,%s,%s,%s)",
+                (image_count, new_generation, False, 0))
     #current_generation = cur.execute("SELECT INTO image_count (num_images,current_generation,iterations_per_generation) VALUES (%s,%s,%s)",(image_count,0,config.iterations_per_generation))
     #add_images_to_generation()
     #cur.execute("""SELECT * from images""")

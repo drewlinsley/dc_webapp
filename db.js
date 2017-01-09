@@ -54,8 +54,8 @@ var DbManager = function (username, password, host, port, dbName, errorCallback)
 
 function do_db_query(self, query, vars, callback, params)
 {
-    console.log('self=' + self);
-    console.log('self.client=' + self.client);
+    //console.log('self=' + self);
+    //console.log('self.client=' + self.client);
     self.client.query(query, vars, function(err, res) {
         if (err) { self.errorCallback(err, 'Error in query ' + query); }
         else { res.params = params; return callback(self, res, params); }
@@ -72,7 +72,7 @@ function sample_random_image(self, current_generation, iteration_limit, callback
 
 DbManager.prototype.locateRandomImage = function (callback) {
   var self = this;
-  console.log('Client=' + self.client);
+  //console.log('Client=' + self.client);
   self.sample_callback = callback;
   do_db_query(self, 'SELECT * FROM image_count WHERE _id=1', [], locateRandomImage_counted);
 }
@@ -163,27 +163,12 @@ updateClicks_2 = function(self, res) {
     var answers = params.answers;
 
     // Record clicks in database
-    console.log('CLICK PATHS' + [image_id, params.userid, coors, answers]);
+    //console.log('INSERT CLICK PATHS' + [image_id, params.userid, coors, answers]);
     do_db_query(self, 'INSERT INTO click_paths (image_id, user_id, clicks, generation, result, clicktime) VALUES ($1, $2, $3, -1, $4, current_timestamp)',
             [image_id, params.userid, coors, answers], function (err, res) { /* Callback is done after score update */ });
 
-    // Update global high score
-    self.client.query('SELECT high_score FROM clicks',function(err,res){
-        var high_score = res.rows[0].high_score;
-        if (err) {
-          self.errorCallback(err, 'Error looking up scores');
-          return;
-        }
-          score = parseFloat(params.score);
-          high_score = parseFloat(high_score);
-        if (score > high_score){
-          self.client.query('UPDATE clicks SET high_score=$1',[params.score],function(err,res){
-            if (err) {
-              self.errorCallback(err, 'Error setting high score');
-              return;
-            }
-          })
-        }
+    // Keep track of count
+    self.client.query('UPDATE image_count SET clicks_in_generation = clicks_in_generation + 1',function(err,res){ });
 
     // Update users for highscores
     self.client.query('SELECT * FROM users WHERE cookie=$1', [params.userid], function (err, res) {
@@ -200,7 +185,7 @@ updateClicks_2 = function(self, res) {
                     self.errorCallback(err, 'User update error');
                     return;
                   }
-                  console.log('Users updated. Score = ' + params.score);
+                  //console.log('Users updated. Score = ' + params.score);
                   params.callback();
                   });
         }
@@ -213,45 +198,39 @@ updateClicks_2 = function(self, res) {
                     self.errorCallback(err, 'User creation error');
                     return;
                   }
-                  console.log('User created. Score = ' + params.score);
+                  //console.log('User created. Score = ' + params.score);
                   params.callback();
                   });
          }
      });
-  });
 };
 
 DbManager.prototype.getScoreData = function (callback) {
   var self = this;
   self.client.query('SELECT * FROM image_count WHERE _id=1', function(err,res){
-    var iteration_generation = parseInt(res.rows[0].iteration_generation);
-    var generations_to_epoch = parseInt(res.rows[0].generations_per_epoch);
-    var global_num_images = parseInt(res.rows[0].num_images);
-    var click_goal = generations_to_epoch * global_num_images;
-    var clicks_to_go = click_goal / 2;
-    self.client.query('SELECT high_score FROM clicks',function(err,res){
+    result=res.rows[0];
+    var num_images = result.num_images;
+    var iterations_per_generation = result.iterations_per_generation
+    var clicks_in_generation = result.clicks_in_generation
+    var click_goal = num_images * iterations_per_generation;
+    var clicks_to_go = Math.max(0, click_goal - clicks_in_generation);
+    //console.log(JSON.stringify(result));
+    // High-score table
+    self.client.query('SELECT name, score, email FROM users ORDER BY score DESC LIMIT 10',function(err,res){
         if (err) {
-          self.errorCallback(err, 'Error looking up score');
+          self.errorCallback(err, 'Error fetching highscore table');
           return;
         }
-        var high_score = res.rows[0].high_score;
-        // High-score table
-        self.client.query('SELECT name, score, email FROM users ORDER BY score DESC LIMIT 10',function(err,res){
-            if (err) {
-              self.errorCallback(err, 'Error fetching highscore table');
-              return;
-            }
-            high_scores = res.rows;
-            console.log("High scores: " + JSON.stringify(high_scores));
-            high_score = 0;
-            if (high_scores.length > 0)
-             {
-                high_score = high_scores[0].score;
-             }
-            callback({'global_high_score': high_score, 'clicks_to_go': clicks_to_go, 'click_goal': click_goal, 'high_scores': high_scores});
-          });
-       });
-     });
+        high_scores = res.rows;
+        //console.log("High scores: " + JSON.stringify(high_scores));
+        var high_score = 0;
+        if (high_scores.length > 0)
+         {
+            high_score = high_scores[0].score;
+         }
+        callback({'global_high_score': high_score, 'clicks_to_go': clicks_to_go, 'click_goal': click_goal, 'high_scores': high_scores});
+      });
+ });
 };
 
 DbManager.prototype.resetScores = function(){
@@ -268,13 +247,6 @@ DbManager.prototype.resetScores = function(){
         console.log('Error resetting users');
         return;
       }
-      self.client.query('UPDATE clicks SET high_score=$1',[0],function (err,res){
-        if (err){
-          console.log('Error resetting clicks');
-          return;
-        }
-      //callback();
-      });
     });
   });
 }

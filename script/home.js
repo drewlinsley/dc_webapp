@@ -640,9 +640,9 @@ function update_user_data(){
         $('#click_high_score').html('High score: ' + user_data.scores.global_high_score.toFixed(global_precision));
         if (mobile){$('#login_info').html('Username: ' + user_data.name);}else{
         $('#login_info').html('Your user name is: ' + user_data.name);}
-        var accum_clicks = user_data.scores.clicks_to_go;
-        var clicks_to_go = user_data.scores.click_goal - accum_clicks;
-        update_chart(myChart,accum_clicks,clicks_to_go);
+        var accum_clicks = user_data.scores.click_goal - user_data.scores.clicks_to_go;
+        //console.log(JSON.stringify(user_data.scores));
+        update_chart(myChart,accum_clicks,user_data.scores.clicks_to_go);
         // High score table
         high_score_table = '';
         hsdata = user_data.scores.high_scores;
