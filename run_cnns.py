@@ -11,8 +11,9 @@ import datetime
 from data_proc_config import project_settings
 from glob import glob
 from scipy import misc
+from db import DB
 
-def list_permutations(la,lb):
+def list_combinations(la,lb):
     perms = []
     for ii in la:
         for jj in lb:
@@ -51,30 +52,23 @@ def main():
     sys.path.append(p.cnn_path) #location of the below scripts
     sys.path.append(p.tf_path) #location of model prototxts
     from web_cnns import run_model
-    programs = list_permutations(p.cnn_types,p.cnn_models)
-    test_ims = np.asarray(sorted(glob(p.validation_image_path + '*' + p.im_ext)))
-    attention_maps = np.asarray(sorted(glob(p.model_path + p.click_map_predictions + '*' + p.im_ext)))
-
-    #At some point we should use tfrecords instead of this placeholder bullshit. Or at the least remove the dependency on ram that's in place now. But because there is not time right now, we will evaluate on a subset of validation data (hardcoded to 5000)
-    np.random.shuffle(test_ims)
-    np.random.shuffle(attention_maps)
-    test_ims = test_ims[:5000]
-    attention_maps = attention_maps[:5000]
-    #
+    programs = list_combinations(p.cnn_types,p.cnn_models)
+    db = DB()
+    test_ims = sorted(db.get_image_paths('ilsvrc2012val'))
+    test_ims = [os.path.join(p.image_base_path, fn) for fn in test_ims]
+    attention_maps = [os.path.join(p.model_path + p.click_map_predictions, fn) for fn in test_ims]
 
     ts = datetime.datetime.now()
     timestamp = str(ts.year) + '-' + str(ts.month) + '-' + str(ts.day)
 
     #Run each model
     for idx,prog in enumerate(programs):
+        print 'Run model %s on %d images.' % (prog, len(test_ims))
         class_acc, t1_acc, t5_acc, t1_preds, t5_preds = \
             run_model(prog,test_ims,p.part_syn_file_path,p.full_syn_file_path,p.cnn_model_path,attention_maps)
         t1_acc = np.mean(t1_acc)
         #Add the accuracies to the database
-        if idx == 0:
-            update_database(prog,t1_acc,timestamp)
-        else:
-            update_database(prog,t1_acc,timestamp)
+        update_database(prog,t1_acc,timestamp)
     print('Updated CNN results')
 
 if __name__ == '__main__':

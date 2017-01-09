@@ -1,74 +1,87 @@
 var ctx = document.getElementById("myChart");
-myChart = new Chart(ctx, {
-    type: 'horizontalBar',
-    data: {
-        labels: ["Progress"], //"Number of clicks recorded", "Clicks until next epoch of training"
-        datasets: [{
-            data: [10],
-            label: "Clicks until AI evolves",
-            backgroundColor: [
-                'rgba(247,247,247, 0.2)',
-            ],
-            borderColor: [
-                'rgba(247,247,247,1)',
-            ],
-            borderWidth: 1},/*{
-            data: [200],
-            label: "Clicks until AI evolves",
-            backgroundColor: [
-                'rgba(18,22,23, 0.2)',
-            ],
-            borderColor: [
-                'rgba(18,22,23, 1)',
-            ],
-            borderWidth: 1}*/]
-    },
-    options: {
-        responsive: false,
-        tooltips: {
-            bodyFontSize:8,
-            titleFontSize:0,
-            titleMarginBottom:0,
-            titleSpacing:0
+myChart = null;
+
+function init_chart(clicks_total)
+{
+    return new Chart(ctx, {
+        type: 'horizontalBar',
+        data: {
+            labels: ["Progress"], //"Number of clicks recorded", "Clicks until next epoch of training"
+            datasets: [{
+                data: [10],
+                label: "Clicks until AI evolves",
+                backgroundColor: [
+                    'rgba(247,247,247, 0.2)',
+                ],
+                borderColor: [
+                    'rgba(247,247,247,1)',
+                ],
+                borderWidth: 1},/*{
+                data: [200],
+                label: "Clicks until AI evolves",
+                backgroundColor: [
+                    'rgba(18,22,23, 0.2)',
+                ],
+                borderColor: [
+                    'rgba(18,22,23, 1)',
+                ],
+                borderWidth: 1}*/]
         },
-    scales: {
-        xAxes: [{
-            ticks: {
-                beginAtZero:true,
-                fontFamily: "'Open Sans Bold', sans-serif",
-                fontSize:11,
-		fontColor:"black",
-                max: 2009*1
+        options: {
+            responsive: false,
+            tooltips: {
+                bodyFontSize:8,
+                titleFontSize:0,
+                titleMarginBottom:0,
+                titleSpacing:0
             },
-            scaleLabel:{
-                display:false
-            },
-            gridLines: {
-            }, 
-            stacked: true
-        }],
-        yAxes: [{
-            gridLines: {
-                display:false,
-                zeroLineColor: "#fff",
-                zeroLineWidth: 0
-            },
-            ticks: {
-                fontFamily: "'Open Sans Bold', sans-serif",
-                fontColor: "black",
-                minRotation: 90, // angle in degrees
-                labelOffset: -20
-            },
-            stacked: true
-        }]
-    },
-    legend:{
-        display:false
-    }
-    }
-});
+        scales: {
+            xAxes: [{
+                ticks: {
+                    beginAtZero:true,
+                    fontFamily: "'Open Sans Bold', sans-serif",
+                    fontSize:11,
+            fontColor:"black",
+                    max: clicks_total
+                },
+                scaleLabel:{
+                    display:false
+                },
+                gridLines: {
+                },
+                stacked: true
+            }],
+            yAxes: [{
+                gridLines: {
+                    display:false,
+                    zeroLineColor: "#fff",
+                    zeroLineWidth: 0
+                },
+                ticks: {
+                    fontFamily: "'Open Sans Bold', sans-serif",
+                    fontColor: "black",
+                    minRotation: 90, // angle in degrees
+                    labelOffset: -20
+                },
+                stacked: true
+            }]
+        },
+        legend:{
+            display:false
+        }
+        }
+    });
+}
+
+myChart = init_chart(3009);
 
 function update_chart(myChart,accum_clicks,clicks_to_go){
+    /*if (myChart === null)
+    {
+        console.log(myChart);
+        myChart = init_chart(accum_clicks + clicks_to_go);
+        console.log(myChart);
+    }*/
 	myChart.data.datasets[0].data[0] = clicks_to_go;
 	myChart.update();
 	//myChart.data.datasets[0].data[1] = clicks_to_go;

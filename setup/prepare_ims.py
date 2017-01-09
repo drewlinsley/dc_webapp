@@ -21,7 +21,8 @@ def prepare_ims():
     # Fixed directories
     nsf_dir = config.nsf_image_path  # ~1000 nsf images
     mirc_dir = config.mirc_image_path  # 10 mirc images
-    im_dir = config.imagenet_train_path
+    train_dir = config.imagenet_train_path
+    val_dir = config.validation_image_path
     rel_to_path = config.image_base_path
 
     # Connect to database
@@ -32,7 +33,10 @@ def prepare_ims():
     def get_mirc_syns(files):
         return mirc_syns()[0]
 
-    def add_to_db(rel_to_path, files, set_name, mirc_map=None):
+    def add_to_db(rel_to_path, files, set_name, mirc_map=None, limit=None):
+        if limit is not None:
+            if len(files) > limit:
+                files = np.random.choice(files, size=limit, replace=False)
         for target_path_full in files:
             target_path = os.path.relpath(target_path_full, rel_to_path)
             im_name = os.path.basename(target_path)
@@ -55,8 +59,12 @@ def prepare_ims():
     image_count = 0
 
     #First add in our randomly sampled images
-    #ilsvrc2012train_images = glob(im_dir + '/*.JPEG')
+    #ilsvrc2012train_images = glob(train_dir + '/*.JPEG')
     #image_count += add_to_db(rel_to_path, ilsvrc2012train_images, 'ilsvrc2012train')
+
+    #First add in our randomly sampled images
+    ilsvrc2012val_images = glob(val_dir + '/*.JPEG')
+    image_count += add_to_db(rel_to_path, ilsvrc2012val_images, 'ilsvrc2012val', limit=1000)
 
     #Now add in our fixed images
     nsf_images = glob(os.path.join(nsf_dir,'*.JPEG'))

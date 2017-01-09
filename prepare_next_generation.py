@@ -20,7 +20,7 @@ def prepare_next_generation():
     print 'New generation is %d' % new_generation
     image_count = 0
 
-    def add_images_to_generation(set_name, generation, limit=None):
+    def add_images_to_generation(set_name, generation, validate_category=False, limit=None):
         cur.execute("""SELECT * FROM images WHERE set_name = %s""", (set_name,))
         images = cur.fetchall()
         image_ids = [i['_id'] for i in images]
@@ -34,7 +34,9 @@ def prepare_next_generation():
             cur.execute("INSERT INTO generation_images (image_id, generation, iteration) VALUES (%s,%s,%s)", (image_id, generation, 0))
         return len(image_ids)
 
-    image_count += add_images_to_generation('mirc', generation=new_generation, limit=3)
+    image_count += add_images_to_generation('mirc', generation=new_generation)
+    image_count += add_images_to_generation('nsf', generation=new_generation, validate_category=True)
+    image_count += add_images_to_generation('ilsvrc2012train', generation=new_generation, limit=2000)
     cur.execute("UPDATE image_count SET (num_images,current_generation,generation_finished,clicks_in_generation) = (%s,%s,%s,%s)",
                 (image_count, new_generation, False, 0))
     #current_generation = cur.execute("SELECT INTO image_count (num_images,current_generation,iterations_per_generation) VALUES (%s,%s,%s)",(image_count,0,config.iterations_per_generation))

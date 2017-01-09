@@ -29,6 +29,12 @@ class DB:
             return None
         return labels[0]['all_names']
 
+    def get_image_paths(self, set_name):
+        self.cur.execute("""SELECT image_path FROM images WHERE set_name = %s""",
+            (set_name,))
+        return [fn[0] for fn in self.cur.fetchall()]
+
+
 if __name__ == '__main__':
     db = DB()
-    print db.get_label_for_image('mircs/mircs2.JPEG')
+    print db.get_image_paths('ilsvrc2012val')
