@@ -9,6 +9,7 @@ from dc_webapp.data_proc_config import project_settings
 from tf_experiments.model_depo import vgg16
 from utils import ImageCache
 from dc_webapp.synset import get_synset
+from dc_webapp.db import DB
 
 def init_session():
     return tf.Session(config=tf.ConfigProto(allow_soft_placement=True, gpu_options=(tf.GPUOptions(per_process_gpu_memory_fraction=0.4))))
@@ -40,6 +41,7 @@ def load_guesser():
     # Prepare image cache
     guesser.image_cache = ImageCache(config.image_base_path, input_size=(256, 256, 3), crop_size=guesser.batch_shape[1:3])
     guesser.session = init_session()
+    guesser.db = DB()
     return guesser
 
 def get_image_prediction(guesser, image_name, clicks, click_size=21): # TODO: Using a larger click size for debugging

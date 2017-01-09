@@ -23,8 +23,8 @@ def guess_path(): # #
     rdata = json.loads(request.form.keys()[0])
     print 'Clicks on %s: %d' % (rdata['image_name'], len(rdata['click_array']))
     # Get true label
-    #class_index = int(os.path.basename(rdata['image_name']).split('_')[0])
-    #print 'True label: %s' % oracle.class_names[class_index]
+    true_label = oracle.db.get_label_for_image(rdata['image_name'].strip())
+    print 'True label: %s' % true_label
     # Ask the oracle
     try:
         prediction = get_image_prediction(oracle, rdata['image_name'], rdata['click_array'])
