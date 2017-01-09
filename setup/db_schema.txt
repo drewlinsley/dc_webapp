@@ -13,4 +13,4 @@ create table image_count (_id bigserial primary key,num_images bigint, current_g
 create table cnn (_id bigserial primary key, sixteen_baseline_accuracy float, nineteen_baseline_accuracy float, sixteen_attention_accuracy float, nineteen_attention_accuracy float, epochs bigint, date varchar)
 create table clicks (_id bigserial primary key, high_score float, date timestamp with time zone)
 create table users (_id bigserial primary key, cookie varchar unique, name varchar, score float, email varchar, last_click_time timestamp with time zone)
-create table synsets (_id bigserial primary key, syn_id varchar, name varchar, all_names varchar, index_ilsvrc012 bigint default -1)
+create table synsets (_id bigserial primary key, syn_id varchar, name varchar, all_names varchar, index_ilsvrc2012 bigint default -1)

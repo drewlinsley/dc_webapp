@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # CNN server that returns model guesses on a partially revealed image
+# Used by clicktionary.ai
 
 import os, sys
 from flask import Flask, request, Response
@@ -13,7 +14,6 @@ oracle = load_guesser()
 
 # Init Flask
 app = Flask(__name__)
-#app.debug = True
 
 # Setup query route
 @app.route('/guess', methods=['GET', 'POST', 'OPTIONS'])
@@ -43,3 +43,4 @@ def guess_path(): # #
 
 # Start flask app
 app.run(host='0.0.0.0', port=7777)
+

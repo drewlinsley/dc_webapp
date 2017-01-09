@@ -15,7 +15,7 @@ def prepare_next_generation():
     cur.execute("""SELECT num_images,current_generation,iterations_per_generation FROM image_count""")
     data = cur.fetchone()
     old_generation = data['current_generation']
-    cur.execute("UPDATE click_path SET generation = %s WHERE generation = -1", (old_generation, ))
+    cur.execute("UPDATE click_paths SET generation = %s WHERE generation = -1", (old_generation, ))
     new_generation = old_generation + 1
     print 'New generation is %d' % new_generation
     image_count = 0
