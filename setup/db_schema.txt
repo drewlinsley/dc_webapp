@@ -8,7 +8,7 @@ DROP TABLE IF EXISTS users
 DROP TABLE IF EXISTS synsets
 create table images (_id bigserial primary key, image_path varchar, syn_id varchar, set_name varchar)
 create table generation_images (_id bigserial primary key, image_id bigint, generation bigint, iteration bigint)
-create table click_paths (_id bigserial primary key, image_id bigint, user_id bigint, generation bigint, clicks json, result varchar, clicktime timestamp with time zone)
+create table click_paths (_id bigserial primary key, image_id bigint, user_id varchar, generation bigint, clicks json, result varchar, clicktime timestamp with time zone)
 create table image_count (_id bigserial primary key,num_images bigint, current_generation bigint, iterations_per_generation bigint, generation_finished boolean)
 create table cnn (_id bigserial primary key, sixteen_baseline_accuracy float, nineteen_baseline_accuracy float, sixteen_attention_accuracy float, nineteen_attention_accuracy float, epochs bigint, date varchar)
 create table clicks (_id bigserial primary key, high_score float, date timestamp with time zone)

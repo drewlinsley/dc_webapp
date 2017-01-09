@@ -97,12 +97,19 @@ function getImage(ctx){
       //
       global_label = split_label[0];
       im_text = split_label[1].trimLeft(1); //we are wandering into a space at the start of labels at some point in the pipeline :(
-      im_label = split_label[2];
+      var im_full_label = split_label[2];
+      // Replace last "," by ", or" (Oxford comma)
+      var idx = im_full_label.lastIndexOf(",");
+      if (idx >= 0)
+      {
+        im_full_label = im_full_label.substring(0, idx) + ', or' + im_full_label.substring(idx + 1);
+      }
       //
-      change_title(im_text);
+      change_title(im_full_label);
       //
       global_image_link = split_data[1];
       postImage(global_image_link,ctx);
+      update_user_data();
       return;
     })
 }
@@ -479,7 +486,6 @@ function keep_clicking(){
 }
 
 function round_reset(correct){
-    update_user_data();
     //window.removeEventListener('mousedown', clicked, false);
     playing_image = false;
     upload_click_location(click_array,correct);
@@ -572,7 +578,7 @@ function upload_click_location(clicks,correct){
         url: '/clicks',
         data: data,
         dataType: 'application/json',
-        success: function(data) {}
+        success: function(data) { update_user_data(); }
     });
 }
 

@@ -33,8 +33,9 @@ function prepare_click_vectors(clicks){
     return {x:x,y:y}
 }
 
-var DbManager = function (username, password, host, port, dbName) {
+var DbManager = function (username, password, host, port, dbName, errorCallback) {
   var self = this;
+  self.errorCallback = errorCallback;
   var deferred = Q.defer();
   var pgUrl = util.format("postgres://%s:%s@%s:%s/%s", username, password, host, port, dbName);
   this.client = new pg.Client(pgUrl);
@@ -56,9 +57,8 @@ function do_db_query(self, query, vars, callback, params)
     console.log('self=' + self);
     console.log('self.client=' + self.client);
     self.client.query(query, vars, function(err, res) {
-        res.params = params;
         if (err) { self.errorCallback(err, 'Error in query ' + query); }
-        else { return callback(self, res, params); }
+        else { res.params = params; return callback(self, res, params); }
      });
 }
 
@@ -70,10 +70,9 @@ function sample_random_image(self, current_generation, iteration_limit, callback
 
 
 
-DbManager.prototype.locateRandomImage = function (callback, errorCallback) {
+DbManager.prototype.locateRandomImage = function (callback) {
   var self = this;
   console.log('Client=' + self.client);
-  self.errorCallback = errorCallback;
   self.sample_callback = callback;
   do_db_query(self, 'SELECT * FROM image_count WHERE _id=1', [], locateRandomImage_counted);
 }
@@ -122,11 +121,11 @@ locateRandomImage_sample3 = function(self, res)
     self.sample_callback(bound_data);
 };
 
-DbManager.prototype.cnn_accuracies = function (callback, errorCallback) {
+DbManager.prototype.cnn_accuracies = function (callback) {
   var self = this;
   self.client.query('SELECT * from cnn', function(err,res){
     if (err) {
-      errorCallback(err, 'Error looking up cnn accuracies');
+      self.errorCallback(err, 'Error looking up cnn accuracies');
       return;
     }
     var dates = []
@@ -147,9 +146,8 @@ DbManager.prototype.cnn_accuracies = function (callback, errorCallback) {
   })
 }
 
-DbManager.prototype.updateClicks = function (image_path, generation, click_path, score, username, userid, answers, callback, errorCallback) {
+DbManager.prototype.updateClicks = function (image_path, generation, click_path, score, username, userid, answers, callback) {
   var self = this;
-  self.errorCallback = errorCallback;
   do_db_query(self, 'SELECT * FROM images WHERE image_path=$1', [image_path], updateClicks_2, { answers: answers, click_path: click_path, score:score, username:username, userid: userid, callback:callback });
 }
 
@@ -165,31 +163,32 @@ updateClicks_2 = function(self, res) {
     var answers = params.answers;
 
     // Record clicks in database
+    console.log('CLICK PATHS' + [image_id, params.userid, coors, answers]);
     do_db_query(self, 'INSERT INTO click_paths (image_id, user_id, clicks, generation, result, clicktime) VALUES ($1, $2, $3, -1, $4, current_timestamp)',
-            [image_id, params.userid, coors, answers], function (err, res) { params.callback(); });
+            [image_id, params.userid, coors, answers], function (err, res) { /* Callback is done after score update */ });
 
     // Update global high score
     self.client.query('SELECT high_score FROM clicks',function(err,res){
         var high_score = res.rows[0].high_score;
         if (err) {
-          errorCallback(err, 'Error looking up scores');
+          self.errorCallback(err, 'Error looking up scores');
           return;
         }
           score = parseFloat(params.score);
           high_score = parseFloat(high_score);
         if (score > high_score){
-          self.client.query('UPDATE clicks SET high_score=$1',[score],function(err,res){
+          self.client.query('UPDATE clicks SET high_score=$1',[params.score],function(err,res){
             if (err) {
-              errorCallback(err, 'Error setting high score');
+              self.errorCallback(err, 'Error setting high score');
               return;
             }
           })
         }
 
     // Update users for highscores
-    self.client.query('SELECT * FROM users WHERE cookie=$1', [userid], function (err, res) {
+    self.client.query('SELECT * FROM users WHERE cookie=$1', [params.userid], function (err, res) {
 		    if (err) {
-		    errorCallback(err, 'User table error');
+		    self.errorCallback(err, 'User table error');
         return;
       }
         if (res.rows.length > 0)
@@ -198,9 +197,11 @@ updateClicks_2 = function(self, res) {
             self.client.query('UPDATE users SET score=$1, name=$2 WHERE cookie=$3', [params.score, params.username, params.userid], function (err, res) {
                 // Update OK?
                   if (err) {
-                    errorCallback(err, 'User update error');
+                    self.errorCallback(err, 'User update error');
                     return;
                   }
+                  console.log('Users updated. Score = ' + params.score);
+                  params.callback();
                   });
         }
         else
@@ -209,16 +210,18 @@ updateClicks_2 = function(self, res) {
             self.client.query('INSERT INTO users (score, name, cookie) VALUES ($1,$2,$3)', [params.score, params.username, params.userid], function (err, res) {
                 // Update OK?
                   if (err) {
-                    errorCallback(err, 'User creation error');
+                    self.errorCallback(err, 'User creation error');
                     return;
                   }
+                  console.log('User created. Score = ' + params.score);
+                  params.callback();
                   });
          }
      });
   });
 };
 
-DbManager.prototype.getScoreData = function (callback, errorCallback) {
+DbManager.prototype.getScoreData = function (callback) {
   var self = this;
   self.client.query('SELECT * FROM image_count WHERE _id=1', function(err,res){
     var iteration_generation = parseInt(res.rows[0].iteration_generation);
@@ -228,17 +231,23 @@ DbManager.prototype.getScoreData = function (callback, errorCallback) {
     var clicks_to_go = click_goal / 2;
     self.client.query('SELECT high_score FROM clicks',function(err,res){
         if (err) {
-          errorCallback(err, 'Error looking up score');
+          self.errorCallback(err, 'Error looking up score');
           return;
         }
         var high_score = res.rows[0].high_score;
         // High-score table
         self.client.query('SELECT name, score, email FROM users ORDER BY score DESC LIMIT 10',function(err,res){
             if (err) {
-              errorCallback(err, 'Error fetching highscore table');
+              self.errorCallback(err, 'Error fetching highscore table');
               return;
             }
             high_scores = res.rows;
+            console.log("High scores: " + JSON.stringify(high_scores));
+            high_score = 0;
+            if (high_scores.length > 0)
+             {
+                high_score = high_scores[0].score;
+             }
             callback({'global_high_score': high_score, 'clicks_to_go': clicks_to_go, 'click_goal': click_goal, 'high_scores': high_scores});
           });
        });
@@ -270,14 +279,14 @@ DbManager.prototype.resetScores = function(){
   });
 }
 
-DbManager.prototype.addEmail = function (email,username,userid, callback, errorCallback) {
+DbManager.prototype.addEmail = function (email,username,userid, callback) {
   var self = this;
   self.client.query('SELECT * FROM users WHERE cookie=$1', [userid], function (err, res) {
     if (res.rows.length == 0){
     self.client.query('INSERT INTO users (score, name, email, cookie) VALUES ($1,$2,$3,$4)', [0, username, email, userid], function (err, res) {
         // Update OK?
         if (err) {
-            errorCallback(err, 'User update error');
+            self.errorCallback(err, 'User update error');
             return;
         }
     });
@@ -285,7 +294,7 @@ DbManager.prototype.addEmail = function (email,username,userid, callback, errorC
      self.client.query('UPDATE users SET email=$1 WHERE cookie=$2', [email, userid], function (err, res) {
         // Update OK?
         if (err) {
-            errorCallback(err, 'User update error');
+            self.errorCallback(err, 'User update error');
             return;
         }
     });

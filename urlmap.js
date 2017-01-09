@@ -89,15 +89,8 @@ exports.setupRouter = function (db, router, errorFlag) {
     });
 
     router.get('/cnn_accuracies',function(req,res){
-      db.cnn_accuracies(function(bound_data,err){
-        if (err){
-          res.writeHead(400, {'Content-type':'text/html'})
-          res.end('err')
-        } else {
-          res.end(bound_data); 
-        }
-      })
-    });
+      db.cnn_accuracies(function(bound_data){ res.end(bound_data); });
+      });
 
     router.get('/random_image',function(req,res){
       db.locateRandomImage(function(bound_data){
@@ -151,8 +144,7 @@ exports.setupRouter = function (db, router, errorFlag) {
       var userid = user_data.userid; // ID to identify the user
       // Update click map in DB
       db.updateClicks(label,generation,clicks,score,username,userid,correct,
-        respond.bind(null, res),
-        respond.bind(null, res, null));
+        respond.bind(null, res));
     });
 
     router.post('/email', function(req,res){
@@ -162,8 +154,7 @@ exports.setupRouter = function (db, router, errorFlag) {
       var username = user_data.name;
       var userid = user_data.userid; // ID to identify the user
       db.addEmail(email,username,userid,
-        respond.bind(null, res),
-        respond.bind(null, res, null));
+        respond.bind(null, res));
     });
 
     var game_over = schedule.scheduleJob('0 0 1 * *', function(){ //0 0 1 * *

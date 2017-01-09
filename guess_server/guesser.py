@@ -63,7 +63,7 @@ def get_image_prediction(guesser, image_name, clicks, click_size=21): # TODO: Us
     class_index = np.argsort(prob)[::-1]#[:5]
     pps = np.sort(prob)[::-1]#[:5]
     # Debug print top prediction
-    print 'Top 1: ' + str(guesser.class_names[0]) + ' @ ' + str(pps[0])
+    print 'Top 1: ' + str(guesser.class_names[class_index[0]]) + ' @ ' + str(pps[class_index[0]])
     # Resolve class to name
     prediction_names = [guesser.class_names[ci] + '!' for ci in class_index]
     pps = [str(p) + '!' for p in pps]
