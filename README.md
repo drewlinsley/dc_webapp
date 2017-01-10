@@ -22,22 +22,28 @@ Setting up the webapp
 	\q #quit
 	psql mircs -h 127.0.0.1 -d mircs < node_modules/connect-pg-simple/table.sql #prepare the database for connect-pg-simple middlware
 	exit # Exit sql user
-        python setup.py
+
+#2. Prepare config and credentials files:
+	cp credentials.py.example credentials.py # and edit psql password in this file
+	Add psql password in main.js (pgPassword)
+	Edit data_proc_config.py to point to the image datasets
+	Edit setup/prepare_ims.py and next_generation_daemon.py in case you want to run different datasets
         change the global image directory path in urlmap.js
         hardcode the number of images you're using into scripts/mirc_charts.js
 
-#2. Initialize images into the database
-	python prepare_ims.py
+#3. Initialize database with image sets
+	python setup.py
 
-=======
-#3. Run the CNN guess server (preferrably in a screen):
+#4. Run the CNN evolution daemon (do this e.g. in a screen or tmux)
+	python next_generation_daemon.py
+
+#5. Run the guess server (do this e.g. in a screen or tmux)
 	cd guess_server
 	python guess_server.py
 
-#4.  (THIS IS CURRENTLY RUN FROM URLMAP WITH NODE-SCHEDULER. DISREGARD.)Run a cron job to keep CNN accuracies updated for the "What's the point" page
-	chmod +x run_cnn_script.sh
-	crontab -e
-	0 0 * * * /path/to/run_cnn_script.sh #Runs the script daily	
+#6. Finally, run the node server
+	node main.js
+	(and open a browser on http://localhost:8090)
 
 ---
 
