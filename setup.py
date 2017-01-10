@@ -21,7 +21,7 @@ prepare_ims.prepare_ims()
 
 # Initialize CNN accuracies
 #print('Run CNNs...')
-run_cnns.main()
+#run_cnns.main()
 
 # Start first generation
 prepare_next_generation()

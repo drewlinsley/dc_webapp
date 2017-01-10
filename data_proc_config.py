@@ -53,7 +53,7 @@ def project_settings():
         image_base_path = '/media/data_cifs/clicktionary/webapp_data/'
 
     mirc_image_path = os.path.join(image_base_path, 'mircs')
-    nsf_image_path = os.path.join(image_base_path, 'nsf_images')
+    nsf_image_path = os.path.join(image_base_path, 'nsf_images_ilsvrc')
     imagenet_train_path = os.path.join(image_base_path, 'lmdb_trains')
     imagenet_validation_path = os.path.join(image_base_path, 'lmdb_validations')
 
