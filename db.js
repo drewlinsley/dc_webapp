@@ -89,6 +89,7 @@ locateRandomImage_sample1 = function(self, res) {
         // Generation finished - just let people continue on a randomly selected image from this generation
         sample_random_image(self, self.global_current_generation, 999999, locateRandomImage_sample2);
         self.client.query("UPDATE image_count SET generation_finished = TRUE");
+        self.client.query("NOTIFY evolve");
     }
     else
     {
