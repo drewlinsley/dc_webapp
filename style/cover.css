@@ -45,7 +45,7 @@ body {
 }
 
 #main_status:after {
-  content: 'CLICKTIONARY';
+  content: 'clickme';
   position: absolute;
   top: 17px;
   left: 17px;

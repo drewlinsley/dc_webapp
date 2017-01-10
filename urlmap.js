@@ -4,7 +4,8 @@ var PythonShell = require('python-shell');
 var s2utils = require('./s2utils.js');
 var shortid = require('shortid');
 var schedule = require('node-schedule');
-var image_root_path = '/media/data_cifs/clicktionary/webapp_data';
+//var image_root_path = '/media/data_cifs/clicktionary/webapp_data';
+var image_root_path = '/media/data_clicktionary/webapp_data/'
 
 var update_cnns = schedule.scheduleJob('0 0 * * *', function(){
     PythonShell.run('run_cnns.py', function (pyerr) {

@@ -22,8 +22,9 @@ Setting up the webapp
 	\q #quit
 	psql mircs -h 127.0.0.1 -d mircs < node_modules/connect-pg-simple/table.sql #prepare the database for connect-pg-simple middlware
 	exit # Exit sql user
-        run setup function in /setup
-        
+        python setup.py
+        change the global image directory path in urlmap.js
+        hardcode the number of images you're using into scripts/mirc_charts.js
 
 #2. Initialize images into the database
 	python prepare_ims.py

@@ -73,7 +73,7 @@ function init_chart(clicks_total)
     });
 }
 
-myChart = init_chart(3009);
+myChart = init_chart(4011);
 
 function update_chart(myChart,accum_clicks,clicks_to_go){
     /*if (myChart === null)

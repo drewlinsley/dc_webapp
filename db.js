@@ -118,7 +118,7 @@ locateRandomImage_sample3 = function(self, res)
     }
     result = res.rows[0];
     var bound_data = { image_path: result.image_path, image_display_label: result.all_names, name: result.name, index_ilsvrc012: result.index_ilsvrc012 };
-    console.log('Returning bound data: ' + JSON.stringify(bound_data));
+    //console.log('Returning bound data: ' + JSON.stringify(bound_data));
     self.sample_callback(bound_data);
 };
 
