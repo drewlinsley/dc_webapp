@@ -59,12 +59,12 @@ def prepare_ims():
     image_count = 0
 
     #First add in our randomly sampled images
-    #ilsvrc2012train_images = glob(train_dir + '/*.JPEG')
-    #image_count += add_to_db(rel_to_path, ilsvrc2012train_images, 'ilsvrc2012train')
+    ilsvrc2012train_images = glob(train_dir + '/*.JPEG')
+    image_count += add_to_db(rel_to_path, ilsvrc2012train_images, 'ilsvrc2012train')
 
     #First add in our randomly sampled images
-    #ilsvrc2012val_images = glob(val_dir + '/*.JPEG')
-    #image_count += add_to_db(rel_to_path, ilsvrc2012val_images, 'ilsvrc2012val', limit=1000)
+    ilsvrc2012val_images = glob(val_dir + '/*.JPEG')
+    image_count += add_to_db(rel_to_path, ilsvrc2012val_images, 'ilsvrc2012val', limit=1000)
 
     #Now add in our fixed images
     nsf_images = glob(os.path.join(nsf_dir,'*.JPEG'))

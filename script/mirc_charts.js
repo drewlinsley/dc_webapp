@@ -6,9 +6,9 @@ function init_chart(clicks_total)
     return new Chart(ctx, {
         type: 'horizontalBar',
         data: {
-            labels: ["Progress"], //"Number of clicks recorded", "Clicks until next epoch of training"
+            labels: [""], //"Number of clicks recorded", "Clicks until next epoch of training"
             datasets: [{
-                data: [10],
+                data: [],
                 label: "Clicks until AI evolves",
                 backgroundColor: [
                     'rgba(247,247,247, 0.2)',
@@ -41,7 +41,7 @@ function init_chart(clicks_total)
                     beginAtZero:true,
                     fontFamily: "'Open Sans Bold', sans-serif",
                     fontSize:11,
-            fontColor:"black",
+                    fontColor:"black",
                     max: clicks_total
                 },
                 scaleLabel:{
@@ -73,7 +73,7 @@ function init_chart(clicks_total)
     });
 }
 
-myChart = init_chart(4011);
+myChart = init_chart(5000);
 
 function update_chart(myChart,accum_clicks,clicks_to_go){
     /*if (myChart === null)

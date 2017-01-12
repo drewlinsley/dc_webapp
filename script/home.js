@@ -119,7 +119,8 @@ function postImage(image_link,ctx){
     imgLoaded = false;
     image.src = 'data:image/jpg;base64,' + image_link;
     image.onload = function(){
-        ctx.drawImage(image,0,0);
+        //ctx.drawImage(image,0,0);
+        fadeImage(image,0,0);        
         imgLoaded = true;
         draw_scored_box(0);
     }
@@ -221,6 +222,21 @@ function gate_coordinates(){
 function fastDraw(){
     if (imgLoaded) ctx.drawImage(image,0,0);
 }
+
+function fadeImage(image){
+    var opacity = 0;
+    isBusy = true;
+    (function fadeIn(){
+        ctx.globalAlpha = opacity;
+        ctx.drawImage(image,0,0);
+        opacity += 0.05;
+        if (opacity < 1)
+            requestAnimationFrame(fadeIn);
+        else
+            isBusy = false;
+    })();
+}
+
 function draw(e) {
     //postImage(global_image_link,ctx)
     fastDraw();
@@ -512,7 +528,6 @@ function correct_recognition(wc,pp){
     //refresh_gradient();
     var si =setInterval(updateGradient,10); //dont think this works
     setTimeout(function(){clearInterval(si);},500)
-    var aa = 2
 }
 
 function time_elapsed(){

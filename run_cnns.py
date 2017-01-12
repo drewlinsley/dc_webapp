@@ -56,7 +56,7 @@ def main():
     db = DB()
     test_ims = sorted(db.get_image_paths('ilsvrc2012val'))
     test_ims = [os.path.join(p.image_base_path, fn) for fn in test_ims]
-    attention_maps = [os.path.join(p.model_path + p.click_map_predictions, fn) for fn in test_ims]
+    attention_maps = [os.path.join(p.model_path, fn) for fn in test_ims]
 
     ts = datetime.datetime.now()
     timestamp = str(ts.year) + '-' + str(ts.month) + '-' + str(ts.day)

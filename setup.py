@@ -20,8 +20,8 @@ print('Add images...')
 prepare_ims.prepare_ims()
 
 # Initialize CNN accuracies
-#print('Run CNNs...')
-#run_cnns.main()
+print('Run CNNs...')
+run_cnns.main()
 
 # Start first generation
 prepare_next_generation()

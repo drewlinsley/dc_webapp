@@ -2,7 +2,7 @@
 # CNN and cached image holder answering guesses
 
 import os
-os.environ['CUDA_VISIBLE_DEVICES'] = '3' # Run only on GPU 0 to speed up init time
+os.environ['CUDA_VISIBLE_DEVICES'] = '0' # Run only on GPU 0 to speed up init time
 import tensorflow as tf
 import numpy as np
 from dc_webapp.data_proc_config import project_settings

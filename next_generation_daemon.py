@@ -45,8 +45,8 @@ class NextGenerationDaemon:
 
     def trigger(self):
         # Re-train CNN
-        print "Re-training CNN"
-        run_cnns.main()
+        #print "Re-training CNN"
+        #run_cnns.main()
         print "Preparing next generation"
         prepare_next_generation()
         print "Daemon idle."

@@ -6,12 +6,11 @@ var shortid = require('shortid');
 var schedule = require('node-schedule');
 //var image_root_path = '/media/data_cifs/clicktionary/webapp_data';
 var image_root_path = '/media/data_clicktionary/webapp_data/'
-
-var update_cnns = schedule.scheduleJob('0 0 * * *', function(){
+/*var update_cnns = schedule.scheduleJob('0 0 * * *', function(){
     PythonShell.run('run_cnns.py', function (pyerr) {
         if (pyerr) console.log(pyerr);
     });
-});
+});*/
 
 var respond = function (response, responseData, err, errorMessage) {
   if (err || errorMessage) {
@@ -44,7 +43,7 @@ var respond = function (response, responseData, err, errorMessage) {
   response.end();
 };
 
-var app_version = 2 // Reset cookie if stored under smaller app version
+var app_version = 3 // Reset cookie if stored under smaller app version
 
 
 var getNextDate = function() {
@@ -74,6 +73,9 @@ var getUserData = function(req) {
         'email': '',
         'expiration': getNextDate()
         };
+  }
+  else if (parseFloat(sess.user_data.expiration) - parseFloat(getCurrentDate()) < 0) {
+        sess.user_data.score = 0;
   }
   return sess.user_data;
 };

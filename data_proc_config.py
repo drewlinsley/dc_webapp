@@ -56,11 +56,12 @@ def project_settings():
     nsf_image_path = os.path.join(image_base_path, 'nsf_images_ilsvrc')
     imagenet_train_path = os.path.join(image_base_path, 'lmdb_trains')
     imagenet_validation_path = os.path.join(image_base_path, 'lmdb_validations')
+    imagenet_validation_predictions_path = os.path.join(image_base_path, 'lmdb_validations_predictions')
 
     d = {
     #Images for the click map prediction and folders for saving the predictions
     'training_map_path' : 'database_click_images/',
-    'click_map_predictions' : 'model_click_predictions/',
+    'click_map_predictions' : imagenet_validation_predictions_path,
     'validation_image_path' : imagenet_validation_path,#'validation_images/', #Originally we just used these files
     'training_image_path' : 'images/',
     'im_ext' : '.JPEG',
@@ -71,7 +72,7 @@ def project_settings():
 
     # Epoch training
     'click_box_radius' : 9,
-    'iterations_per_generation' : 4, # Number of annotations per images until we re-train
+    'iterations_per_generation' : 1, # Number of annotations per images until we re-train
     'train_iters' : 10000, #not implemented yet
     'val_iters' : 100, #not implemented yet
     'nb_epoch' : 1,
