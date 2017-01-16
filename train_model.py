@@ -1,15 +1,14 @@
+import os, sys, psycopg2, credentials, json, re, argparse
 import numpy as np
-import os, sys
 os.environ["THEANO_FLAGS"] = "mode=FAST_RUN,device=gpu3,floatX=float32"
-import psycopg2
-import credentials
-import json
-import re
 from data_proc_config import project_settings
 from glob import glob
 from scipy import misc
+from get_clickmaps import return_image_data
+from matplotlib import pyplot as plt
+from matplotlib.colors import ListedColormap
 
-def create_clickmaps(obj,im_name,im_size,training_map_path,click_box_radius):
+def create_clickmaps(obj,im_name,num_clicks,im_size,training_map_path,base_image_path,overlay_path,click_box_radius,cm,produce_heatmaps=True):
     canvas = np.zeros((im_size))
     xs = np.asarray([int(np.round(float(x))) for x in obj['x']])
     ys = np.asarray([int(np.round(float(y))) for y in obj['y']])
@@ -17,32 +16,51 @@ def create_clickmaps(obj,im_name,im_size,training_map_path,click_box_radius):
         canvas[ys[idx] - click_box_radius : ys[idx] + click_box_radius,
             xs[idx] - click_box_radius : xs[idx] + click_box_radius] = \
             canvas[ys[idx] - click_box_radius : ys[idx] + click_box_radius,
-            xs[idx] - click_box_radius : xs[idx] + click_box_radius] + 1             
+            xs[idx] - click_box_radius : xs[idx] + click_box_radius] + 1  #accumulate signal at this spot           
     canvas /= np.max(canvas)
     proc_im_name = re.split('/',im_name)[-1] 
-    misc.imsave(training_map_path + proc_im_name, canvas)
+    misc.imsave(training_map_path + proc_im_name, canvas) #Save the clickmap as an image
+    if produce_heatmaps:
+        #Also produce an overlay
+        im = misc.imread(os.path.join(base_image_path,im_name))   
+        fig,ax = plt.subplots(nrows=1,ncols=1)
+        plt.imshow(im,cmap=plt.cm.gray);
+        axis = plt.imshow(canvas,cmap=cm,vmin=0,vmax=1)
+        fig.colorbar(axis)
+        ax.get_xaxis().set_ticks([])
+        ax.get_yaxis().set_ticks([])
+        if num_clicks == 1:
+            plt.title(proc_im_name + '; %s participant' % int(num_clicks))
+        else:
+            plt.title(proc_im_name + '; %s participants' % int(num_clicks))
+        plt.savefig(os.path.join(overlay_path,proc_im_name))
     return proc_im_name 
 
-def prepare_training_maps(training_map_path,click_box_radius):
-    connection_string = credentials.python_postgresql()
-    conn = psycopg2.connect(connection_string)
-    cur = conn.cursor()
-    cur.execute("""SELECT * from images""")
-    data = cur.fetchall()
-    im_size = misc.imread(data[0][1]).shape[:2]
-    im_names = [create_clickmaps(x[3],x[1],im_size,training_map_path,click_box_radius) for x in data] 
-    cur.close()
-    conn.close()
-    return im_names
+def create_directories(dir_list):
+    for d in dir_list:
+        if not os.path.exists(d):
+            os.makedirs(d)
 
-def main():
+def create_alpha_cmap(alpha=0.5):
+    cmap = plt.cm.Reds
+    my_cmap = cmap(np.arange(cmap.N))
+    my_cmap[:, -1] = np.hstack((0, np.zeros(cmap.N - 1) + alpha))
+    return ListedColormap(my_cmap)
+
+def main(generations=None):
     #Get paths and settings
     p = project_settings()
+    
+    #Create the output directories if they don't exist
+    create_directories([p.training_map_path,p.click_overlay_path])
 
     #Run program for finetuning click model and producing predicted click maps
     sys.path.append(p.model_path)
     import fine_tuning
-    map_names = prepare_training_maps(p.training_map_path,p.click_box_radius)
+    curr_gen,image_ids,clicks,click_info,keep_index,kept_image_ids,image_info,image_types,num_clicks = return_image_data(generations=generations)
+    cm = create_alpha_cmap()
+    map_names = [create_clickmaps(clicks[x]['clicks'],image_info[x][0],num_clicks[x],[256,256],p.training_map_path,p.image_base_path,p.click_overlay_path,p.click_box_radius,cm) for x in range(len(clicks))]
+    import ipdb;ipdb.set_trace()
     abs_path = os.path.dirname(os.path.abspath(__file__)) + '/'
 
     #Fine tuning first
@@ -57,4 +75,7 @@ def main():
     #run_cnns.py needs to be run to enter new accuracies into the database
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--generations',dest='generations',default=True,help='Defaults to processing the most recent generation. Pass anything to include all data')
+    args = parser.parse_args() 
+    main(**vars(args))

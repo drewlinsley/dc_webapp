@@ -43,6 +43,7 @@ def project_settings():
     elif node_name == 'x9':
         model_path = '/home/drew/Documents/mlnet/'
         tf_path = '/home/drew/Documents/tf_experiments/'
+        image_base_path = '/media/data_cifs/clicktionary/webapp_data/'
     elif node_name == 'g15':
         model_path = '/home/drew/clickmap_prediction/'
         tf_path = '/home/drew/tf_experiments/'
@@ -60,6 +61,7 @@ def project_settings():
     d = {
     #Images for the click map prediction and folders for saving the predictions
     'training_map_path' : 'database_click_images/',
+    'click_overlay_path' : 'click_images_overlay/',
     'click_map_predictions' : 'model_click_predictions/',
     'validation_image_path' : imagenet_validation_path,#'validation_images/', #Originally we just used these files
     'training_image_path' : 'images/',
