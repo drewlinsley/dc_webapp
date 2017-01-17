@@ -1,0 +1,3 @@
+-- Fixes the iteration and clicks_in_generation fields of the current generation based on clicks
+UPDATE generation_images SET iteration = (SELECT COUNT(*) FROM click_paths WHERE click_paths.image_id = generation_images.image_id AND generation=-1) WHERE generation=(SELECT current_generation FROM image_count);
+UPDATE image_count SET clicks_in_generation = (SELECT COUNT(*) FROM generation_images WHERE generation_images.iteration > 0 AND generation_images.generation=image_count.current_generation);
