@@ -20,7 +20,7 @@ class NextGenerationDaemon:
     def wait(self):
         if select.select([self.db.conn], [], [], 5) == ([], [], []):
             # Timeout
-            print 'Still waiting...'
+            print '.',
             return False
         else:
             # Got signal
@@ -39,6 +39,7 @@ class NextGenerationDaemon:
             return finished
 
     def run(self):
+        print "Running daemon forever..."
         while True:
             if self.wait():
                 self.trigger()
