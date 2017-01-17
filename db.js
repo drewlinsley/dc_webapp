@@ -168,6 +168,10 @@ updateClicks_2 = function(self, res) {
     do_db_query(self, 'INSERT INTO click_paths (image_id, user_id, clicks, generation, result, clicktime) VALUES ($1, $2, $3, -1, $4, current_timestamp)',
             [image_id, params.userid, coors, answers], function (err, res) { /* Callback is done after score update */ });
 
+    // Record this image as tested
+    self.client.query('UPDATE generation_images SET iteration = iteration + 1 WHERE image_id=$1 AND generation=(SELECT MAX(generation) FROM generation_images WHERE image_id=$1)', [image_id],function(err,res){ });
+
+
     // Keep track of count
     self.client.query('UPDATE image_count SET clicks_in_generation = clicks_in_generation + 1',function(err,res){ });
 
