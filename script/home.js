@@ -124,6 +124,7 @@ function postImage(image_link,ctx){
         imgLoaded = true;
         draw_scored_box(0);
     }
+    image.onerror = function(){getImage(ctx);} 
     //try{
     //    ctx.drawImage(image,0,0);
     //}catch(err){}
@@ -454,6 +455,10 @@ function call_sven(){
             }else{
                 //update_pps(ppChart,max_in,max_non)
             }
+        },
+        fail: function(){
+            console.log('Failed to contact the guess server.');
+            time_elapsed();
         }
     });
 }
@@ -829,11 +834,17 @@ function freeze() {
 function unfreeze() {
     enableScroll();
 }
-/////////
 // device detection
 if (/Mobi/.test(navigator.userAgent)) {
     mobile = true;
 }
+// Reject old browsers
+function rej(){
+    $.reject({
+    });  
+    return false;  
+}
+
 
 $(document).ready(function(){
     // Prepare canvas
@@ -882,6 +893,7 @@ $(document).ready(function(){
     $('#scoreboard_time_1').text('Amazon gift cards awarded to the top-5 scoring players on ' + next_date() + ' in the following amounts:');
     $('#scoreboard_time_2').text('Amazon gift cards awarded to the top-5 scoring players on ' + next_date() + ' in the following amounts:');
     zoomOut();
+    rej();
     // Refresh the screen for mobile
     // adjust_for_mobile();
 })
