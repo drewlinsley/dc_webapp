@@ -7,7 +7,6 @@ var fs = require('fs');
 var tokenExpirationTime = 3600000;
 var PythonShell = require('python-shell');
 var exec = require('child_process').exec;
-var db_pw = 'serrelab';
 
 function unique_ind(arr) {
     var hash = {}, result = [];
@@ -245,7 +244,7 @@ DbManager.prototype.getScoreData = function (callback) {
 DbManager.prototype.resetScores = function(){
   var self = this;
   var dt = new Date().getTime();
-  var cmd = 'PGPASSWORD="' + db_pw + '" pg_dump -h 127.0.0.1 -U mircs -d mircs > db_dump/' + String(dt) + '.sql';
+  var cmd = 'pg_dump -h 127.0.0.1 -U mircs -d mircs > /home/clickme/db_dump/' + String(dt) + '.sql';
   exec(cmd, function(err, stdout, stderr) {
     if (err){
        console.log('Error dumping database');
