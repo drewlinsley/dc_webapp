@@ -238,7 +238,7 @@ DbManager.prototype.getScoreData = function (user_id, callback) {
             high_score = high_scores[0].score;
             for (var index = 0; index < high_scores.length; ++index)
             {
-                if (high_scores[index].local) user_score = high_scores[index].score;
+                if (high_scores[index].local) user_score = high_scores[index].score; else high_scores[index].email = '';
             }
          }
         callback({'global_high_score': high_score, 'clicks_to_go': clicks_to_go, 'click_goal': click_goal, 'high_scores': high_scores, 'user_score': user_score});
