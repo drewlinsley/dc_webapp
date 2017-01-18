@@ -4,7 +4,7 @@
 import psycopg2
 import psycopg2.extras
 import psycopg2.extensions
-from dc_webapp import credentials
+import credentials
 
 class DB:
     def __init__(self):

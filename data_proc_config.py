@@ -76,12 +76,14 @@ def project_settings():
     'iterations_per_generation' : 4, # Number of annotations per images until we re-train
     'train_iters' : 10000, #not implemented yet
     'val_iters' : 100, #not implemented yet
-    'nb_epoch' : 1,
+    'nb_epoch' : 0,
+    'image_size' : [256,256],
 
     #For finetuning the click predictor
     'model_path' : model_path,
     'model_init_training_weights' : model_path + 'models',
-    'model_checkpoints' : model_path + 'model_checkpoints',
+    'model_checkpoints' : 'model_checkpoints/',
+    'clicktionary_paper_images': os.path.join(image_base_path,'lmdb_validations'),  # clicktionary_paper_images
 
     #Paths for testing CNNs with attention maps
     'tf_path' : tf_path,
