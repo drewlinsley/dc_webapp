@@ -457,7 +457,7 @@ function call_sven(){
             }else{
                 //update_pps(ppChart,max_in,max_non)
             }*/
-            console.log(parseFloat(data.pp))
+            //console.log(parseFloat(data.pp))
             if (data.eval === true){
                 correct_recognition(0,parseFloat(data.pp))//(1 - bar.value()) * 100);
             }
