@@ -675,13 +675,15 @@ function update_user_data(){
         var tt;
         for (var i = 0; i < hsdata.length; ++i)
         {
+            idx_label = (i + 1).toString();
             if (i == 0){tt = 'info'}
             else if (i == 1){tt = 'success'}
             else if (i == 2){tt = 'warning'}
             else if (i == 3){tt = 'danger'}
             else if (i == 4){tt = 'active'}
+            else if (i == 10){tt = 'active'; idx_label='you'}
             else {tt = '';}
-            high_score_table += '<tr class="' + tt + '"><td>' + (i + 1).toString() + '</td><td>' + hsdata[i].name + '</td><td>' + hsdata[i].score.toFixed(global_precision) + '</td></tr>'
+            high_score_table += '<tr class="' + tt + '"><td>' + idx_label + '</td><td>' + hsdata[i].name + '</td><td>' + hsdata[i].score.toFixed(global_precision) + '</td></tr>'
         }
         $('#high_scores').html(high_score_table);
         // Find current place
