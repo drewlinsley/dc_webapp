@@ -117,7 +117,7 @@ exports.setupRouter = function (db, router, errorFlag) {
       user_data = s2utils.clone(getUserData(req));
       db.getEmail(user_data.userid,function(email){
         // Add latest highscore data
-        db.getScoreData(function(score_data){
+        db.getScoreData(user_data.userid, function(score_data){
           // Send it!
           user_data.email = email.email;
           user_data.scores = score_data;

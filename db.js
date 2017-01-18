@@ -213,7 +213,7 @@ updateClicks_2 = function(self, res) {
      });
 };
 
-DbManager.prototype.getScoreData = function (callback, userid) {
+DbManager.prototype.getScoreData = function (user_id, callback) {
   var self = this;
   self.client.query('SELECT * FROM image_count WHERE _id=1', function(err,res){
     result=res.rows[0];
@@ -224,7 +224,7 @@ DbManager.prototype.getScoreData = function (callback, userid) {
     var clicks_to_go = Math.max(0, click_goal - clicks_in_generation);
     //console.log(JSON.stringify(result));
     // High-score table
-    self.client.query('((SELECT name, score, email, FALSE as local FROM users ORDER BY score DESC NULLS LAST LIMIT 10) UNION (SELECT name, score, email, TRUE as local FROM users WHERE cookie=$1)) ORDER BY score DESC NULLS LAST',[userid], function(err,res){
+    self.client.query('((SELECT name, score, email, FALSE as local FROM users ORDER BY score DESC NULLS LAST LIMIT 10) UNION (SELECT name, score, email, TRUE as local FROM users WHERE cookie=$1)) ORDER BY score DESC NULLS LAST',[user_id], function(err,res){
         if (err) {
           self.errorCallback(err, 'Error fetching highscore table');
           return;
