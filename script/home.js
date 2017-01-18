@@ -688,7 +688,7 @@ function update_user_data(){
         $('#high_scores').html(high_score_table);
         // Find current place
         var cp = get_current_place();
-        if (cp < previous_place && num_turns > 0){
+        if (cp < previous_place && num_turns > 0 && cp <= 9){
              
              if (cp < 5){
              $('#place_notification_sup').html('<kbd>Go to the Scoreboard tab and enter your email address so we can reward you if you maintain your place in the top-5.</kbd>');}
