@@ -183,6 +183,9 @@ updateClicks_2 = function(self, res) {
       }
         if (res.rows.length > 0)
         {
+
+            // Handing this over to the click server. Ignoring the following:
+            /*
             // Update entry
             self.client.query('UPDATE users SET score=$1, name=$2 WHERE cookie=$3', [params.score, params.username, params.userid], function (err, res) {
                 // Update OK?
@@ -193,6 +196,7 @@ updateClicks_2 = function(self, res) {
                   //console.log('Users updated. Score = ' + params.score);
                   params.callback();
                   });
+            */
         }
         else
         {

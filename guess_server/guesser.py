@@ -44,7 +44,7 @@ def load_guesser():
     guesser.db = DB()
     return guesser
 
-def get_image_prediction(guesser, image_name, clicks, click_size=21): # TODO: Using a larger click size for debugging
+def get_image_prediction(guesser, image_name, clicks, user_id, true_label, bar_value, click_size=21): # TODO: Using a larger click size for debugging
     # Return prediction index
     # Load image into batch
     image = guesser.image_cache.load_image(image_name)
@@ -64,10 +64,29 @@ def get_image_prediction(guesser, image_name, clicks, click_size=21): # TODO: Us
     # Get class index
     class_index = np.argsort(prob)[::-1]#[:5]
     pps = np.sort(prob)[::-1]#[:5]
+    # Is the true label in the top 5 of class_index?
+    top_5_labels = guesser.db.get_all_names_from_index(class_index[:5].tolist())
+    if true_label in top_5_labels:
+        #Sanitize the score
+        score = (1 - float(bar_value)) * 100 #bar_value is proportion of the timer left
+        if score > 100 or score < 0:
+            print 'User: ' + user_id + ' may be manipulating the scoreboard. Ignoring this trial'
+        else:
+            #Update the user's score on the DB with the current position of the bar
+            guesser.db.update_user_score(score,user_id)
+        response = {
+            'pp' : str(score),
+            'eval' : True
+        }
+    else:
+        response = {
+            'pp' : -1,
+            'eval' : False
+        }
     # Debug print top prediction
     print 'Top 1: ' + str(guesser.class_names[class_index[0]]) + ' @ ' + str(pps[class_index[0]])
     # Resolve class to name
-    prediction_names = [guesser.class_names[ci] + '!' for ci in class_index]
-    pps = [str(p) + '!' for p in pps]
-    return prediction_names + ['@'] + pps
+    # prediction_names = [guesser.class_names[ci] + '!' for ci in class_index]
+    # pps = [str(p) + '!' for p in pps]
+    return response  # prediction_names + ['@'] + pps
 

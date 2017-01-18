@@ -34,6 +34,15 @@ class DB:
             (set_name,))
         return [fn[0] for fn in self.cur.fetchall()]
 
+    def get_all_names_from_index(self, idx):
+       self.cur.execute("""SELECT all_names FROM synsets WHERE index_ilsvrc2012=ANY(%s)""", (idx,))
+       return [fn[0] for fn in self.cur.fetchall()]
+
+    def update_user_score(self,score,cookie):
+       self.cur.execute("""SELECT score FROM users WHERE cookie=%s""", (cookie,))
+       user_score = self.cur.fetchone()
+       adj_score = float(user_score[0]) + score
+       self.cur.execute("""UPDATE users SET score=%s WHERE cookie=%s""", (adj_score,cookie))
 
 if __name__ == '__main__':
     db = DB()

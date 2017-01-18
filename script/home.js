@@ -397,10 +397,12 @@ function update_guess(cnn_guess,cc){
     $('#g5').html('<span style="color:' + colors[4] + '">' + cnn_guess[4] + '</span>');
 }
 
-function package_json(click_array,global_label){
+function package_json(click_array,global_label,user_id,bar_value){
     var json_data = {};
     json_data.image_name = global_label;
     json_data.click_array = click_array;
+    json_data.user_id = user_id;
+    json_data.bar_value = bar_value;
     return JSON.stringify(json_data);
 }
 
@@ -437,10 +439,10 @@ function call_sven(){
     $.ajax({
         url: cnn_server,
         type: 'POST',
-        data: package_json(click_array,global_label),
+        data: package_json(click_array,global_label,user_data.userid,bar.value()),
         //contentType: 'application/json',
         success: function (data) {
-            var guess_pp = data.split('@');
+            /*var guess_pp = data.split('@');
             var pps = str_to_float(guess_pp[1].split('!'));
             var split_guesses = guess_pp[0].split('!'); //delimited with !
             var cc = check_correct(split_guesses,im_text);
@@ -454,6 +456,10 @@ function call_sven(){
                 max_in = 0;
             }else{
                 //update_pps(ppChart,max_in,max_non)
+            }*/
+            console.log(parseFloat(data.pp))
+            if (data.eval === true){
+                correct_recognition(0,parseFloat(data.pp))//(1 - bar.value()) * 100);
             }
         },
         fail: function(){

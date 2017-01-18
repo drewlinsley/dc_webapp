@@ -8,3 +8,5 @@ credentials.pyc
 .idea
 *~
 lmdb_validations
+*.swp
+screenlog.*
