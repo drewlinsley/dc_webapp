@@ -65,6 +65,7 @@ var getUserData = function(req) {
   if (!sess.user_data || sess.user_data.app_version < app_version )//|| (parseFloat(sess.user_data.expiration) - parseFloat(getCurrentDate()) < 0)) //no cookie or bad app version or expired
   {
     sess.user_data = {
+        'score': 0,
         'name': s2utils.generateRandomName(),
         'userid': shortid.generate(),
         'app_version': app_version,
@@ -101,8 +102,8 @@ exports.setupRouter = function (db, router, errorFlag) {
         var id = bound_data[2];
           fs.readFile(image_root_path + '/' + random_image_path, {encoding: 'base64'}, function(err,content){
             if (err){
-              res.writeHead(400, {'Content-type':'text/html'})
-              res.end('err')
+              res.writeHead(400, {'Content-type':'text/html'});
+              res.end('err');
             } else {
               res.writeHead(200,{'Content-type':'image/jpg'});
               res.end(random_image_path + '!' + random_image_label + '!' + random_image_full_label + '!imagestart' + content);
