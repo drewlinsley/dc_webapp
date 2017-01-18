@@ -213,7 +213,7 @@ updateClicks_2 = function(self, res) {
      });
 };
 
-DbManager.prototype.getScoreData = function (callback) {
+DbManager.prototype.getScoreData = function (callback, userid) {
   var self = this;
   self.client.query('SELECT * FROM image_count WHERE _id=1', function(err,res){
     result=res.rows[0];
@@ -224,7 +224,7 @@ DbManager.prototype.getScoreData = function (callback) {
     var clicks_to_go = Math.max(0, click_goal - clicks_in_generation);
     //console.log(JSON.stringify(result));
     // High-score table
-    self.client.query('SELECT name, score, email FROM users ORDER BY score DESC LIMIT 10',function(err,res){
+    self.client.query('((SELECT name, score, email, FALSE as local FROM users ORDER BY score DESC LIMIT 10) UNION (SELECT name, score, email, TRUE as local FROM users WHERE cookie=$1)) ORDER BY score DESC',[userid], function(err,res){
         if (err) {
           self.errorCallback(err, 'Error fetching highscore table');
           return;
@@ -232,11 +232,16 @@ DbManager.prototype.getScoreData = function (callback) {
         high_scores = res.rows;
         //console.log("High scores: " + JSON.stringify(high_scores));
         var high_score = 0;
+        var user_score = 0;
         if (high_scores.length > 0)
          {
             high_score = high_scores[0].score;
+            for (var index = 0; index < high_scores.length; ++index)
+            {
+                if (high_scores[index].local) user_score = high_scores[index].score;
+            }
          }
-        callback({'global_high_score': high_score, 'clicks_to_go': clicks_to_go, 'click_goal': click_goal, 'high_scores': high_scores});
+        callback({'global_high_score': high_score, 'clicks_to_go': clicks_to_go, 'click_goal': click_goal, 'high_scores': high_scores, 'user_score': user_score});
       });
  });
 };

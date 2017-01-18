@@ -65,8 +65,6 @@ var getUserData = function(req) {
   if (!sess.user_data || sess.user_data.app_version < app_version )//|| (parseFloat(sess.user_data.expiration) - parseFloat(getCurrentDate()) < 0)) //no cookie or bad app version or expired
   {
     sess.user_data = {
-        'click_count': 0,
-        'score': 0,
         'name': s2utils.generateRandomName(),
         'userid': shortid.generate(),
         'app_version': app_version,
@@ -122,6 +120,7 @@ exports.setupRouter = function (db, router, errorFlag) {
           // Send it!
           user_data.email = email.email;
           user_data.scores = score_data;
+          user_data.score = score_data.user_score;
           res.json(JSON.stringify(user_data));
         });
       });
