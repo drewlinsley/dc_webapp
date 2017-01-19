@@ -6,14 +6,12 @@
                 label: "Baseline VGG 16",
                 borderColor: "#8c0002",
                 pointBackgroundColor: "#8c0002",
-                backgroundColor: "#8c0002",
                 data: [2, 3]
             },
             {
                 label: "CLICKTIONARY-modulated VGG 16",
-                borderColor: "#478dff",
-                pointBackgroundColor: "#478dff",
-                backgroundColor: "#478dff",
+                borderColor: "#003C63",
+                pointBackgroundColor: "#003C63",
                 data: [0, 1]
             },
         ]

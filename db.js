@@ -123,7 +123,7 @@ locateRandomImage_sample3 = function(self, res)
 
 DbManager.prototype.cnn_accuracies = function (callback) {
   var self = this;
-  self.client.query('SELECT * from cnn', function(err,res){
+  self.client.query('SELECT DISTINCT ON (date) * FROM cnn;', function(err,res){
     if (err) {
       self.errorCallback(err, 'Error looking up cnn accuracies');
       return;
@@ -134,7 +134,7 @@ DbManager.prototype.cnn_accuracies = function (callback) {
     }
     ui = unique_ind(dates);
     var attention = [];
-    for (var i = 0; i < ui.length; i++){
+    for (var i = 0; i < res.rows.length; i++){
       attention.push([res.rows[ui[i]].sixteen_attention_accuracy,res.rows[ui[i]].date]);
     }
     var baseline = [res.rows[0].sixteen_baseline_accuracy,res.rows[0].date];
