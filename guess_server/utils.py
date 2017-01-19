@@ -52,3 +52,26 @@ class ImageCache:
         # Remember cache age
         self.cached_images[filename] = self.access_counter
         return image
+
+class UserImageIDCache:
+    def __init__(self, mem_size):
+        self.mem_size = mem_size
+        self.mem = [None] * mem_size
+        self.mem_pointer = 0
+        self.mem_set = set()
+
+    def push_check_item(self, user_id, image_id):
+        # Return True if item was not in list before. Otherwise add item to list
+        item_str = str(user_id) + str(image_id)
+        if item_str in self.mem_set:
+            return True
+        # Not in set. Add it.
+        # Clear oldest item in set
+        prev_item = self.mem[self.mem_pointer]
+        if prev_item is not None:
+            self.mem_set.remove(prev_item)
+        # Add new item
+        self.mem_set.add(item_str)
+        self.mem[self.mem_pointer] = item_str
+        # Advance memory
+        self.mem_pointer = (self.mem_pointer + 1) % self.mem_size

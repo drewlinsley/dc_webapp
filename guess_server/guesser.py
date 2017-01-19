@@ -7,7 +7,7 @@ import tensorflow as tf
 import numpy as np
 from dc_webapp.data_proc_config import project_settings
 from tf_experiments.model_depo import vgg16
-from utils import ImageCache
+from utils import ImageCache, UserImageIDCache
 from dc_webapp.synset import get_synset
 from dc_webapp.db import DB
 
@@ -42,6 +42,7 @@ def load_guesser():
     guesser.image_cache = ImageCache(config.image_base_path, input_size=(256, 256, 3), crop_size=guesser.batch_shape[1:3])
     guesser.session = init_session()
     guesser.db = DB()
+    guesser.user_image_cache = UserImageIDCache(512)
     return guesser
 
 def get_image_prediction(guesser, image_name, clicks, user_id, true_label, bar_value, click_size=21): # TODO: Using a larger click size for debugging
@@ -67,8 +68,14 @@ def get_image_prediction(guesser, image_name, clicks, user_id, true_label, bar_v
     # Is the true label in the top 5 of class_index?
     top_5_labels = guesser.db.get_all_names_from_index(class_index[:5].tolist())
     if true_label in top_5_labels:
-        #Sanitize the score
-        score = (1 - float(bar_value)) * 100 #bar_value is proportion of the timer left
+        # Make sure people aren't re-guessing the same image
+        is_repeated_guess = guesser.user_image_cache.push_check_item(user_id, image_id=image_name)
+        if is_repeated_guess:
+            print 'Warning: Ignoring repeated guess. No score.'
+            score = 0
+        else:
+            # Sanitize the score
+            score = (1 - float(bar_value)) * 100 #bar_value is proportion of the timer left
         if score > 100 or score < 0:
             print 'User: ' + user_id + ' may be manipulating the scoreboard. Ignoring this trial'
         else:
