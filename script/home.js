@@ -20,6 +20,7 @@ var remove_info_after = 3;
 var mobile = false;
 var previous_place = 100;
 var posx, posy, true_posx, true_posy, global_guess, global_width, global_height, imgLoaded,image;
+var click_send_timer = new TaskTimer(reveal_rate);
 
 //Background
 var colors = new Array(
@@ -435,29 +436,15 @@ function find_target_pp(split_guesses,im_text){
     }
 }
 
-function call_sven(){
+function call_sven(call_for_turn){
     $.ajax({
         url: cnn_server,
         type: 'POST',
         data: package_json(click_array,global_label,user_data.userid,bar.value()),
         //contentType: 'application/json',
         success: function (data) {
-            /*var guess_pp = data.split('@');
-            var pps = str_to_float(guess_pp[1].split('!'));
-            var split_guesses = guess_pp[0].split('!'); //delimited with !
-            var cc = check_correct(split_guesses,im_text);
-            max_in = pps[find_target_pp(split_guesses,im_text)] * 100;
-            var max_non = Math.max.apply(null,pps.splice(5,pps.length)) * 100;
-            if (isNaN(max_in)) {max_in = 0;}
-            if (cc[1] === true){
-                //update_pps(ppChart,max_in,max_non);
-                //correct_recognition(0,max_in);
-                correct_recognition(0,(1 - bar.value()) * 100);
-                max_in = 0;
-            }else{
-                //update_pps(ppChart,max_in,max_non)
-            }*/
-            //console.log(parseFloat(data.pp))
+            // Did we have a timeout during the request?
+            if (call_for_turn != num_turns) { return; }
             if (data.eval === true){
                 correct_recognition(0,parseFloat(data.pp))//(1 - bar.value()) * 100);
             }
@@ -499,22 +486,25 @@ function draw_scored_box(color_score){
     ctx.closePath();
 }
 
-function keep_clicking(){
-    setTimeout(function(){
+click_send_timer.addTask({
+    name:"keep_clicking",
+    tickInterval: 1,
+    totalRuns: 0,
+    callback: function(task) {
         if (playing_image === false){
             return;
         }
         calculate_new_click();
-        keep_clicking();
         if (click_array.length % clicks_till_update === 0){
-            call_sven();
+            call_sven(num_turns);
         }
-    },reveal_rate)
-}
+    }
+});
 
 function round_reset(correct){
     //window.removeEventListener('mousedown', clicked, false);
     playing_image = false;
+    click_send_timer.stop();
     upload_click_location(click_array,correct);
     num_turns++;
     click_array = [];
@@ -588,7 +578,7 @@ function clicked(e) {
             }            
             click_functions(posx,posy);
             playing_image = true;
-            keep_clicking();
+            click_send_timer.start();
             bar.animate(1.0,{duration:time_limit},function(){time_elapsed();});
         }
     }
