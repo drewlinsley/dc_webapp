@@ -31,6 +31,8 @@ const util = require('util');
 
 var guess_server = 'http://localhost:7777/guess';
 
+app.set('etag', false);
+
 app.use('/node_modules',  express.static(__dirname + '/node_modules'));
 app.use('/style',  express.static(__dirname + '/style'));
 app.use('/script',  express.static(__dirname + '/script'));
