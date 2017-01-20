@@ -642,7 +642,7 @@ function update_user_data(){
    	$.get('/user_data', function () { }).done(function(json_data) {
    	    user_data = JSON.parse(json_data);
    	    // Update display
-   	    if(localStorage.getItem('consent') != 'shown'){
+   	    if((localStorage.getItem('consent') != 'shown') && (user_data.score == 0)){
             $("#consentModal").modal('show');
             $("#consentModal").on('hidden.bs.modal',function(){
                 localStorage.setItem('consent','shown');
