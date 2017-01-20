@@ -172,7 +172,7 @@ updateClicks_2 = function(self, res) {
 
 
     // Keep track of count
-    self.client.query('UPDATE image_count SET clicks_in_generation = clicks_in_generation + 1',function(err,res){ });
+    self.client.query('UPDATE image_count SET clicks_in_generation = (SELECT COUNT(iteration) FROM generation_images WHERE generation=current_generation AND iteration>0)',function(err,res){ });
 
     // Update users for highscores
     self.client.query('SELECT * FROM users WHERE cookie=$1', [params.userid], function (err, res) {
