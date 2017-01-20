@@ -43,6 +43,7 @@ def load_guesser():
     guesser.session = init_session()
     guesser.db = DB()
     guesser.user_image_cache = UserImageIDCache(512)
+    guesser.config = config
     return guesser
 
 def get_image_prediction(guesser, image_name, clicks, user_id, true_label, bar_value, click_size=21): # TODO: Using a larger click size for debugging
@@ -63,11 +64,11 @@ def get_image_prediction(guesser, image_name, clicks, user_id, true_label, bar_v
     # Get probabilities
     prob = guesser.session.run(guesser.prob, feed_dict=guesser.feed_dict)[0].squeeze()
     # Get class index
-    class_index = np.argsort(prob)[::-1]#[:5]
-    pps = np.sort(prob)[::-1]#[:5]
-    # Is the true label in the top 5 of class_index?
-    top_5_labels = guesser.db.get_all_names_from_index(class_index[:5].tolist())
-    if true_label in top_5_labels:
+    class_index = np.argsort(prob)[::-1]
+    pps = np.sort(prob)[::-1]
+    # Is the true label in the top n of class_index?
+    top_k_labels = guesser.db.get_all_names_from_index(class_index[:guesser.config.max_valid_top_index].tolist())
+    if true_label in top_k_labels:
         # Make sure people aren't re-guessing the same image
         is_repeated_guess = guesser.user_image_cache.push_check_item(user_id, image_id=image_name)
         if is_repeated_guess:

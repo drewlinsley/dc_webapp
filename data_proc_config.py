@@ -90,7 +90,10 @@ def project_settings():
     'part_syn_file_path' : tf_path + 'data/ilsvrc_2012/synset_names.txt',
     'full_syn_file_path' : tf_path + 'data/ilsvrc_2012/synset.txt',
     'cnn_models' : ['vgg16'],#['vgg16','vgg19'],
-    'cnn_types' : ['baseline','attention']
+    'cnn_types' : ['baseline','attention'],
+
+    # Guesser parameters
+    'max_valid_top_index': 10
     }
     d = Map(d)
 
