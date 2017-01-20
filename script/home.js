@@ -642,9 +642,10 @@ function update_user_data(){
    	$.get('/user_data', function () { }).done(function(json_data) {
    	    user_data = JSON.parse(json_data);
    	    // Update display
-        if (user_data.click_count == 0 && num_turns == 0){
+   	    if(localStorage.getItem('consent') != 'shown'){
             $("#consentModal").modal('show');
             $("#consentModal").on('hidden.bs.modal',function(){
+                localStorage.setItem('consent','shown');
                 $("#instructionModal").modal('show');
                 if (mobile){
                     $("#instructionModal").on('hidden.bs.modal',function(){prepare_mobile()});
@@ -722,16 +723,6 @@ function validateEmail(email) {
     var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     return re.test(email);
 }
-
-/*
-function email_check(text){
-    //if (text.indexOf('@') !== -1){
-    if (validateEmail(text)){
-        $('#agree').disable(false);
-        $('#agree').click(function(){upload_email();$("#consentModal").modal('hide');});
-        $('#update_email_modal').disable(false);
-    }
-}*/
 
 jQuery.fn.extend({
     disable: function(state) {
@@ -869,7 +860,8 @@ $(document).ready(function(){
     start_turn();
     // Modals
     $('#scoreboard-modal').click(function(){$("#scoreModal").modal('show');});
-    $('#instruction-modal').click(function(){$("#update_email_text_modal").attr('placeholder',check_email());$('#instructionModal').modal('show');});
+    $('#scoreboard-modal').click(function(){$("#update_email_text_modal").attr('placeholder',check_email());});
+    $('#instruction-modal').click(function(){$('#instructionModal').modal('show');});
     // Tooltips
     $('#email').on('input', function(){email_check($('#email').val())});
     if (mobile === false){

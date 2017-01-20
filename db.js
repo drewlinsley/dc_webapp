@@ -182,20 +182,7 @@ updateClicks_2 = function(self, res) {
       }
         if (res.rows.length > 0)
         {
-
-            // Handing this over to the click server. Ignoring the following:
-            /*
-            // Update entry
-            self.client.query('UPDATE users SET score=$1, name=$2 WHERE cookie=$3', [params.score, params.username, params.userid], function (err, res) {
-                // Update OK?
-                  if (err) {
-                    self.errorCallback(err, 'User update error');
-                    return;
-                  }
-                  //console.log('Users updated. Score = ' + params.score);
-                  params.callback();
-                  });
-            */
+            params.callback();
         }
         else
         {
@@ -274,6 +261,7 @@ DbManager.prototype.addEmail = function (email,username,userid, callback) {
             self.errorCallback(err, 'User update error');
             return;
         }
+        callback();
     });
   }else{
      self.client.query('UPDATE users SET email=$1 WHERE cookie=$2', [email, userid], function (err, res) {
@@ -282,6 +270,7 @@ DbManager.prototype.addEmail = function (email,username,userid, callback) {
             self.errorCallback(err, 'User update error');
             return;
         }
+        callback();
     });
   }
   });
