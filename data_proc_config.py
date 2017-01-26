@@ -91,6 +91,7 @@ def project_settings():
     'model_checkpoints' : 'model_checkpoints/',
     'image_category' : 'animal',  # animal, non_animal, all
     'train_new_model' : True,
+    'finetune' : True,  # initialize with mlnet weights
 
     #Paths for testing CNNs with attention maps
     'transfer_images_to_g15' : False,  # if true, the results of model training will be sent to g15

@@ -10,10 +10,22 @@ import numpy as np
 from data_proc_config import project_settings
 from scipy import misc
 from get_clickmaps import return_image_data
-from find_frequent_categories import customize_groups
 from matplotlib import pyplot as plt
 from matplotlib.colors import ListedColormap
+from im_lists import dogs, birds, cars, plants, boats, animals, non_animals
 
+basic_groups = {
+    'dog' : dogs,
+    'bird' : birds,
+    'car' : cars,
+    'boat' : boats,
+    'plant' : plants,
+    'animal' : animals,
+    'non_animal' : non_animals
+}
+
+def customize_groups(image_category):
+    return dict((k, v) for k, v in basic_groups.iteritems() if k == image_category)
 
 def create_clickmaps(obj, im_name, num_clicks, im_size, training_map_path,\
     base_image_path, overlay_path, click_box_radius, cm, overlays,\
@@ -77,15 +89,19 @@ def create_alpha_cmap(alpha=0.5):
     return ListedColormap(my_cmap)
 
 
-def main(generations, overlays, image_category=None, gpu=None):
+def main(generations, overlays, image_category, gpu, train_new_model):
     # Get paths and settings
     p = project_settings()
     assert p.batch_size > 0
     if image_category is None:
         image_category = p.image_category  # override the settings
 
+    if train_new_model is not None:
+        p.train_new_model = train_new_model
+
     timestamp = time.localtime()
-    model_name = '_'.join(p.image_category) if type(p.image_category) is list else p.image_category
+    model_name = '_'.join(image_category) if type(image_category) is list else image_category
+
     p.dt_string = model_name + '_' + str(timestamp.tm_mon) + '_' + str(timestamp.tm_mday) + '_' + str(timestamp.tm_hour) + '_' + str(timestamp.tm_min)
     cm = create_alpha_cmap()
 
@@ -126,10 +142,10 @@ def main(generations, overlays, image_category=None, gpu=None):
     syn_names = [x[1] for x in info_to_use]  # this is synced with map_names
 
     # Figure out which images we need to look at
-    if p.image_category == 'all':
+    if image_category == 'all':
         selected_maps = trimmed_map_names
     else:
-        customized_groups = customize_groups(p.image_category)
+        customized_groups = customize_groups(image_category)
         list_groups = [customized_groups[k] for k in customized_groups.iterkeys()]
         flat_groups = [item for sublist in list_groups for item in sublist]
         selected_maps = [trimmed_map_names[idx] for idx, s in enumerate(syn_names) if s in flat_groups]
@@ -143,13 +159,13 @@ def main(generations, overlays, image_category=None, gpu=None):
     out_c = int(math.ceil(p.model_input_shape_c / 8))
     import fine_tuning
     if p.train_new_model:
-        print 'Training model on %s images + realization maps' % len(training_images)
+        print 'Training model on %s images + realization maps in %s' % (len(training_images), image_category)
         checkpoint_path = fine_tuning.finetune_model(p, out_r, out_c,
             training_images, training_maps)
     else:
         # Using the most recent model with the use_previous model type
         most_recent_folder = max(glob.iglob(os.path.join(p.model_path,
-            p.model_checkpoints, p.image_category + '*')), key=os.path.getctime)
+            p.model_checkpoints, image_category + '*')), key=os.path.getctime)
         checkpoint_path = max(glob.iglob(os.path.join(most_recent_folder, '*.h5')), key=os.path.getctime)
         print 'Reusing model found in ' + checkpoint_path
     assert len(training_images) > 0
@@ -157,9 +173,10 @@ def main(generations, overlays, image_category=None, gpu=None):
     # Produce predictions and compare them to heatmaps on the clicktionary images
     test_images_paths = [os.path.join(p.image_base_path, x) for x in test_images]
     attention_predictions = fine_tuning.produce_maps(p, checkpoint_path, test_images_paths)
-    [plot_overlays(test_images_paths[x], p.prediction_overlay_path, 1,
-            misc.imread(test_images_paths[x]), misc.imread(attention_predictions[x]), cm,
-            convert_to_uint8=True) for x in range(len(attention_predictions))]
+    print 'Producing overlays for predictions'
+    #[plot_overlays(test_images[x], p.prediction_overlay_path, 1,
+    #        misc.imread(test_images_paths[x]), misc.imread(attention_predictions[x]), cm,
+    #        convert_to_uint8=True) for x in range(len(attention_predictions))]
 
     if p.transfer_images_to_g15:
         [subprocess.Popen(["scp", x,
@@ -177,5 +194,6 @@ if __name__ == '__main__':
         default=False, help='Produce overlays. Defaults to false.')
     parser.add_argument('--gpu', dest='gpu', default=False, help='GPU to use.')
     parser.add_argument('--ic', dest='image_category', type=str, default=None, help='Override the image category in the settings')
+    parser.add_argument('--tr', dest='train_new_model', default=None, help='Override the model training/testing settings')
     args = parser.parse_args()
     main(**vars(args))
