@@ -56,6 +56,10 @@ def get_image_info(cur,image_id):
     cur.execute("select (image_path,syn_id,set_name) from images where _id=ANY(%s)", (image_id,))
     return [x['row'].replace('(','').replace(')','').split(',') for x in cur.fetchall()]
 
+def get_image_paths(cur,set_name):
+    cur.execute("SELECT image_path FROM images WHERE set_name=%s", (set_name,))
+    return [x['image_path'] for x in cur.fetchall()]
+
 def filter_info(info,filters):
     idx = []
     for i,r in enumerate(info):
@@ -93,7 +97,7 @@ def consolidate(clicks):
         num_clicks.append(len(it_clicks))
     return consolidated_clicks,num_clicks,unique_image_ids
 
-def return_image_data(generations=None):
+def return_image_data(generations=None,test_set_name='ilsvrc2012val'):
     try:
         #Get data 
         forward, pgsql_port, pgsql_string = start_forward()
@@ -102,10 +106,12 @@ def return_image_data(generations=None):
         clicks = np.asarray(get_click_coors(cur,generations=generations))
         consolidated_clicks,num_clicks,unique_image_ids=consolidate(clicks)
         image_info = get_image_info(cur,unique_image_ids.tolist()) #hope this is sorted according to clicks
+        total_image_info = [get_image_info(cur, [x['image_id']]) for x in clicks]
         image_types = np.unique(np.asarray([x[-1] for x in image_info]))
+        test_images = get_image_paths(cur,test_set_name)
     finally:
         forward.close()
-    return curr_gen,consolidated_clicks,image_info,unique_image_ids,image_types,num_clicks
+    return curr_gen,consolidated_clicks,image_info,unique_image_ids,image_types,test_images,num_clicks,clicks,total_image_info
 
 if __name__ == '__main__':
     return_image_data(generations=None)

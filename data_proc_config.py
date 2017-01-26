@@ -63,6 +63,7 @@ def project_settings():
     'training_map_path' : 'database_click_images/',
     'click_overlay_path' : 'click_images_overlay/',
     'click_map_predictions' : 'model_click_predictions/',
+    'click_map_overlays' : 'model_click_overlays/',
     'validation_image_path' : imagenet_validation_path,#'validation_images/', #Originally we just used these files
     'training_image_path' : 'images/',
     'im_ext' : '.JPEG',
@@ -70,22 +71,29 @@ def project_settings():
     'mirc_image_path' : mirc_image_path,
     'nsf_image_path' : nsf_image_path,
     'image_base_path' : image_base_path,
+    'image_categories_for_overlay' : ['mircs', 'nsf'],
 
     # Epoch training
+    'gpu' : 2,
     'click_box_radius' : 9,
-    'iterations_per_generation' : 4, # Number of annotations per images until we re-train
-    'train_iters' : 10000, #not implemented yet
-    'val_iters' : 100, #not implemented yet
-    'nb_epoch' : 0,
+    'iterations_per_generation' : 4,  # Number of annotations per images until we re-train
+    'batch_size' : 16,
+    'nb_epoch' : 10,  # set to 0 to use most recently trained model
+    'augmentations' : ['lr_flip'],
     'image_size' : [256,256],
+    'model_input_shape_r' : 320,
+    'model_input_shape_c' : 320,
+    'clickmap_style' : 'aggregate',  # aggregate (sum the click maps) or single (train on each click maps seperately)
 
     #For finetuning the click predictor
     'model_path' : model_path,
     'model_init_training_weights' : model_path + 'models',
     'model_checkpoints' : 'model_checkpoints/',
-    'clicktionary_paper_images': os.path.join(image_base_path,'lmdb_validations'),  # clicktionary_paper_images
+    'image_category' : 'animal',  # animal, non_animal, all
+    'train_new_model' : True,
 
     #Paths for testing CNNs with attention maps
+    'transfer_images_to_g15' : False,  # if true, the results of model training will be sent to g15
     'tf_path' : tf_path,
     'cnn_path' : tf_path + 'experiments/MIRC_webapp/',
     'cnn_model_path' : tf_path + 'pretrained_weights/',
