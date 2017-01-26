@@ -1,4 +1,18 @@
 from get_clickmaps import return_image_data
+from im_lists import dogs, birds, cars, plants, boats, animals, non_animals
+
+basic_groups = {
+    'dog' : dogs,
+    'bird' : birds,
+    'car' : cars,
+    'boat' : boats,
+    'plant' : plants,
+    'animal' : animals,
+    'non_animal' : non_animals
+}
+
+def customize_groups(image_category):
+    return dict((k, v) for k, v in basic_groups.iteritems() if k == image_category)
 
 def bin_clicks(basic_groups, syn_names):
     kept_groups = dict((k, []) for k in basic_groups.iterkeys())

@@ -24,8 +24,10 @@ basic_groups = {
     'non_animal' : non_animals
 }
 
+
 def customize_groups(image_category):
     return dict((k, v) for k, v in basic_groups.iteritems() if k == image_category)
+
 
 def create_clickmaps(obj, im_name, num_clicks, im_size, training_map_path,\
     base_image_path, overlay_path, click_box_radius, cm, overlays,\
@@ -46,32 +48,36 @@ def create_clickmaps(obj, im_name, num_clicks, im_size, training_map_path,\
     split_im_name = re.split('/',im_name)
     proc_im_name = split_im_name[-1]
     proc_im_type = split_im_name[0]
-    misc.imsave(training_map_path + proc_im_name, canvas)  # Save the clickmap as an image; alternatively insert tfrecords/lmdb creation here
+    misc.imsave(os.path.join(training_map_path, proc_im_name), canvas)  # Save the clickmap as an image; alternatively insert tfrecords/lmdb creation here
     if overlays:
         # Also produce an overlay if we have multiple clicks
         if proc_im_type in overlays:
-            im = misc.imread(os.path.join(base_image_path, im_name))
-            plot_overlays(proc_im_name, overlay_path, num_clicks,
-                im, canvas, cm, convert_to_uint8=convert_to_uint8)
+            plot_overlay(os.path.join(base_image_path, im_name),
+                (canvas).astype('float'), cm, overlay_path, num_clicks=num_clicks,
+                convert_to_uint8=convert_to_uint8)
     return im_name
 
 
-def plot_overlays(proc_im_name, overlay_path, num_clicks, test_image, canvas, cm, convert_to_uint8=False):
+def plot_overlay(test_image_path, canvas, cm, prediction_overlay_path,\
+    num_clicks=None, convert_to_uint8=False):
     try:
         fig, ax = plt.subplots(nrows=1, ncols=1)
-        plt.imshow(test_image, cmap=plt.cm.gray)
-        if convert_to_uint8:
-            canvas = (canvas).astype('float')
-            canvas /= np.max(canvas)
+        plt.imshow(misc.imread(test_image_path, flatten=True), cmap=plt.cm.gray)
+        if type(canvas) is str:
+            canvas = (misc.imread(canvas)).astype('float')
+        canvas /= np.max(canvas)
         axis = plt.imshow(canvas, cmap=cm, vmin=0, vmax=1)
         fig.colorbar(axis)
         ax.get_xaxis().set_ticks([])
         ax.get_yaxis().set_ticks([])
-        if num_clicks == 1:
-            plt.title(proc_im_name + '; %s participant' % int(num_clicks))
+        im_name = re.split('/',test_image_path)[-1]
+        if num_clicks is not None:
+            plt.title(im_name + ' | ' + str(num_clicks))
         else:
-            plt.title(proc_im_name + '; %s participants' % int(num_clicks))
-        plt.savefig(os.path.join(overlay_path,proc_im_name))
+            plt.title(im_name)
+        out_path = os.path.join(prediction_overlay_path,re.split('/',im_name)[-1])
+        print 'Saving to: %s' % out_path
+        plt.savefig(out_path)
     finally:
         plt.close('all')
 
@@ -96,8 +102,11 @@ def main(generations, overlays, image_category, gpu, train_new_model):
     if image_category is None:
         image_category = p.image_category  # override the settings
 
-    if train_new_model is not None:
-        p.train_new_model = train_new_model
+    if train_new_model is None:
+        train_new_model = p.train_new_model
+    else:
+        train_new_model = train_new_model == 'True'
+        print 'Overriding training default. Setting train to: %s' %  train_new_model
 
     timestamp = time.localtime()
     model_name = '_'.join(image_category) if type(image_category) is list else image_category
@@ -113,8 +122,9 @@ def main(generations, overlays, image_category, gpu, train_new_model):
     # Create the output directories if they don't exist
     p.training_map_path = os.path.join(p.training_map_path, p.dt_string)
     p.click_overlay_path = os.path.join(p.click_overlay_path, p.dt_string)
-    p.prediction_output_path = os.path.join(p.model_path, p.click_map_predictions)
+    p.prediction_output_path = os.path.join(p.model_path, p.click_map_predictions, p.dt_string)
     p.prediction_overlay_path = os.path.join(p.model_path, p.click_map_overlays, p.dt_string)
+
     create_directories([p.training_map_path, p.click_overlay_path, 
         p.prediction_output_path, p.prediction_overlay_path])
 
@@ -153,12 +163,12 @@ def main(generations, overlays, image_category, gpu, train_new_model):
     # Gather up the images
     training_images = [os.path.join(p.image_base_path, x) for x in selected_maps]
     training_maps = [os.path.join(os.path.dirname(os.path.abspath(__file__)),
-        p.training_map_path + re.split('/', x)[-1]) for x in selected_maps]
+        p.training_map_path, re.split('/', x)[-1]) for x in selected_maps]
     p.model_input_shape_r, p.model_input_shape_c
     out_r = int(math.ceil(p.model_input_shape_r / 8))
     out_c = int(math.ceil(p.model_input_shape_c / 8))
     import fine_tuning
-    if p.train_new_model:
+    if train_new_model:
         print 'Training model on %s images + realization maps in %s' % (len(training_images), image_category)
         checkpoint_path = fine_tuning.finetune_model(p, out_r, out_c,
             training_images, training_maps)
@@ -173,10 +183,11 @@ def main(generations, overlays, image_category, gpu, train_new_model):
     # Produce predictions and compare them to heatmaps on the clicktionary images
     test_images_paths = [os.path.join(p.image_base_path, x) for x in test_images]
     attention_predictions = fine_tuning.produce_maps(p, checkpoint_path, test_images_paths)
+
     print 'Producing overlays for predictions'
-    #[plot_overlays(test_images[x], p.prediction_overlay_path, 1,
-    #        misc.imread(test_images_paths[x]), misc.imread(attention_predictions[x]), cm,
-    #        convert_to_uint8=True) for x in range(len(attention_predictions))]
+    [plot_overlay(test_images_paths[x], attention_predictions[x], cm,
+        p.prediction_overlay_path, convert_to_uint8=True)
+        for x in range(len(attention_predictions))]
 
     if p.transfer_images_to_g15:
         [subprocess.Popen(["scp", x,
