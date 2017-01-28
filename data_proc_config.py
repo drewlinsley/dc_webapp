@@ -87,6 +87,7 @@ def project_settings():
     'model_path' : model_path,
     'model_init_training_weights' : model_path + 'models',
     'model_checkpoints' : 'model_checkpoints/',
+    'plot_imagenet_validations' : False,
     'image_category' : 'animal',  # animal, non_animal, all
     'gpu' : 2,    
     'train_new_model' : True,

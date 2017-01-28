@@ -216,15 +216,20 @@ def main(generations, overlays, image_category, gpu, train_new_model):
         most_recent_folder = max(glob.iglob(os.path.join(p.model_path,
             p.model_checkpoints, image_category + '*')), key=os.path.getctime)
         checkpoint_path = max(glob.iglob(os.path.join(most_recent_folder, '*.h5')), key=os.path.getctime)
+        if p.plot_imagenet_validations:
+            val_h5_ims = [os.path.join(p.image_base_path, x) for x in test_images]
+        else:
+            val_h5_ims = glob.glob(os.path.join(p.image_base_path, p.validation_image_path, '*' + p.im_ext))
         print 'Reusing model found in ' + checkpoint_path
     assert len(training_images) > 0
 
     # Produce predictions and compare them to heatmaps on the clicktionary images
-    test_images_paths = [os.path.join(p.image_base_path, x) for x in test_images]
-    attention_predictions = fine_tuning.produce_maps(p, checkpoint_path, test_images_paths)
+    if p.plot_imagenet_validations:
+        val_h5_ims = [os.path.join(p.image_base_path, x) for x in test_images]
+    attention_predictions = fine_tuning.produce_maps(p, checkpoint_path, val_h5_ims)
 
     print 'Producing overlays for predictions'
-    [plot_overlay(test_images_paths[x], attention_predictions[x], cm,
+    [plot_overlay(val_h5_ims[x], attention_predictions[x], cm,
         p.prediction_overlay_path, convert_to_uint8=True)
         for x in range(len(attention_predictions))]
 
