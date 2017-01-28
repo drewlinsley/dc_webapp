@@ -72,17 +72,15 @@ def project_settings():
     'nsf_image_path' : nsf_image_path,
     'image_base_path' : image_base_path,
     'image_categories_for_overlay' : ['mircs', 'nsf'],
+    'validation_image_path' : 'clicktionary_paper_images/',
+    'validation_map_path' : 'clicktionary_paper_maps',
 
-    # Epoch training
-    'gpu' : 2,
+    # Clickmap image settings
     'click_box_radius' : 9,
     'iterations_per_generation' : 4,  # Number of annotations per images until we re-train
-    'batch_size' : 16,
-    'nb_epoch' : 10,  # set to 0 to use most recently trained model
-    'augmentations' : ['lr_flip'],
     'image_size' : [256,256],
-    'model_input_shape_r' : 320,
-    'model_input_shape_c' : 320,
+    'model_input_shape_r' : 400,
+    'model_input_shape_c' : 400,
     'clickmap_style' : 'aggregate',  # aggregate (sum the click maps) or single (train on each click maps seperately)
 
     #For finetuning the click predictor
@@ -90,8 +88,13 @@ def project_settings():
     'model_init_training_weights' : model_path + 'models',
     'model_checkpoints' : 'model_checkpoints/',
     'image_category' : 'animal',  # animal, non_animal, all
+    'gpu' : 2,    
     'train_new_model' : True,
-    'finetune' : True,  # initialize with mlnet weights
+    'finetune' : False,  # initialize with mlnet weights
+    'batch_size' : 16,
+    'nb_epoch' : 30,  # set to 0 to use most recently trained model
+    'augmentations' : ['lr_flip'],
+    'optimizer' : 'adam',  # 'adam',
 
     #Paths for testing CNNs with attention maps
     'transfer_images_to_g15' : False,  # if true, the results of model training will be sent to g15

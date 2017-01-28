@@ -4,7 +4,6 @@ import psycopg2.extras
 import psycopg2.extensions
 import numpy as np
 from credentials import postgresql_connection, g15_credentials
-from copy import deepcopy
 
 sshtunnel.DAEMON = True # Prevent hanging process due to forward thread
 

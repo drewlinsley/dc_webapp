@@ -27,15 +27,18 @@ basic_groups = {
 }
 
 
-def create_dataset(X,y,file_path):
-    f = h5py.File(file_path + '.h5', 'w')
-    # Creating dataset to store features
-    X_dset = f.create_dataset('images', X.shape, dtype='f')
-    X_dset[:] = X
-    # Creating dataset to store labels
-    y_dset = f.create_dataset('maps', y.shape, dtype='f')
-    y_dset[:] = y
-    f.close()
+def binarize_and_store_data(name, X, h5f):
+    dt = h5py.special_dtype(vlen=np.dtype('uint8'))
+    X_dset = h5f.create_dataset(name, (len(X), ), dtype=dt)
+    for idx, f in enumerate(X):
+        X_dset[idx] = np.fromstring(open(f, 'rb').read(), dtype='uint8')
+
+
+def create_dataset(labels, data, h5_path):
+    h5f = h5py.File(h5_path, 'w')
+    for l, d in zip(labels, data):
+        binarize_and_store_data(l, d, h5f)
+    h5f.close()
 
 
 def customize_groups(image_category):
@@ -55,20 +58,21 @@ def create_clickmaps(obj, im_name, num_clicks, im_size, training_map_path,\
             xs[idx] - click_box_radius : xs[idx] + click_box_radius] + 1  # accumulate signal at this spot           
     if np.sum(np.abs(canvas)) == 0:
         return None 
-    canvas /= np.max(canvas)
-    if convert_to_uint8:
-        canvas = (canvas * 255).astype('uint8')
-    split_im_name = re.split('/',im_name)
-    proc_im_name = split_im_name[-1]
-    proc_im_type = split_im_name[0]
-    misc.imsave(os.path.join(training_map_path, proc_im_name), canvas)  # Save the clickmap as an image; alternatively insert tfrecords/lmdb creation here
-    if overlays:
-        # Also produce an overlay if we have multiple clicks
-        if proc_im_type in overlays:
-            plot_overlay(os.path.join(base_image_path, im_name),
-                (canvas).astype('float'), cm, overlay_path, num_clicks=num_clicks,
-                convert_to_uint8=convert_to_uint8)
-    return im_name
+    else:
+        canvas /= np.max(canvas)
+        if convert_to_uint8:
+            canvas = (canvas * 255).astype('uint8')
+        split_im_name = re.split('/',im_name)
+        proc_im_name = split_im_name[-1]
+        proc_im_type = split_im_name[0]
+        misc.imsave(os.path.join(training_map_path, proc_im_name), canvas)  # Save the clickmap as an image; alternatively insert tfrecords/lmdb creation here
+        if overlays:
+            # Also produce an overlay if we have multiple clicks
+            if proc_im_type in overlays:
+                plot_overlay(os.path.join(base_image_path, im_name),
+                    (canvas).astype('float'), cm, overlay_path, num_clicks=num_clicks,
+                    convert_to_uint8=convert_to_uint8)
+        return im_name
 
 
 def plot_overlay(test_image_path, canvas, cm, prediction_overlay_path,\
@@ -145,7 +149,7 @@ def main(generations, overlays, image_category, gpu, train_new_model):
     sys.path.append(p.model_path)
     _, consolidated_clicks, consolidated_image_info, _, _, test_images, _, clicks, total_image_info = \
         return_image_data(generations=generations)
-    test_images = test_images[:200]  # hardcoded just to reduce our time in prediction
+    test_images = test_images  # [:200]  # hardcoded just to reduce our time in prediction
     overlay_names = p.image_categories_for_overlay if overlays else False  # Only look at mircs and nsf images
 
     # Create clickmaps
@@ -183,8 +187,30 @@ def main(generations, overlays, image_category, gpu, train_new_model):
     import fine_tuning
     if train_new_model:
         print 'Training model on %s images + realization maps in %s' % (len(training_images), image_category)
+        # Create the h5 data files
+        train_h5_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+        p.training_map_path,'train_data.h5')
+        train_h5_data = [training_images, training_maps]
+        train_h5_labels = ['images','maps']
+        val_h5_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+        p.training_map_path,'val_data.h5')
+        val_h5_ims = glob.glob(os.path.join(p.image_base_path, p.validation_image_path, '*' + p.im_ext))
+        val_h5_maps = [os.path.join(p.image_base_path, p.validation_map_path, re.split('/', x)[-1]) for x in val_h5_ims]  # Sync the validation maps and images
+        val_h5_data = [val_h5_ims, val_h5_maps]
+        val_h5_labels = ['images','maps']
+        create_dataset(train_h5_labels, train_h5_data, train_h5_path)  # make our data for training
+        create_dataset(val_h5_labels, val_h5_data, val_h5_path)  # also make a validation set
+
+        val_dict = {
+            'images' : val_h5_ims,
+            'maps' :  val_h5_maps,
+            'h5_path' : val_h5_path
+        }
+
+        # Finetune the model
         checkpoint_path = fine_tuning.finetune_model(p, out_r, out_c,
-            training_images, training_maps)
+            training_images, training_maps,
+            val_data=val_dict, train_h5_path=train_h5_path)
     else:
         # Using the most recent model with the use_previous model type
         most_recent_folder = max(glob.iglob(os.path.join(p.model_path,
@@ -217,7 +243,7 @@ if __name__ == '__main__':
     parser.add_argument('--overlays', dest='overlays',
         default=False, help='Produce overlays. Defaults to false.')
     parser.add_argument('--gpu', dest='gpu', default=False, help='GPU to use.')
-    parser.add_argument('--ic', dest='image_category', type=str, default=None, help='Override the image category in the settings')
-    parser.add_argument('--tr', dest='train_new_model', default=None, help='Override the model training/testing settings')
+    parser.add_argument('--ic', dest='image_category', type=str, default=None, help='Override the image category in the settings.')
+    parser.add_argument('--tr', dest='train_new_model', default=None, help='Override the model training/testing settings to turn off (False) or on (True) training.')
     args = parser.parse_args()
     main(**vars(args))

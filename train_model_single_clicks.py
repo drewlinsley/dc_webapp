@@ -132,7 +132,7 @@ def main(generations, overlays, image_category, gpu, train_new_model):
     sys.path.append(p.model_path)
     _, consolidated_clicks, consolidated_image_info, _, _, test_images, _, clicks, total_image_info = \
         return_image_data(generations=generations)
-    test_images = test_images[:200]  # hardcoded just to reduce our time in prediction
+    test_images = test_images  # [:200]  # hardcoded just to reduce our time in prediction
     overlay_names = p.image_categories_for_overlay if overlays else False  # Only look at mircs and nsf images
 
     # Create clickmaps
