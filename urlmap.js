@@ -117,7 +117,7 @@ exports.setupRouter = function (db, router, errorFlag) {
       user_data = s2utils.clone(getUserData(req));
       db.getEmail(user_data.userid,function(email){
         // Add latest highscore data
-        db.getScoreData(user_data.userid, function(score_data){
+        db.getScoreData(user_data.userid, false, function(score_data){
           // Send it!
           user_data.email = email.email;
           user_data.scores = score_data;
@@ -168,7 +168,7 @@ exports.setupRouter = function (db, router, errorFlag) {
     });
 
     var game_over_function = function(callback){ //0 0 1 * *
-        db.getScoreData("", function(score_data){
+        db.getScoreData('', true, function(score_data){
             email_list = score_data.high_scores; //Grab emails from the top 5 scores
             var pyargs = {
                 args: ['--recipient','drewlinsley@gmail.com','--text',JSON.stringify(email_list)]

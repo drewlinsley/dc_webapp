@@ -200,7 +200,7 @@ updateClicks_2 = function(self, res) {
      });
 };
 
-DbManager.prototype.getScoreData = function (user_id, callback) {
+DbManager.prototype.getScoreData = function (user_id, get_all_emails, callback) {
   var self = this;
   self.client.query('SELECT * FROM image_count WHERE _id=1', function(err,res){
     result=res.rows[0];
@@ -225,7 +225,10 @@ DbManager.prototype.getScoreData = function (user_id, callback) {
             high_score = high_scores[0].score;
             for (var index = 0; index < high_scores.length; ++index)
             {
-                if (high_scores[index].local) user_score = high_scores[index].score; else high_scores[index].email = '';
+                if (!get_all_emails)
+                {
+                    if (high_scores[index].local) user_score = high_scores[index].score; else high_scores[index].email = '';
+                }
             }
          }
         callback({'global_high_score': high_score, 'clicks_to_go': clicks_to_go, 'click_goal': click_goal, 'high_scores': high_scores, 'user_score': user_score});
