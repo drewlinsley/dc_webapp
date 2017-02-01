@@ -45,6 +45,8 @@ Setting up the webapp
 	node main.js
 	(and open a browser on http://localhost:8090)
 
+#7. Make sure /home/clickme/db_dump/ exists and is writable by the webserver user (TODO: Make this more sane)
+
 ---
 
 x8 / pclpslabserrecit3 setup

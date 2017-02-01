@@ -239,7 +239,7 @@ DbManager.prototype.resetScores = function(){
   var cmd = 'pg_dump -h 127.0.0.1 -U mircs -d mircs > /home/clickme/db_dump/' + String(dt) + '.sql';
   exec(cmd, function(err, stdout, stderr) {
     if (err){
-       console.log('Error dumping database');
+       console.log('Error dumping database:' + err);
        return;
     }
     self.client.query('UPDATE users SET score=$1',[0],function (err,res){

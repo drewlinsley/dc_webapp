@@ -103,7 +103,7 @@ exports.setupRouter = function (db, router, errorFlag) {
           fs.readFile(image_root_path + '/' + random_image_path, {encoding: 'base64'}, function(err,content){
             if (err){
               res.writeHead(400, {'Content-type':'text/html'});
-              res.end('err');
+              res.end('err loading image: ' + image_root_path + '/' + random_image_path);
             } else {
               res.writeHead(200,{'Content-type':'image/jpg'});
               res.end(random_image_path + '!' + random_image_label + '!' + random_image_full_label + '!imagestart' + content);
@@ -160,8 +160,15 @@ exports.setupRouter = function (db, router, errorFlag) {
         respond.bind(null, res));
     });
 
-    var game_over = schedule.scheduleJob('0 0 1 * *', function(){ //0 0 1 * *
-        db.getScoreData(function(score_data){
+    router.get('/game_over_now', function(req,res){
+        game_over_function(function(){
+            res.writeHead(200, {'Content-type':'text/html'});
+            res.end('Thank you for playing.');
+        });
+    });
+
+    var game_over_function = function(callback){ //0 0 1 * *
+        db.getScoreData("", function(score_data){
             email_list = score_data.high_scores; //Grab emails from the top 5 scores
             var pyargs = {
                 args: ['--recipient','drewlinsley@gmail.com','--text',JSON.stringify(email_list)]
@@ -170,6 +177,9 @@ exports.setupRouter = function (db, router, errorFlag) {
                 if (pyerr) console.log(pyerr);
             });
             db.resetScores();
+            if (callback !== null) callback();
         });
-    });
+    }
+
+    var game_over = schedule.scheduleJob('0 0 1 * *', game_over_function);
 }
