@@ -160,12 +160,12 @@ exports.setupRouter = function (db, router, errorFlag) {
         respond.bind(null, res));
     });
 
-    router.get('/game_over_now', function(req,res){
+    /*router.get('/game_over_now', function(req,res){
         game_over_function(function(){
             res.writeHead(200, {'Content-type':'text/html'});
             res.end('Thank you for playing.');
         });
-    });
+    });*/
 
     var game_over_function = function(callback){ //0 0 1 * *
         db.getScoreData('', true, function(score_data){
