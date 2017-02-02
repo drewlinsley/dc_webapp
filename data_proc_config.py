@@ -93,7 +93,7 @@ def project_settings():
     'cnn_types' : ['baseline','attention'],
 
     # Guesser parameters
-    'max_valid_top_index': 10
+    'max_valid_top_index': 5
     }
     d = Map(d)
 

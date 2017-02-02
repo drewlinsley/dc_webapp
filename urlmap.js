@@ -181,5 +181,6 @@ exports.setupRouter = function (db, router, errorFlag) {
         });
     }
 
-    var game_over = schedule.scheduleJob('0 0 1 * *', game_over_function);
+   //var game_over = schedule.scheduleJob('0 0 1 * *', game_over_function); // every month
+    var game_over = schedule.scheduleJob('42 4 1,16 * *', game_over_function); // on the 1st and 16th of every month
 }

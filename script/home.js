@@ -247,7 +247,7 @@ function draw(e) {
     posx = pos[0];
     posy = pos[1];
     var rgb = hexToRgb(global_color)
-    draw_boxes(rgb,click_array);
+    draw_boxes(rgb,pos,click_array);
     if (click_array.length == 0){
         ctx.fillStyle = 'rgba(' + rgb['r'] + ',' +rgb['g'] + ',' + rgb['b'] + ',' + '0.6)';
         ctx.fillRect(posx-half_size, posy-half_size, reveal_size, reveal_size);
@@ -263,7 +263,7 @@ function draw_touch(e) {
     posx = pos[0];
     posy = pos[1];
     var rgb = hexToRgb(global_color)
-    draw_boxes(rgb,click_array);
+    draw_boxes(rgb,pos,click_array);
 }
 
 function sum(array) {
@@ -329,11 +329,34 @@ function calculate_new_dist(old_x,old_y,new_x,new_y,old_dist,new_dist){
     return new_coors;
 }
 
-function draw_boxes(rgb,click_array){
+/*function draw_boxes(rgb,click_array){
     ctx.fillStyle = 'rgba(' + rgb['r'] + ',' +rgb['g'] + ',' + rgb['b'] + ',' + '0.3)';
     for (var idx = 0; idx < click_array.length; idx++){
         ctx.fillRect(click_array[idx][0]-half_size, click_array[idx][1]-half_size, reveal_size, reveal_size);
     }
+}*/
+function draw_boxes(rgb, pos, click_array){
+    var rgb_string = 'rgba(' + rgb['r'] + ',' +rgb['g'] + ',' + rgb['b'] + ',' + '0.3)';
+    ctx.fillStyle = rgb_string
+    var last_click = click_array.length - 1;
+    for (var idx = 0; idx < click_array.length; idx++){
+        ctx.fillRect(click_array[idx][0]-half_size, click_array[idx][1]-half_size, reveal_size, reveal_size);
+        if (last_click >= 0){
+             draw_vector(rgb_string, pos, click_array)
+        }
+    }
+}
+
+function draw_vector(rgb_string, pos, click_array){
+    ctx.strokeStyle = rgb_string;
+    ctx.lineCap = 'square';
+    ctx.setLineDash([5, 3]);/*dashes are 5px and spaces are 3px*/
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    var last_click = click_array.length - 1;
+    ctx.moveTo(click_array[last_click][0], click_array[last_click][1]);
+    ctx.lineTo(pos[0], pos[1]);
+    ctx.stroke();
 }
 
 function get_dist(new_x,new_y,old_x,old_y){
@@ -346,7 +369,7 @@ function click_functions(click_posx,click_posy){
     fastDraw();
     interp_box();
     var rgb = hexToRgb(global_color)
-    draw_boxes(rgb,click_array)
+    draw_boxes(rgb,[true_posx,true_posy],click_array)
     click_array.push([click_posx,click_posy])
 }
 
@@ -477,6 +500,7 @@ function interp_box(){
 
 function draw_scored_box(color_score){
     //var color_score = cs_map(max_in/100);
+    ctx.setLineDash([0]);/*dashes are 5px and spaces are 3px*/
     ctx.beginPath();
     //ctx.strokeStyle = 'rgb('+color_score._rgb[0]+', '+color_score._rgb[1]+', '+color_score._rgb[2] + ')';
     ctx.strokeStyle = global_color;//'white';
