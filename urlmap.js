@@ -4,6 +4,7 @@ var PythonShell = require('python-shell');
 var s2utils = require('./s2utils.js');
 var shortid = require('shortid');
 var schedule = require('node-schedule');
+var Slack = require('slack-node');
 //var image_root_path = '/media/data_cifs/clicktionary/webapp_data';
 var image_root_path = '/media/data_clicktionary/webapp_data/'
 /*var update_cnns = schedule.scheduleJob('0 0 * * *', function(){
@@ -11,6 +12,10 @@ var image_root_path = '/media/data_clicktionary/webapp_data/'
         if (pyerr) console.log(pyerr);
     });
 });*/
+
+//Add slack integration
+slack = new Slack();
+slack.setWebhook('https://hooks.slack.com/services/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');
 
 var respond = function (response, responseData, err, errorMessage) {
   if (err || errorMessage) {
@@ -160,6 +165,17 @@ exports.setupRouter = function (db, router, errorFlag) {
         respond.bind(null, res));
     });
 
+    router.post('/slack', function(req,res){
+      slack.webhook({
+        channel: '#project-clicktionary',
+        username: 'clickme-status',
+        icon_emoji: ':eyeglasses:', 
+        text: 'Error reported for clickme.ai'}, function(err, response){
+        console.log('Error posted to slack; Response: ' + response);
+      });      
+
+    });
+
     /*router.get('/game_over_now', function(req,res){
         game_over_function(function(){
             res.writeHead(200, {'Content-type':'text/html'});
@@ -181,6 +197,7 @@ exports.setupRouter = function (db, router, errorFlag) {
         });
     }
 
-   //var game_over = schedule.scheduleJob('0 0 1 * *', game_over_function); // every month
-    var game_over = schedule.scheduleJob('42 4 1,16 * *', game_over_function); // on the 1st and 16th of every month
+    //var game_over = schedule.scheduleJob('0 0 1 * *', game_over_function); // every month
+    //var game_over = schedule.scheduleJob('42 4 1,16 * *', game_over_function); // on the 1st and 16th of every month
+    var game_over = schedule.scheduleJob('0 12 * * 0', game_over_function); // every sunday
 }

@@ -351,6 +351,7 @@
 	    ctx.strokeStyle = rgb_string;
 	    ctx.lineCap = 'square';
 	    ctx.setLineDash([5, 3]);/*dashes are 5px and spaces are 3px*/
+            ctx.globalAlpha = 0.3
 	    ctx.lineWidth = 1;
 	    ctx.beginPath();
 	    var last_click = click_array.length - 1;
@@ -677,6 +678,8 @@
 		    });
 		}else{if (mobile && num_turns > 0){prepare_mobile();}}
 		//if (user_data.email == ''){$('#instruction-modal').modal('show');}
+                //
+                //
 		$('#click_count').html('Your score: ' + user_data.score.toFixed(global_precision));
 		$('#click_high_score').html('High score: ' + user_data.scores.global_high_score.toFixed(global_precision));
 		if (mobile){$('#login_info').html('Username: ' + user_data.name);}else{
@@ -757,22 +760,35 @@
 	    }
 	});
 
+        function nextDay(dayNb){
+            return function( date ){
+                return new Date(date.getTime() + ((dayNb-date.getDay() +7) %7 +1) *86400000);
+            };
+        }
+
 	function next_date(){
+            //Monthly
 	    /*var D= new Date();
 	    D.setMonth(D.getMonth()+1,1);
 	    D.setHours(0, 0, 0, 0);*/
-	    var date = new Date();
-            if (date.getDay() < 16){
+            //Bi-weekly
+	    /*var date = new Date();
+            if (date.getDate() < 16){
                 date.setDate(16);
             } else{
+                date.setMonth(date.getMonth() + 1, 1);
                 date.setDate(0);
             }
             date.setMinutes(0);
+            date.setSeconds(0);*/
+            //return date.toString().split(' GMT')[0];
+            //Every sunday
+            nextSunday = nextDay(6);
+            date = nextSunday(new Date());
+            date.setHours(12);
+            date.setMinutes(0);
             date.setSeconds(0);
-	    //var firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
-	    //var fortnightAway = new Date(+firstDay + 12096e5);
-	    //if (date > fortnightAway) fortnightAway += new Date(+fortnightAway + 12096e5);
-            return date.toString().split(' GMT')[0];
+            return date.toString().split(' GMT')[0] + ' EST';
         }
 
 /*
@@ -794,6 +810,17 @@ function update_email(){
     $.ajax({
         type: 'POST',
         url: '/email',
+        data: data,
+        dataType: 'application/json',
+        success: function(data) {}
+    });
+}
+
+function notify_slack(){
+    data = new Date();
+    $.ajax({
+        type: 'POST',
+        url: '/slack',
         data: data,
         dataType: 'application/json',
         success: function(data) {}
@@ -912,7 +939,7 @@ $(document).ready(function(){
     //$('#update_email_text_modal').on('input', function(){email_check($('#update_email_text_modal').val());});
     $('#agree').disable(false);
     $('#agree').click(function(){$("#consentModal").modal('hide');});
-
+    $('#push_error_msg').click(function(){notify_slack();});
     // Contest date
     $('#next_prize').text('The top-5 scoring players by ' + next_date()  + ' win a gift card! See the Scoreboard tab for details.');
     $('#scoreboard_time_1').text('Amazon gift cards awarded to the top-5 scoring players on ' + next_date() + ' in the following amounts:');

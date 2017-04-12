@@ -42,6 +42,10 @@ class DB:
         if added_score != 0:
             self.cur.execute("""UPDATE users SET score=score+%s WHERE cookie=%s""", (added_score,cookie))
 
+    def get_emails(self):
+        self.cur.execute("""SELECT DISTINCT email FROM users WHERE email is not NULL""")
+        return [fn[0] for fn in self.cur.fetchall()] 
+
 if __name__ == '__main__':
     db = DB()
     print db.get_image_paths('ilsvrc2012val')
