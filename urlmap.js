@@ -5,6 +5,7 @@ var s2utils = require('./s2utils.js');
 var shortid = require('shortid');
 var schedule = require('node-schedule');
 var Slack = require('slack-node');
+var sanitizeHtml = require('sanitize-html');
 //var image_root_path = '/media/data_cifs/clicktionary/webapp_data';
 var image_root_path = '/media/data_clicktionary/webapp_data/'
 /*var update_cnns = schedule.scheduleJob('0 0 * * *', function(){
@@ -15,7 +16,8 @@ var image_root_path = '/media/data_clicktionary/webapp_data/'
 
 //Add slack integration
 slack = new Slack();
-slack.setWebhook('https://hooks.slack.com/services/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');
+var webhook = 'https://hooks.slack.com/services/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'
+slack.setWebhook(webhook);
 
 var respond = function (response, responseData, err, errorMessage) {
   if (err || errorMessage) {
@@ -166,14 +168,16 @@ exports.setupRouter = function (db, router, errorFlag) {
     });
 
     router.post('/slack', function(req,res){
+      if (JSON.stringify(req.body) != '{}'){
+      var sanitized_text = sanitizeHtml(req.body.data.data);
       slack.webhook({
-        channel: '#project-clicktionary',
+        channel: '#project-attention',
         username: 'clickme-status',
         icon_emoji: ':eyeglasses:', 
-        text: 'Error reported for clickme.ai'}, function(err, response){
-        console.log('Error posted to slack; Response: ' + response);
+        text: sanitized_text}, function(err, response){
+        console.log('Error posted to slack; Response: ' + sanitized_text);
       });      
-
+      };
     });
 
     /*router.get('/game_over_now', function(req,res){

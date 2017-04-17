@@ -709,6 +709,7 @@
 		if (cp < previous_place && num_turns > 0 && cp <= 9){
 		     
 		     if (cp < 5){
+                     $('#place_notification_title').html('Congratulations!');
 		     $('#place_notification_sup').html('<kbd>Go to the Scoreboard tab and enter your email address so we can reward you if you maintain your place in the top-5.</kbd>');}
 		     else{$('#place_notification_sup').html('<kbd>The top-5 scoring players at the end of the month get a prize. Play on and good luck!.</kbd>');}
 		     previous_place = cp;
@@ -816,14 +817,15 @@ function update_email(){
     });
 }
 
-function notify_slack(){
-    data = new Date();
+function notify_slack(message){
+    var data = {};
+    data.data = message;
     $.ajax({
         type: 'POST',
         url: '/slack',
-        data: data,
+        data: {'data': data},
         dataType: 'application/json',
-        success: function(data) {}
+        success: function(data) {console.log(data)}
     });
 }
 
@@ -896,6 +898,25 @@ function rej(){
     return false;  
 }
 
+function report_error(){
+    $('#place_notification_title').html('');
+    $('#place_notification_text').html('Tell us more about your issue:');
+    $('#place_notification_sup').html('<hr><div class="form-inline"><div class="form-group">Images do not change after a round?   <input type="checkbox" id="problem_checkbox" style="padding-top:-5px;"/><br><input type="text" id="problem_text" style="height:20px;" placeholder="Something else?" class="form-control" /></div><br><hr><button class="btn btn-default" id="error_btn">Submit issue</button></div>');
+    var nc = getDarkRandomColor();
+    $('#place_notification_bg').css('background-color',nc);
+    $('#placeModal').modal('show');
+    $('#error_btn').click(function(){
+        var data;
+        var checkbox_data = $('#problem_checkbox').is(':checked');
+        if (checkbox_data){notify_slack('Images not changing.');} else{notify_slack($('#problem_text').val()); console.log($('#problem_text').val())}
+        notify_slack(data);
+        setTimeout(function(){
+            $('#placeModal').modal('hide');
+        }, 3500);
+        $('#place_notification_text').html('Error reported to our team! We will take a look as soon as we can.');
+        $('#place_notification_sup').html('');
+    });
+}
 
 $(document).ready(function(){
     // Prepare canvas
@@ -939,7 +960,7 @@ $(document).ready(function(){
     //$('#update_email_text_modal').on('input', function(){email_check($('#update_email_text_modal').val());});
     $('#agree').disable(false);
     $('#agree').click(function(){$("#consentModal").modal('hide');});
-    $('#push_error_msg').click(function(){notify_slack();});
+    $('#push_error_msg').click(function(){report_error();});
     // Contest date
     $('#next_prize').text('The top-5 scoring players by ' + next_date()  + ' win a gift card! See the Scoreboard tab for details.');
     $('#scoreboard_time_1').text('Amazon gift cards awarded to the top-5 scoring players on ' + next_date() + ' in the following amounts:');
