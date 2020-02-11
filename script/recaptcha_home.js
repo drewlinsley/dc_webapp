@@ -611,6 +611,7 @@
 	}
 
         function submit_coors(data){
+            console.log(data)
             $.ajax({
                 type: 'POST',
                 url: '/clicks',
@@ -626,7 +627,8 @@
 	    data.clicks = clicks;
 	    data.image_id = global_label;
 	    data.correct = correct;
-            submit_coors(data);
+            // Inserted invis. recaptcha and redirect upon spammer detection
+            grecaptcha.execute();
 	}
 
 	function start_turn(){
@@ -673,9 +675,7 @@
 		$.get('/user_data', function () { }).done(function(json_data) {
 		    user_data = JSON.parse(json_data);
 		    // Update display
-		    // TO SUSPEND CONTEST: COMMENT BELOW TO THE NEXT COMMENT
-                    
-                    /* if((localStorage.getItem('consent') != 'shown') && (user_data.score == 0)){
+		    if((localStorage.getItem('consent') != 'shown') && (user_data.score == 0)){
 		    $("#consentModal").modal('show');
 		    $("#consentModal").on('hidden.bs.modal',function(){
 			localStorage.setItem('consent','shown');
@@ -685,8 +685,6 @@
 			}
 		    });
 		}else{if (mobile && num_turns > 0){prepare_mobile();}}
-                */
-                if (mobile && num_turns > 0){prepare_mobile();}  // ADDED AFTER CONTEST SUSPENDED
 		//if (user_data.email == ''){$('#instruction-modal').modal('show');}
                 //
                 //
@@ -928,6 +926,12 @@ function report_error(){
     });
 }
 
+function onSubmit(token){
+    var v = grecaptcha.getResponse()
+    if (v.length == 0){window.location = "http://www.spam.com";}else{submit_coors(data); grecaptcha.reset();}
+    // }
+}
+
 
 $(document).ready(function(){
     // Prepare canvas
@@ -973,16 +977,9 @@ $(document).ready(function(){
     $('#agree').click(function(){$("#consentModal").modal('hide');});
     $('#push_error_msg').click(function(){report_error();});
     // Contest date
-    //TO SUSPEND CONTEST COMMENT THE BELOW TO THE NEXT COMMENT
-    // $('#next_prize').text('The top-5 scoring players by ' + next_date()  + ' win a gift card! See the Scoreboard tab for details.');
-    // $('#scoreboard_time_1').text('Amazon gift cards awarded to the top-5 scoring players on ' + next_date() + ' in the following amounts:');
-    // $('#scoreboard_time_2').text('Amazon gift cards awarded to the top-5 scoring players on ' + next_date() + ' in the following amounts:');
-    
-    //
-    $('#next_prize').text('There is no contest at the moment.');
-    $('#scoreboard_time_1').text('There is no contest at the moment.')
-    $('#scoreboard_time_1').text('There is no contest at the moment.')
-    //
+    $('#next_prize').text('The top-5 scoring players by ' + next_date()  + ' win a gift card! See the Scoreboard tab for details.');
+    $('#scoreboard_time_1').text('Amazon gift cards awarded to the top-5 scoring players on ' + next_date() + ' in the following amounts:');
+    $('#scoreboard_time_2').text('Amazon gift cards awarded to the top-5 scoring players on ' + next_date() + ' in the following amounts:');
     zoomOut();
     rej();
     // Refresh the screen for mobile

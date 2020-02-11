@@ -5,6 +5,9 @@ import select
 from dc_webapp.db import DB
 from dc_webapp import run_cnns
 from dc_webapp.prepare_next_generation import prepare_next_generation
+from dc_webapp.prepare_clicktionary_ims import prepare_clicktionary_generation
+# from dc_webapp.leftover_prepare_clicktionary_ims import prepare_clicktionary_generation
+
 
 class NextGenerationDaemon:
     def __init__(self):
@@ -44,12 +47,15 @@ class NextGenerationDaemon:
             if self.wait():
                 self.trigger()
 
-    def trigger(self):
+    def trigger(self, special_clicktionary=False):
         # Re-train CNN
         #print "Re-training CNN"
         #run_cnns.main()
         print "Preparing next generation"
-        prepare_next_generation()
+        if special_clicktionary:
+            prepare_clicktionary_generation()
+        else:
+            prepare_next_generation()
         print "Daemon idle."
 
 def run_daemon():

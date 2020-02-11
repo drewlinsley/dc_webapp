@@ -36,7 +36,9 @@ def prepare_next_generation():
 
     image_count += add_images_to_generation('mirc', generation=new_generation)
     image_count += add_images_to_generation('nsf', generation=new_generation, validate_category=True)
-    image_count += add_images_to_generation('ilsvrc2012train', generation=new_generation, limit=2000)
+    # image_count += add_images_to_generation('random_set_1', generation=new_generation, validate_category=True)
+    # image_count += add_images_to_generation('random_set_2', generation=new_generation, validate_category=True)
+    image_count += add_images_to_generation('ilsvrc2012train', generation=new_generation, limit=100000)
     cur.execute("UPDATE image_count SET (num_images,current_generation,generation_finished,clicks_in_generation) = (%s,%s,%s,%s)",
                 (image_count, new_generation, False, 0))
     #current_generation = cur.execute("SELECT INTO image_count (num_images,current_generation,iterations_per_generation) VALUES (%s,%s,%s)",(image_count,0,config.iterations_per_generation))
@@ -75,3 +77,4 @@ if __name__ == '__main__':
     #console.log(pyerr);
     #console.log('finished training');
     #})
+    #insert into images (image_path, syn_id, set_name) select image_path, syn_id, 'random_set_2' from images where set_name='ilsvrc2012train' ORDER BY random() limit 1000;

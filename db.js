@@ -83,12 +83,13 @@ locateRandomImage_counted = function(self, res) {
 }
 
 locateRandomImage_sample1 = function(self, res) {
-    if (res.rows.length == 0)
+    if (res.rows.length == 0)  // Set to 1 6/9/17. Something about the train image is fucking things up?
     {
         // Generation finished - just let people continue on a randomly selected image from this generation
         sample_random_image(self, self.global_current_generation, 999999, locateRandomImage_sample2);
         self.client.query("UPDATE image_count SET generation_finished = TRUE");
         self.client.query("NOTIFY evolve");
+        console.log('Evolving.')
     }
     else
     {
@@ -170,7 +171,6 @@ updateClicks_2 = function(self, res) {
     // Record this image as tested
     self.client.query('UPDATE generation_images SET iteration = iteration + 1 WHERE image_id=$1 AND generation=(SELECT MAX(generation) FROM generation_images WHERE image_id=$1)', [image_id],function(err,res){ });
 
-
     // Keep track of count
     self.client.query('UPDATE image_count SET clicks_in_generation = (SELECT COUNT(iteration) FROM generation_images WHERE generation=current_generation AND iteration>0)',function(err,res){ });
 
@@ -208,8 +208,10 @@ DbManager.prototype.getScoreData = function (user_id, get_all_emails, callback) 
     var iterations_per_generation = result.iterations_per_generation
     var clicks_in_generation = result.clicks_in_generation
     var click_goal = num_images * iterations_per_generation;
+    // console.log(click_goal)
+    // console.log(iterations_per_generation)
     var clicks_to_go = Math.max(0, click_goal - clicks_in_generation);
-    //console.log(JSON.stringify(result));
+    // console.log(JSON.stringify(result));
     // High-score table
     self.client.query('((SELECT name, score, email, (cookie=$1) as local FROM users ORDER BY score DESC NULLS LAST LIMIT 10) UNION (SELECT name, score, email, TRUE as local FROM users WHERE cookie=$1)) ORDER BY score DESC NULLS LAST',[user_id], function(err,res){
         if (err) {

@@ -3,8 +3,9 @@
 # Used by clicktionary.ai
 
 import os, sys
-from flask import Flask, request, Response
+from flask import Flask, request, Response, session
 import numpy as np
+from datetime import timedelta
 import json
 from guesser import load_guesser, get_image_prediction
 import traceback
@@ -14,7 +15,16 @@ oracle = load_guesser()
 
 # Init Flask
 app = Flask(__name__)
+# @app.before_request
+# def make_session_permanent():
+#     session.permanent = True
 #app.debug = True
+
+@app.before_request
+def func():
+  session.modified = True
+  app.permanent_session_lifetime = timedelta(seconds=30)
+
 
 # Setup query route
 @app.route('/guess', methods=['GET', 'POST', 'OPTIONS'])

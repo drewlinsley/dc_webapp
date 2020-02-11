@@ -54,6 +54,7 @@ def project_settings():
 
     mirc_image_path = os.path.join(image_base_path, 'mircs')
     nsf_image_path = os.path.join(image_base_path, 'nsf_images_ilsvrc')
+    clicktionary_image_path = os.path.join(image_base_path, 'clicktionary_exp_12_images')
     imagenet_train_path = os.path.join(image_base_path, 'lmdb_trains')
     imagenet_validation_path = os.path.join(image_base_path, 'lmdb_validations')
     imagenet_validation_predictions_path = os.path.join(image_base_path, 'lmdb_validations_predictions')
@@ -69,6 +70,7 @@ def project_settings():
     'mirc_image_path' : mirc_image_path,
     'nsf_image_path' : nsf_image_path,
     'image_base_path' : image_base_path,
+    'clicktionary_dir': clicktionary_image_path, 
 
     # Epoch training
     'click_box_radius' : 9,

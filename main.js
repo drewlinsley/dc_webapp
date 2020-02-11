@@ -12,7 +12,7 @@ var yargs = require('yargs').usage('Usage: [-p or --port=<port to run server on>
 var request = require('request');
 
 var argv = yargs.argv;
-var port = argv.port || argv.p || 8090;
+var port = argv.port || argv.p || 8090;  // 8090
 var errorFlag = argv.raven || argv.sentry || false;
 var isnum = /^\d+$/.test(port);
 if (!isnum) {

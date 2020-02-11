@@ -46,6 +46,18 @@ class DB:
         self.cur.execute("""SELECT DISTINCT email FROM users WHERE email is not NULL""")
         return [fn[0] for fn in self.cur.fetchall()] 
 
+    def get_random_repeat_set_from_db(self, number_of_images=1000, new_name='random_set_1'):
+        self.cur.execute("""SELECT * from images ORDER BY random() LIMIT %s""", (number_of_images,))
+        im_dicts = self.cur.fetchall()
+        for im in im_dicts:
+            im['set_name'] = new_name  # shallow copies handle setting new names
+        [self.cur.execute("""INSERT INTO images (syn_id, set_name, image_path) VALUES (%s, %s, %s)""", (x['syn_id'], x['set_name'], x['image_path'])) for x in im_dicts]
+        print 'Added new image set.'
+
+
+
+
+
 if __name__ == '__main__':
     db = DB()
     print db.get_image_paths('ilsvrc2012val')

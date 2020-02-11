@@ -1033,6 +1033,32 @@ def mirc_syns():
     skeys = syn.keys()
     return syn, skeys
 
+
+def clicktionary_syns():
+    syn = {};
+    syn['bald_eagle'] = 'n01614925' #bald eagle
+    syn['sorrel'] = 'n02389026' #sorrel
+    syn['airliner'] = 'n02690373'#airliner n02106166
+    syn['sportscar'] = 'n04285008'#sportscar n02106166
+    syn['border_collie'] = 'n02106166'
+    syn['cassette_player'] = 'n02979186'
+    syn['english_foxhound'] = 'n02089973'
+    syn['great_white_shark'] = 'n01484850'
+    syn['husky'] = 'n02109961'
+    syn['miniature_poodle'] = 'n02113712'
+    syn['missile'] = 'n04008634'
+    syn['night_snake'] = 'n01740131'
+    syn['panther'] = 'n02128925'
+    syn['polecat'] = 'n02445715'
+    syn['school_bus'] = 'n04146614'
+    syn['screen'] = 'n04152593'
+    syn['speedboat'] = 'n04273569'
+    syn['sunglass'] = 'n04356056'#glasses n02106166
+    syn['trailer_truck'] = 'n04467665'  #glasses n02106166
+    syn['water_jug'] = 'n04560804'
+    return syn, syn.keys()
+
+
 if __name__ == '__main__':
     # Test get_index2synset_map
     print get_index2synset_map()

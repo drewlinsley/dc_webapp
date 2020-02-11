@@ -10,3 +10,8 @@ credentials.pyc
 lmdb_validations
 *.swp
 screenlog.*
+*.zip
+*.tgz*
+*.gz*
+*.JPEG
+*.npz

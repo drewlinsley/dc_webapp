@@ -19,6 +19,8 @@
     <script src="../script/jquery.lettering.js" type="text/javascript"></script>-->
     <script src="../script/jquery.reject.js" type="text/javascript"></script>
     <script src="../script/pentagons.js" type="text/javascript"></script>
+    <!--<script src='https://www.google.com/recaptcha/api.js'></script> -->
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
     <!-- Style stuff and title -->
     <title>clickme</title>
@@ -78,7 +80,7 @@
                             <p><strong>Goal: </strong>The goal of the game is to help your AI partner recognize as many object images as possible with as much confidence as possible.</p>
                             <p><strong>Gameplay: </strong>You will help your partner recognize objects by revealing parts of images to it. This is done by "painting" over parts of the object image that help you recognize it. When you click on the image this begins your "brush stroke". After that you simply drag your cursor over the other parts of the image you think are important. These image parts will be revealed to your AI partner as you paint over them, who will try to guess the image only based off of those regions.</p> 
                             <p><strong>Scoring: </strong>For every image that you and your partner answer correctly you will receive a score based on how quickly the AI recognizes the image. If the timer elapses before your partner answers correctly you will receive no points. You can skip images that are strange looking or do not match their label by clicking the "Skip this image" button.
-                            <p><strong>Prizes: </strong>Weekly, we reward the top-5 scoring participants. You are automatically assigned a username. Please enter your email in the Scoreboard tab so that we can reward you if you win.</p>
+                            <p><strong>Prizes: </strong>Weekly, we reward the top-5 scoring participants. You are automatically assigned a username. Please enter your email in the Scoreboard tab so that we can reward you if you win. All players must play themselves, without the aid of any form of automation, in order to receive a prize. Breaking this rule will result in permanent disqualification and prize forfeiture.</p>
 			</div>
                     </div>
                     <div class="modal-footer">
@@ -184,7 +186,7 @@
                     <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
                 </li>-->
                 <li class="nav-item">
-                    <a class="nav-link" href="/about">What's the point?</a>
+                    <a class="nav-link" href="/about">About</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" id="instruction-modal" href="#" target="_top">Instructions</a>
@@ -226,6 +228,12 @@
             </div>
         </div>
 
+
+    <!--<div id="recaptcha" class="g-recaptcha"
+          data-sitekey="6Lcttx4UAAAAAPGUXgJYRo4XYSunDB3-IbY6FK_s"
+          data-callback="onSubmit"
+          data-size="invisible">
+    </div>-->
       <!--</div>
     </div>-->
     <div id="image_id" style="display: none;"></div>
@@ -241,8 +249,8 @@
 
         ga('create', 'UA-90329095-1', 'auto');
         ga('send', 'pageview');
-
     </script>    
+
   </body>
 
 </html>

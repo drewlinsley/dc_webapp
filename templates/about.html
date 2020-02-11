@@ -82,7 +82,7 @@
         <div class="container" style="width:100%; color:white;">
           <div class="row">
           <div class="inner cover">
-            <h1 class="cover-heading" style="text-align:center;">clickme</h1>
+            <h1 class="cover-heading" style="text-align:center;">ClickMe</h1>
             <p style="text-align:center;"><em>A web-based application for exploring the atoms of object recognition.</em></p>
             <br>
             <p style="text-align:left">Rapid advances in Artificial Intelligence (AI) over recent years have allowed computers to see the world much like humans. This has supported a variety of new technologies that are about to change how we live our lives, from Facebook’s automated face recognition and Google’s image search to Tesla’s self-driving cars. Despite great progress, there still exists a major gap between how humans and machines perceive the world. Our group has found that humans and modern AI algorithms rely on different object parts when recognizing objects.
@@ -92,13 +92,44 @@
             <p style="text-align:left">The figure above shows what parts of an image are most informative for people vs. AI algorithms when trying to judge the category of an object in an image. This example illustrates the fact that humans and our chosen AI algorithm rely on different sources of information: the glasses’ frames seem to be most helpful  for humans whereas the lenses seem most useful for the AI algorithm. This suggests that teaching the AI algorithm to focus on the same information as humans may offer a path towards the design of smarter seeing machines.</p><br>
             <p style="text-align:center"><b>clickme is a game that provides us with data to bridge the gap between AI and human object recognition.</b></p><br>
             <p style="text-align:left">Every time you play clickme you provide researchers with information about what image locations are relevant to the human visual system when assessing category information. We use this data in the following ways:</p>
-            <ol><li style="text-align:left">To train the AI algorithm to act more human-like when identifying important image parts.</li><li style="text-align:left">To measure the extent to which human-like identification improves the object recognition capability of modern AI algorithms.</li></ol></p><p style="text-align:left"><b>Our findings, discussed in our [<a href="https://arxiv.org/abs/1701.02704">arXiv</a>] suggest that this approach will significantly improve the performance of computers for recognizing objects in images.</b> See below for a graph updated daily showing how AI improves at object recognition when it is forced to pay attention to the same information as humans.</p><br>
-            <hr><br>
+            <ol><li style="text-align:left">To train the AI algorithm to act more human-like when identifying important image parts.</li><li style="text-align:left">To measure the extent to which human-like identification improves the object recognition capability of modern AI algorithms.</li></ol></p><br>
+            <hr><br>  <!-- //arxiv.org/abs/1701.02704   <b>Our findings, discussed in our [<a href="https://arxiv.org">arXiv</a>] suggest that this approach will significantly improve the performance of computers for recognizing objects in images.</b></p> See below for a graph updated daily showing how AI improves at object recognition when it is forced to pay attention to the same information as humans.</p><br>
+--> 
             </div>
+            <!--
             <div class="inner cover">
               <h1 class="cover-heading" style="text-align:center;">Tracking the progress of AI recognition</h1>
               <p>Here we record the accuracy of an AI algorithm (VGG 16) in recognizing images from a large database of object images (ImageNet). The trace in red is accuracy of a typical VGG 16, and the trace in blue is what happens to its recognition accuracy after it is trained to pay attention to the same parts of objects as humans.<br><br>
               <canvas id="myChart" width="500" height="200"></canvas>
+            </div>
+            <hr><br>
+            -->
+            <div class="inner cover">
+              <!--
+              <h1 class="cover-heading" style="text-align:center;">Clicktionary game data</h1>
+              <ul>
+              <li style="text-align:left"><a href="/web_content/experiment_1.tar.gz">Experiment 1</li>
+              <li style="text-align:left"><a href="/web_content/experiment_2.tar.gz">Experiment 2</li>
+              <li style="text-align:left"><a href="/web_content/experiment_3.tar.gz">Experiment 3</li>
+              </ul>
+              <br><br>
+              -->
+
+              <h1 class="cover-heading" style="text-align:center;">ClickMe game data</h1>
+              <ul>
+              <li style="text-align:left"><a href="/web_content/clickme_train.zip">Training set</a></li>
+              <li style="text-align:left"><a href="/web_content/clickme_val.zip">Validation set</a></li>
+              <li style="text-align:left"><a href="/web_content/clickme_test.zip">Test set</a></li>
+
+              <a href="/web_content/baseline.tgz" style="visibility: hidden">baseline</a>
+              <a href="/web_content/length9.tgz" style="visibility: hidden">9</a>
+              <a href="/web_content/length14.tgz" style="visibility: hidden">14</a>
+              <a href="/web_content/clickme_ckpts.zip" style="visibility: hidden">clickme_checkpoints</a>
+
+              <!--<li style="text-align:left">Or use our google cloud TFRecords of a combined dataset with ClickMe and the rest of the ILSVRC12: <a href="gs://serrelab-public/clickme">GS link</a></li>-->
+              </ul>
+              <br><br>
+
             </div>
           </div>
         </div>
